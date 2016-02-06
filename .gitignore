@@ -1,0 +1,9 @@
+moonlynx/libs/
+moonlynx/Binaries/
+moonlynx/CMakeFiles/
+moonlynx/include/
+moonlynx/src/
+moonlynx/cmake_install.cmake
+moonlynx/CMakeCache.txt
+moonlynx/CTestTestfile.cmake
+moonlynx/Makefile

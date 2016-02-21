@@ -1,5 +1,5 @@
 /**
-  * Copyright (c) <2016> HTML Puzzle Team <htmlpuzzleteam@gmail.com>
+  * Copyright (c) <2016> Web App SDK <support@htmlpuzzle.net>
   *
   * This source code is licensed under the MIT license.
   *
@@ -23,14 +23,18 @@
   *
   * Parsers for C++ Rest SDK (Casablanca) HTTP requests.
   */
+#pragma once
+
+#include <string>
+#include <unordered_map>
 #include "cpprest/http_listener.h"
 
-namespace moonlynx{
+namespace granada{
   namespace http{
     namespace parse{
 
       /*
-       * Parse an http_request with multipart/form data content type into a map.
+       * Parse an http_request with multipart/form data content type into a unordered_map.
        * example:
        * ( HEADERS )
        * (...)
@@ -49,13 +53,13 @@ namespace moonlynx{
        * (…)
        * ------WebKitFormBoundarymBItcSVphgAjmbJC--
        *
-       * This http request Will be parsed into a map of maps of vectors of unsigned char so we will get:
+       * This http request Will be parsed into a unordered_map of unordered_maps of vectors of unsigned char so we will get:
        *
-       * parsed multipart form (map)
-       * 	|_ test-text-field (map)
+       * parsed multipart form (unordered_map)
+       * 	|_ test-text-field (unordered_map)
        * 	|	|_ value (vector<unsigned char>)
        * 	|
-       * 	|_ file (map)
+       * 	|_ file (unordered_map)
        * 		|_ value (vector<unsigned char>)
        * 		|_ filename (vector<unsigned char>)
        * 		|_ Content-Type (vector<unsigned char>)
@@ -63,7 +67,7 @@ namespace moonlynx{
        * @param request HTTP request containing multipart/form data.
        * @return        Parsed multipart/form data content.
        */
-      std::map<std::string, std::map<std::string, std::vector<unsigned char>>> ParseMultipartFormData(web::http::http_request &request);
+      std::unordered_map<std::string, std::unordered_map<std::string, std::vector<unsigned char>>> ParseMultipartFormData(web::http::http_request &request);
 
       /**
        * Returns the value of the boundary of the multipart/form data
@@ -73,25 +77,25 @@ namespace moonlynx{
       std::string ExtractBoundaryMDF(web::http::http_headers &headers);
 
       /**
-       * Fill parsed multi part form data map with fields, properties and values.
+       * Fill parsed multi part form data unordered_map with fields, properties and values.
        * @param  body                Non-parsed multipart/form data fields, properties and values.
        * @param  boundary            Boundary of the multipart/form data.
-       * @param  multipart_data_form Parsed multipart/form data in map.
+       * @param  multipart_data_form Parsed multipart/form data in unordered_map.
        * @return                     Return true if there are more fields, properties and values after this one.
        *                             Return false if this is there is no more data to parse after.
        */
-      bool ParseFieldsAndPropertiesMDF(std::vector<unsigned char> &body, std::string &boundary,std::map<std::string,std::map<std::string, std::vector<unsigned char>>> &multipart_data_form);
+      bool ParseFieldsAndPropertiesMDF(std::vector<unsigned char> &body, std::string &boundary,std::unordered_map<std::string,std::unordered_map<std::string, std::vector<unsigned char>>> &multipart_data_form);
 
       /**
        * Parse property with this format: name="file";
        * of a multipart/form data field into key-value pair and
-       * insert it into the parsed properties map.
+       * insert it into the parsed properties unordered_map.
        * @param  properties        Non-parsed properties
        * @param  parsed_properties Parsed properties.
        * @return                   True if there is another property after it,
        *                           False if there is no other property to parse after it.
        */
-      bool ParsePropertyMDF(std::vector<unsigned char> &properties,std::map<std::string, std::vector<unsigned char>> &parsed_properties);
+      bool ParsePropertyMDF(std::vector<unsigned char> &properties,std::unordered_map<std::string, std::vector<unsigned char>> &parsed_properties);
 
       /**
        * Search the position of first appearance of chr in body vector and returns the position iterator of the begining or the end.

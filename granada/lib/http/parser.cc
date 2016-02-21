@@ -1,5 +1,5 @@
 /**
-  * Copyright (c) <2016> HTML Puzzle Team <htmlpuzzleteam@gmail.com>
+  * Copyright (c) <2016> Web App SDK <support@htmlpuzzle.net>
   *
   * This source code is licensed under the MIT license.
   *
@@ -22,15 +22,15 @@
   * SOFTWARE.
   *
   */
-#include "parse.h"
+#include "parser.h"
 
-namespace moonlynx{
+namespace granada{
   namespace http{
     namespace parse{
 
-      std::map<std::string, std::map<std::string, std::vector<unsigned char>>> ParseMultipartFormData(web::http::http_request &request){
+      std::unordered_map<std::string, std::unordered_map<std::string, std::vector<unsigned char>>> ParseMultipartFormData(web::http::http_request &request){
 
-        std::map<std::string, std::map<std::string, std::vector<unsigned char>>> multipart_form_data;
+        std::unordered_map<std::string, std::unordered_map<std::string, std::vector<unsigned char>>> multipart_form_data;
 
         web::http::http_headers headers = request.headers();
 
@@ -71,8 +71,8 @@ namespace moonlynx{
       }
 
 
-      bool ParseFieldsAndPropertiesMDF(std::vector<unsigned char> &body, std::string &boundary, std::map<std::string,std::map<std::string, std::vector<unsigned char>>> &multipart_form_data){
-        std::map<std::string, std::vector<unsigned char>> parsed_properties;
+      bool ParseFieldsAndPropertiesMDF(std::vector<unsigned char> &body, std::string &boundary, std::unordered_map<std::string,std::unordered_map<std::string, std::vector<unsigned char>>> &multipart_form_data){
+        std::unordered_map<std::string, std::vector<unsigned char>> parsed_properties;
 
         // get block between boundaries.
         const char *boundary_c = boundary.c_str();
@@ -87,11 +87,11 @@ namespace moonlynx{
           body.assign(boundary_end_it, body.end());
 
           // extract the different properties from a block with this format: Content-Disposition: form-data; name="file"; filename="pure-html-websites.png"
-          // Extract from the first "; " until EOL and then parse into a map
+          // Extract from the first "; " until EOL and then parse into a unordered_map
           auto property_begin_it = GetIteratorMDF("; ", body, true);
           body.assign(property_begin_it, body.end());
 
-          // parse properties into a map of string and vector of unsigned char.
+          // parse properties into a unordered_map of string and vector of unsigned char.
           auto properties_end_it = GetIteratorMDF("\r\n", body, false);
           std::vector<unsigned char> properties(body.begin(),properties_end_it);
           while(ParsePropertyMDF(properties,parsed_properties));
@@ -103,7 +103,7 @@ namespace moonlynx{
           std::vector<unsigned char> value(body.begin(),value_end_it);
           parsed_properties.insert(std::make_pair("value", value));
 
-          // insert the map of properties into the map of fields
+          // insert the unordered_map of properties into the unordered_map of fields
           std::vector<unsigned char> key_name = parsed_properties["name"];
           std::string key(key_name.begin(),key_name.end());
           multipart_form_data.insert(std::make_pair(key, parsed_properties));
@@ -115,7 +115,7 @@ namespace moonlynx{
       }
 
 
-      bool ParsePropertyMDF(std::vector<unsigned char> &properties,std::map<std::string, std::vector<unsigned char>> &parsed_properties){
+      bool ParsePropertyMDF(std::vector<unsigned char> &properties,std::unordered_map<std::string, std::vector<unsigned char>> &parsed_properties){
         // get the name of the property.
         const char *delimiter = "=\"";
         size_t delimiter_length = strlen(delimiter);

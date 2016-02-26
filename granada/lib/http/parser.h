@@ -31,7 +31,7 @@
 
 namespace granada{
   namespace http{
-    namespace parse{
+    namespace parser{
 
       /*
        * Parse an http_request with multipart/form data content type into a unordered_map.

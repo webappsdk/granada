@@ -26,7 +26,7 @@
 
 namespace granada{
   namespace http{
-    namespace parse{
+    namespace parser{
 
       std::unordered_map<std::string, std::unordered_map<std::string, std::vector<unsigned char>>> ParseMultipartFormData(web::http::http_request &request){
 

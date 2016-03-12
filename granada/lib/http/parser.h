@@ -1,5 +1,5 @@
 /**
-  * Copyright (c) <2016> Web App SDK <support@htmlpuzzle.net>
+  * Copyright (c) <2016> Web App SDK granada <support@htmlpuzzle.net>
   *
   * This source code is licensed under the MIT license.
   *
@@ -26,12 +26,26 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 #include <unordered_map>
 #include "cpprest/http_listener.h"
+#include "../util/string.h"
 
 namespace granada{
   namespace http{
     namespace parser{
+
+      /**
+       * Parse cookies of an http_request into an unordered map
+       * Example:
+       * 		cookie1=content1;cookie2=content2
+       *
+       * will be parsed into:
+       * 		cookies (unordered map)
+       * 			|_ cookie1    => content1
+       * 			|_ cookie2    => content2
+       */
+      std::unordered_map<std::string, std::string> ParseCookies(web::http::http_request &request);
 
       /*
        * Parse an http_request with multipart/form data content type into a unordered_map.
@@ -106,6 +120,7 @@ namespace granada{
        * @return      Iterator of the begining or the end of the first appearance of chr.
        */
       std::vector<unsigned char>::iterator GetIteratorMDF(const char *chr, std::vector<unsigned char> &body, const bool end);
+
     }
   }
 }

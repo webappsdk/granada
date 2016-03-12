@@ -1,5 +1,5 @@
 /**
-  * Copyright (c) <2016> Web App SDK <support@htmlpuzzle.net>
+  * Copyright (c) <2016> Web App SDK granada <support@htmlpuzzle.net>
   *
   * This source code is licensed under the MIT license.
   *
@@ -27,6 +27,31 @@
 namespace granada{
   namespace http{
     namespace parser{
+
+      std::unordered_map<std::string, std::string> ParseCookies(web::http::http_request &request){
+        std::unordered_map<std::string, std::string> cookies;
+        web::http::http_headers headers = request.headers();
+        if( headers.has("Cookie") ){
+          std::string cookies_str = headers["Cookie"];
+
+          // separate different cookies.
+          std::stringstream ss(cookies_str);
+          std::string cookie_name_and_content;
+          while (std::getline(ss, cookie_name_and_content, ';')) {
+            granada::util::string::trim(cookie_name_and_content);
+            // get cookie name and content.
+            const char *delimiter = "=";
+            size_t delimiter_length = strlen(delimiter);
+            auto it = std::search(cookie_name_and_content.begin(), cookie_name_and_content.end(), delimiter, delimiter + delimiter_length);
+            std::string cookie_name(cookie_name_and_content.begin(),it);
+            std::string cookie_content(it+delimiter_length,cookie_name_and_content.end());
+
+            // insert cookie name and content in cookies map.
+            cookies.insert(std::make_pair(cookie_name, cookie_content));
+          }
+        }
+        return cookies;
+      }
 
       std::unordered_map<std::string, std::unordered_map<std::string, std::vector<unsigned char>>> ParseMultipartFormData(web::http::http_request &request){
 

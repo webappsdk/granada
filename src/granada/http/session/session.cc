@@ -38,7 +38,7 @@ namespace granada{
           token_label_.assign(Session::DEFAULT_TOKEN_LABEL);
         }
 
-        session_token_support_ = session_handler()->GetProperty("session_token_support_");
+        session_token_support_ = session_handler()->GetProperty("session_token_support");
 
         std::string session_timeout_str = session_handler()->GetProperty("session_timeout");
         if (session_timeout_str.empty()){

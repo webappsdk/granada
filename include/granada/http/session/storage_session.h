@@ -48,6 +48,12 @@ namespace granada{
           StorageSession(const std::string& token);
 
           // override
+          void set(granada::http::session::Session* session){
+            (*this) = (*((granada::http::session::StorageSession*)session));
+            roles_->SetSession(this);
+          };
+
+          // override
           void Open();
 
           // override

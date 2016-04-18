@@ -48,6 +48,12 @@ namespace granada{
           RedisStorageSession(const std::string& token);
 
           // override
+          void set(granada::http::session::Session* session){
+            (*this) = (*((granada::http::session::RedisStorageSession*)session));
+            roles_->SetSession(this);
+          };
+
+          // override
           void Open();
 
           // override

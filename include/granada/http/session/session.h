@@ -53,6 +53,11 @@ namespace granada{
           Session(web::http::http_request &request){};
           Session(const std::string& token){};
 
+          /**
+           * Set the value of the sessions, may be overriden in case we want to
+           * make other actions.
+           * @param session
+           */
           virtual void set(granada::http::session::Session* session){
             (*this) = (*session);
           };

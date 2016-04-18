@@ -45,6 +45,7 @@ namespace granada{
           SimpleSession(web::http::http_request &request);
           SimpleSession(const std::string& token);
 
+          // override
           void set(granada::http::session::Session* session){
             (*this) = (*((granada::http::session::SimpleSession*)session));
             roles_->SetSession(this);

@@ -28,7 +28,6 @@
 #include "granada/http/parser.h"
 #include "granada/http/controller/controller.h"
 #include "granada/http/session/simple_session.h"
-#include "granada/http/session/storage_session.h"
 #include "../../business/cart.h"
 
 namespace granada{

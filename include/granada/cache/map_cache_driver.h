@@ -1,0 +1,68 @@
+/**
+  * Copyright (c) <2016> granada <afernandez@cookinapps.io>
+  *
+  * This source code is licensed under the MIT license.
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a copy
+  * of this software and associated documentation files (the "Software"), to deal
+  * in the Software without restriction, including without limitation the rights
+  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  * copies of the Software, and to permit persons to whom the Software is
+  * furnished to do so, subject to the following conditions:
+  *
+  * The above copyright notice and this permission notice shall be included in
+  * all copies or substantial portions of the Software.
+  *
+  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  * SOFTWARE.
+  *
+  * Manages the cache storing key-value pairs in an unordered map.
+  * This code is not multi-thread safe, If you want to use a shared map
+  * between all the users cache, We recommend to use
+  * shared_map_cache_driver instead.
+  *
+  */
+#pragma once
+#include "cache_handler.h"
+#include <string>
+#include <unordered_map>
+
+namespace granada{
+  namespace cache{
+    class MapCacheDriver : public CacheHandler
+    {
+      public:
+
+        /**
+         * Constructor
+         */
+        MapCacheDriver(){};
+
+
+        // override
+        std::string Read(const std::string& key);
+
+
+        // override
+        void Write(const std::string& key,const std::string& value);
+
+
+        // override
+        void Destroy(const std::string& key);
+
+
+      private:
+
+        /**
+         * Unordered map where key-value pairs are stored.
+         */
+        std::unordered_map<std::string,std::string> data_;
+
+    };
+  }
+}

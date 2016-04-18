@@ -28,9 +28,10 @@
   *
   */
 #pragma once
-#include "cache_handler.h"
+#include <memory>
 #include <string>
 #include <unordered_map>
+#include "cache_handler.h"
 
 namespace granada{
   namespace cache{
@@ -41,7 +42,7 @@ namespace granada{
         /**
          * Constructor
          */
-        MapCacheDriver(){};
+        MapCacheDriver();
 
 
         // override
@@ -61,7 +62,7 @@ namespace granada{
         /**
          * Unordered map where key-value pairs are stored.
          */
-        std::unordered_map<std::string,std::string> data_;
+        std::shared_ptr<std::unordered_map<std::string,std::string>> data_;
 
     };
   }

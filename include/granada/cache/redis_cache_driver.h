@@ -25,7 +25,7 @@
   * data structure server (http://redis.io/).
   * It uses redisclient by Alex Nekipelov https://github.com/nekipelov/redisclient
   * This code is multi-thread safe.
-  * 
+  *
   */
 #pragma once
 #include "cache_handler.h"
@@ -101,7 +101,7 @@ namespace granada{
         /**
          * Redis client.
          */
-        std::unique_ptr<RedisSyncClient> redis_;
+        std::shared_ptr<RedisSyncClient> redis_;
 
 
         /**

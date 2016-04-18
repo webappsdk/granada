@@ -30,7 +30,7 @@ namespace granada{
   namespace cache{
 
     SharedMapCacheDriver::SharedMapCacheDriver(){
-      data_ = std::unique_ptr<std::map<std::string,std::unordered_map<std::string,std::string>>>(new std::map<std::string,std::unordered_map<std::string,std::string>>);
+      data_ = std::shared_ptr<std::map<std::string,std::unordered_map<std::string,std::string>>>(new std::map<std::string,std::unordered_map<std::string,std::string>>);
     }
 
     std::string SharedMapCacheDriver::Read(const std::string& hash,const std::string& key){

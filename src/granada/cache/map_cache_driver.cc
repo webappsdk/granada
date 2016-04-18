@@ -28,20 +28,25 @@
 
 namespace granada{
   namespace cache{
+
+    MapCacheDriver::MapCacheDriver(){
+      data_ = std::shared_ptr<std::unordered_map<std::string,std::string>>(new std::unordered_map<std::string,std::string>());
+    }
+
     std::string MapCacheDriver::Read(const std::string& key){
-      auto it = data_.find(key);
-      if (it != data_.end()){
+      auto it = data_->find(key);
+      if (it != data_->end()){
         return it->second;
       }
       return std::string();
     }
 
     void MapCacheDriver::Write(const std::string& key,const std::string& value){
-      data_[key] = value;
+      (*data_)[key] = value;
     }
 
     void MapCacheDriver::Destroy(const std::string& key){
-      data_.erase(key);
+      data_->erase(key);
     }
   }
 }

@@ -35,7 +35,7 @@ namespace granada{
       const unsigned short port = 6379;
 
       boost::asio::io_service ioService;
-      redis_ = std::unique_ptr<RedisSyncClient>(new RedisSyncClient(ioService));
+      redis_ = std::shared_ptr<RedisSyncClient>(new RedisSyncClient(ioService));
 
       std::string errmsg;
 

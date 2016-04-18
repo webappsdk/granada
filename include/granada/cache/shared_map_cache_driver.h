@@ -31,7 +31,7 @@
   * 							 	|_ key2 => value4
   *
   * This code is multi-thread safe.
-  * 
+  *
   */
 
 #pragma once
@@ -115,7 +115,7 @@ namespace granada{
         /**
          * Map where all data is store.
          */
-        std::unique_ptr<std::map<std::string,std::unordered_map<std::string,std::string>>> data_;
+        std::shared_ptr<std::map<std::string,std::unordered_map<std::string,std::string>>> data_;
 
 
         /**

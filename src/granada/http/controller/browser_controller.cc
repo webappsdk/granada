@@ -44,7 +44,7 @@ namespace granada{
       }
 
       //
-      // A GET of the server browser get the files stored for running the puzzle application.
+      // A GET of the server browser get the files stored.
       //
       void BrowserController::handle_get(http_request request){
 
@@ -53,34 +53,6 @@ namespace granada{
         http_response response;
 
         session_checkpoint_->check(request,response);
-
-        // granada::http::session::SimpleSession simple_session(request,response);
-        // granada::http::session::RedisStorageSession user_session(request,response);
-        // user_session.Write("test","valuetest");
-        // std::cout << "test values => " << user_session.Read("test") << std::endl;
-        // user_session.Destroy("test");
-        // std::cout << "test values => " << user_session.Read("test") << std::endl;
-        // user_session.roles()->Add("ANONYMOUS");
-        // if (user_session.roles()->Is("ANONYMOUS")){
-        //   // log debug
-        //   std::cout << "IS ANONYMOUS" << std::endl;
-        // }
-        // user_session.roles()->Remove("ANONYMOUS");
-        // if (user_session.roles()->Is("ANONYMOUS")){
-        //   // log debug
-        //   std::cout << "IS ANONYMOUS" << std::endl;
-        // }else{
-        //   // log debug
-        //   std::cout << "IS NOT ANONYMOUS" << std::endl;
-        // }
-        // user_session.roles()->Add("USER");
-        // user_session.roles()->SetProperty("USER", "username", "alvaro");
-        // // log debug
-        // std::cout << "username => " << user_session.roles()->GetProperty("USER","username") << std::endl;
-        // user_session.roles()->Remove("USER");
-        // // log debug
-        // std::cout << "username => " << user_session.roles()->GetProperty("USER","username") << std::endl;
-
 
         // retrieve a ressource with this a given path from cache.
 

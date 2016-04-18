@@ -72,7 +72,7 @@ namespace granada{
             // open session
             Open();
             // add cookie with token
-            response.headers().add(U("Set-Cookie"), token_label_ + "=" + token_);
+            response.headers().add(U("Set-Cookie"), token_label_ + "=" + token_ + "; path=/");
           }
           return true;
         }

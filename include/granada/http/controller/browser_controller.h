@@ -52,7 +52,7 @@ namespace granada{
          * Cache Handler
          * Used to cache resources.
          */
-        std::unique_ptr<granada::cache::WebResourceCacheHandler> cache_handler_;
+        std::unique_ptr<granada::cache::WebResourceCache> cache_handler_;
 
 
         /**

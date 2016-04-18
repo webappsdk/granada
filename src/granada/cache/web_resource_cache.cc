@@ -31,11 +31,11 @@ namespace granada{
 
   namespace cache{
 
-    WebResourceCacheHandler::WebResourceCacheHandler(){
+    WebResourceCache::WebResourceCache(){
       Start();
     }
 
-    granada::cache::Resource WebResourceCacheHandler::GetFile(std::string& file_path){
+    granada::cache::Resource WebResourceCache::GetFile(std::string& file_path){
       if ( !files_.empty() ){
         auto it = files_.find(file_path);
         if (it == files_.end()){
@@ -132,7 +132,7 @@ namespace granada{
     }
 
 
-    std::string WebResourceCacheHandler::GetContentEncoding(){
+    std::string WebResourceCache::GetContentEncoding(){
       if(gzip_content_){
         return "gzip";
       }else{
@@ -140,12 +140,12 @@ namespace granada{
       }
     }
 
-    void WebResourceCacheHandler::CacheRecord(const std::string& resource_path, const granada::cache::Resource& resource){
+    void WebResourceCache::CacheRecord(const std::string& resource_path, const granada::cache::Resource& resource){
       files_.insert(std::make_pair(resource_path,resource));
     }
 
 
-    void WebResourceCacheHandler::Start(){
+    void WebResourceCache::Start(){
 
       // get and parse cache configuration properties
       // from server configuration file.
@@ -182,7 +182,7 @@ namespace granada{
     }
 
 
-    void WebResourceCacheHandler::LoadConfig(){
+    void WebResourceCache::LoadConfig(){
       ////
       // content types
       // get the pairs of content types and file extensions. Example image/png <=> png .
@@ -259,7 +259,7 @@ namespace granada{
     }
 
 
-    void WebResourceCacheHandler::GzipCopy(){
+    void WebResourceCache::GzipCopy(){
       // make a copy of the files into another directory and gzip it.
       std::string not_gziped_filepath(root_path_);
       root_path_ += "_gzip";
@@ -314,7 +314,7 @@ namespace granada{
       #endif
     }
 
-    bool WebResourceCacheHandler::RecursiveLoad(const std::string &relative_path,int& maximum_cache_memory){
+    bool WebResourceCache::RecursiveLoad(const std::string &relative_path,int& maximum_cache_memory){
 
       std::string application_and_relative_path = root_path_ + relative_path;
 
@@ -412,7 +412,7 @@ namespace granada{
     }
 
 
-    std::string WebResourceCacheHandler::GetExtensionContentType(const std::string& extension){
+    std::string WebResourceCache::GetExtensionContentType(const std::string& extension){
       auto it = content_types_.find(extension);
       if (it != content_types_.end()){
         return it->second;
@@ -422,7 +422,7 @@ namespace granada{
     }
 
 
-    std::string WebResourceCacheHandler::GetExtensionContentEncoding(const std::string& extension){
+    std::string WebResourceCache::GetExtensionContentEncoding(const std::string& extension){
       if (gzip_content_){
         for(auto it = gzip_extensions_.as_array().cbegin(); it != gzip_extensions_.as_array().cend(); ++it){
           if ((std::string)it->as_string() == extension){
@@ -434,7 +434,7 @@ namespace granada{
     }
 
 
-    std::string WebResourceCacheHandler::FormatLastModified(const std::time_t date){
+    std::string WebResourceCache::FormatLastModified(const std::time_t date){
       std::tm * ptm = std::localtime(&date);
       char buffer[32];
       // Format: Tue, 15 Nov 1994 12:45:26 GMT
@@ -443,7 +443,7 @@ namespace granada{
     }
 
 
-    std::string WebResourceCacheHandler::GenerateETag(const std::string& resource_path, const std::string& last_modified){
+    std::string WebResourceCache::GenerateETag(const std::string& resource_path, const std::string& last_modified){
       boost::hash<std::string> string_hash;
       std::size_t hash = string_hash(resource_path+last_modified);
       std::stringstream ss;

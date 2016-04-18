@@ -58,7 +58,7 @@ namespace granada{
     /**
      * Handles the cache of website or web application.
      */
-    class WebResourceCacheHandler
+    class WebResourceCache
     {
       public:
 
@@ -66,7 +66,7 @@ namespace granada{
         /**
          * Constructor
          */
-        WebResourceCacheHandler();
+        WebResourceCache();
 
 
         /**

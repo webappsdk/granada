@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <table border=1>
+      <thead>
+        <tr>
+          <td>Product name</td>
+          <td>Price</td>
+          <td>Quantity</td>
+          <td>Add to cart</td>
+        </tr>
+      </thead>
+      <tbody id="product-list">
+      </tbody>
+    </table>
+    <br/>
+    Cart: <span id="cart">0</span>
+    <br/><br/>
+    <form style="display:none;" id="login">
+      Log-in to checkout: <i>use: "user" as user and "pass" as password.</i><br/><br/>
+      <input type="text" name="username" placeholder="username" /><br/><br/>
+      <input type="password" name="password" placeholder="password" /><br/><br/>
+      <input type="button" onclick="Auth.login(this);" value="Login" />
+    </form>
+    <div style="display:none;" id="checkout">
+      logged in! <a href="" onclick="Auth.logout();">Logout</a><br/><br/>
+      <table border=1>
+        <thead>
+          <tr>
+            <td>Product name</td>
+            <td>Unit price</td>
+            <td>Total price</td>
+            <td>Quantity</td>
+            <td>Change quantity</td>
+            <td>Remove from cart</td>
+          </tr>
+        </thead>
+        <tbody id="checkout-list">
+        </tbody>
+      </table>
+    </div>
+    <script type="text/javascript" src="resources/qwest/js/qwest.min.js"></script>
+    <script>
+
+      var products = {
+        "0" : {"id":"0", "name" : "book", "price" : 12},
+        "1" : {"id":"1", "name" : "TV", "price" : 320},
+        "2" : {"id":"2", "name" : "CD", "price" : 8},
+        "3" : {"id":"3", "name" : "DVD", "price" : 14}
+      };
+
+      var productListTemplate = "<tr><td>{{name}}</td><td>{{price}}</td><td><input type=\"number\" name=\"quantity\" min=\"1\" value=\"1\"></td><td><input type=\"button\" product-id=\"{{id}}\" onclick=\"Cart.add(this);\" value=\"Add to cart\" /></td></tr>";
+
+      var checkoutListTemplate = "<tr product-id={{id}}><td>{{name}}</td><td>{{price}}</td><td>{{totalprice}}</td><td><input type=\"number\" name=\"quantity\" min=\"0\" value=\"{{quantity}}\"></td><td><input type=\"button\" onclick=\"Cart.edit(this);\" value=\"Edit\" /></td><td><input type=\"button\" onclick=\"Cart.edit(this);\" value=\"Remove\" /></td></tr>";
+
+      var cartEl = document.getElementById("cart");
+
+      var authEl = document.getElementById("login");
+
+      var checkoutEl = document.getElementById("checkout");
+
+      function Template(){};
+
+      Template.render = function(data,template){
+
+        var html = "";
+        var len = data.length;
+        var obj = null;
+        var partialHTML = null;
+
+        if (Array.isArray(data)){
+          while (len--){
+            obj = data[len];
+            partialHTML = template;
+            for (var key in obj){
+              partialHTML = partialHTML.replace(new RegExp("{{" + key + "}}", 'g'), obj[key]);
+            }
+            html = partialHTML + html;
+          }
+    		} else {
+          for (var dataKey in data){
+            obj = data[dataKey];
+            partialHTML = template;
+            for (var key in obj){
+              partialHTML = partialHTML.replace(new RegExp("{{" + key + "}}", 'g'), obj[key]);
+            }
+            html = partialHTML + html;
+          }
+    		}
+        return html;
+      }
+
+      function Cart(){};
+
+      Cart.count = function(callback){
+        qwest.get("/cart/count",null,{"responseType":"json"})
+         .then(function(xhr, response) {
+           cartEl.innerHTML = response["count"];
+           if (callback){
+             callback();
+           }
+         })
+         .catch(function(e, xhr, response) {
+            cartEl.innerHTML = 0;
+            if (callback){
+              callback();
+            }
+         });
+      };
+
+      Cart.add = function(e){
+        var productId = e.getAttribute("product-id");
+        var quantity = e.parentElement.parentElement.querySelector("input[name=quantity]").value;
+        qwest.put("/cart/add", {
+          "id": productId,
+          "quantity": quantity
+       },{"responseType":"json"})
+       .then(function(xhr, response) {
+         cartEl.innerHTML = response["count"];
+         Cart.list();
+       })
+       .catch(function(e, xhr, response) {
+          cartEl.innerHTML = 0;
+       });
+     };
+
+     Cart.edit = function(e){
+       var tr = e.parentElement.parentElement;
+       var productId = tr.getAttribute("product-id");
+       var quantity = 0;
+       if (e.getAttribute("value") != "Remove"){
+         quantity = tr.querySelector("input[name=quantity]").value;
+       }
+       qwest.post("/cart/edit", {
+         "id": productId,
+         "quantity": quantity
+      },{"responseType":"json"})
+      .then(function(xhr, response) {
+        cartEl.innerHTML = response["count"];
+        Cart.list();
+      })
+      .catch(function(e, xhr, response) {
+         cartEl.innerHTML = 0;
+      });
+    };
+
+     Cart.list = function(){
+       qwest.get("/cart/list",null,{"responseType":"json"})
+      .then(function(xhr, response) {
+        var html = "";
+        var newData = [];
+        var data = response["data"];
+        if ( data.length > 0 ){
+          var len = data.length;
+          var obj = null;
+          var productObj = null;
+          while(len--){
+            obj = data[len];
+            productObj = products[obj["id"]];
+            for (var key in productObj){
+              obj[key] = productObj[key];
+            }
+            obj["totalprice"] = obj["price"] * obj["quantity"];
+            newData.push(obj);
+          }
+
+          html = Template.render(newData,checkoutListTemplate);
+        }
+        document.getElementById("checkout-list").innerHTML = html;
+      });
+    };
+
+     function Auth(){};
+
+     Auth.status = function(status){
+
+       var execStatus = function(_status){
+         if (_status == 0){
+           authEl.style["display"] = "block";
+           checkoutEl.style["display"] = "none";
+         }else if (_status == 1){
+           authEl.style["display"] = "none";
+           checkoutEl.style["display"] = "block";
+           Cart.list();
+         }
+         Cart.count();
+       };
+
+       if (status == null){
+         qwest.post("/auth/status",null,{"responseType":"json"})
+          .then(function(xhr, response) {
+            var responseStatus = response["status"];
+            execStatus(responseStatus);
+          })
+          .catch(function(e, xhr, response) {
+             execStatus(1);
+          });
+       }else{
+         execStatus(status);
+       }
+     }
+
+     Auth.login = function(){
+
+       var formData = new FormData(authEl);
+
+       qwest.post("/auth/login",formData,{"dataType":"formdata","responseType":"json"})
+        .then(function(xhr, response) {
+          Auth.status(response["status"]);
+        })
+        .catch(function(e, xhr, response) {
+           Auth.status(0);
+        });
+     };
+
+     Auth.logout = function(){
+       qwest.post("/auth/logout",null,{"responseType":"json"})
+        .then(function(xhr, response) {
+          Auth.status(response["status"]);
+        })
+        .catch(function(e, xhr, response) {
+           Auth.status(0);
+        });
+     }
+
+
+     window.onload = function(){
+       document.getElementById("product-list").innerHTML = Template.render(products,productListTemplate);
+       Cart.count(Auth.status);
+     }
+
+    </script>
+  </body>
+</html>

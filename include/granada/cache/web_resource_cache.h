@@ -29,7 +29,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
-#include "rapidjson/document.h"
+#include "cpprest/json.h"
 #include "boost/filesystem.hpp"
 #include <boost/functional/hash.hpp>
 #include "granada/util/application.h"
@@ -233,19 +233,19 @@ namespace granada{
          * default_files is a property indicated in the server configuration
          * file.
          */
-        rapidjson::Document default_files_;
+        web::json::value default_files_;
 
 
         /**
          * JSON Object containing the files path with the content to show in case there is an error.
          */
-        rapidjson::Document error_paths_;
+        web::json::value error_paths_;
 
 
         /**
          * JSON Array containing the extensions of the files that have to be gziped.
          */
-        rapidjson::Document gzip_extensions_;
+        web::json::value gzip_extensions_;
 
 
         /**

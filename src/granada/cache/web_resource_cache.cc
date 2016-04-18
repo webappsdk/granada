@@ -55,17 +55,17 @@ namespace granada{
         }
 
         // check if any of the default files exist in the directory.
-        if (default_files_.IsArray()){
+        if (default_files_.is_array()){
           std::string default_file_path;
 
-          for (rapidjson::Value::ConstValueIterator itr = default_files_.Begin(); itr != default_files_.End(); ++itr){
-            default_file_path = itr->GetString();
+          for(auto it = default_files_.as_array().cbegin(); it != default_files_.as_array().cend(); ++it){
+            default_file_path = it->as_string();
             extension = granada::util::file::GetExtension(default_file_path);
 
             if (GetExtensionContentEncoding(extension) == "gzip"){
-              default_file_path = root_path_ + "/" + file_path + itr->GetString() + ".gz";
+              default_file_path = root_path_ + "/" + file_path + it->as_string() + ".gz";
             }else{
-              default_file_path = root_path_ + "/" + file_path + itr->GetString();
+              default_file_path = root_path_ + "/" + file_path + it->as_string();
             }
 
             // if file exists, then take it as the one to get content from.
@@ -77,8 +77,9 @@ namespace granada{
             }
           }
 
-          if (error_paths_.HasMember("404")){
-            std::string error_404_file_path = error_paths_["404"].GetString();
+          if (error_paths_.has_field("404")){
+            const web::json::value &error_404_file_path_json = error_paths_.at("404");
+            std::string error_404_file_path = error_404_file_path_json.as_string();
             if (file_path == error_404_file_path || file_path == error_404_file_path + "/"){
 
               return granada::cache::Resource();
@@ -100,8 +101,9 @@ namespace granada{
 
       if (file_path.empty() || !boost::filesystem::exists(file_path)){
         // return 404 file content if it exists..
-        if (error_paths_.HasMember("404")){
-          std::string error_404_file_path = error_paths_["404"].GetString();
+        if (error_paths_.has_field("404")){
+          const web::json::value &error_404_file_path_json = error_paths_.at("404");
+          std::string error_404_file_path = error_404_file_path_json.as_string();
           return GetFile(error_404_file_path);
         }
       }else{
@@ -186,22 +188,25 @@ namespace granada{
       // get the pairs of content types and file extensions. Example image/png <=> png .
       std::string content_types_str = granada::util::application::GetProperty("content_types");
       if (!content_types_str.empty()){
-        // parse the json with the content types and files extensions into the unordered_map content_types_ .
-        rapidjson::Document document;
-        document.Parse<0>(content_types_str.c_str());
-        std::string content_type;
-        std::string extension;
-        // loop throw the keys of the json. The keys are the content types.
-        for (rapidjson::Value::ConstMemberIterator itr = document.MemberBegin();itr != document.MemberEnd(); ++itr){
-          content_type = itr->name.GetString();
-          const rapidjson::Value& extensions = itr->value;
-          // loop throw the extensions related to the extracted content type.
-          for (rapidjson::Value::ConstValueIterator itr2 = extensions.Begin(); itr2 != extensions.End(); ++itr2){
-            extension = itr2->GetString();
-            // insert pair of content type and extension in the unordered_map.
-            content_types_.insert(std::make_pair(extension,content_type));
+        try{
+          // parse the json with the content types and files extensions into the unordered_map content_types_ .
+          web::json::value obj = web::json::value::parse(content_types_str); //content_types_str.c_str()
+          std::string content_type;
+          std::string extension;
+          // loop throw the keys of the json. The keys are the content types.
+          for(auto it = obj.as_object().cbegin(); it != obj.as_object().cend(); ++it){
+              const std::string& content_type = it->first;
+              const web::json::value& extensions_json = it->second;
+
+              // loop throw the extensions related to the extracted content type.
+              for(auto it2 = extensions_json.as_array().cbegin(); it2 != extensions_json.as_array().cend(); ++it2){
+                extension = it2->as_string();
+                // insert pair of content type and extension in the unordered_map.
+                content_types_.insert(std::make_pair(extension,content_type));
+              }
+
           }
-        }
+        }catch(const std::exception& e){}
       }
 
       ////
@@ -210,7 +215,7 @@ namespace granada{
       // only includes the directory path.
       std::string default_files_str = granada::util::application::GetProperty("default_files");
       if (!default_files_str.empty()){
-        default_files_.Parse<0>(default_files_str.c_str());
+        default_files_ = web::json::value::parse(default_files_str);
       }
 
       ////
@@ -218,7 +223,7 @@ namespace granada{
       // get the path of the files to get content from when there is an error.
       std::string error_paths_str = granada::util::application::GetProperty("error_paths");
       if (!error_paths_str.empty()){
-        error_paths_.Parse<0>(error_paths_str.c_str());
+        error_paths_ = web::json::value::parse(error_paths_str);
       }
 
       ////
@@ -227,7 +232,7 @@ namespace granada{
       // in the server configuration file.
       std::string gzip_extensions_str = granada::util::application::GetProperty("gzip_extensions");
       if (!gzip_extensions_str.empty()){
-        gzip_extensions_.Parse<0>(gzip_extensions_str.c_str());
+        gzip_extensions_ = web::json::value::parse(gzip_extensions_str);
       }
 
       ////
@@ -271,12 +276,14 @@ namespace granada{
 
         // gzip only the files with extension indicated in the gzip_extensions property.
         std::string extensions;
-        for (rapidjson::Value::ConstValueIterator itr = gzip_extensions_.Begin(); itr != gzip_extensions_.End(); ++itr){
+
+        for(auto it = gzip_extensions_.as_array().cbegin(); it != gzip_extensions_.as_array().cend(); ++it){
           if (!extensions.empty()){
             extensions += "|";
           }
-          extensions += "*." + itr->GetString();
+          extensions += "*." + it->as_string();
         }
+
         // not tested
         command = "For /R " + root_path_ + " %%G IN (" + extensions + ") do gzip \"%%G\"";
         system(command.c_str());
@@ -292,11 +299,11 @@ namespace granada{
 
         // gzip only the files with extension indicated in the gzip_extensions property.
         std::string extensions;
-        for (rapidjson::Value::ConstValueIterator itr = gzip_extensions_.Begin(); itr != gzip_extensions_.End(); ++itr){
+        for(auto it = gzip_extensions_.as_array().cbegin(); it != gzip_extensions_.as_array().cend(); ++it){
           if (!extensions.empty()){
             extensions += "|";
           }
-          extensions += "\\." + (std::string)itr->GetString() + "$";
+          extensions += "\\." + (std::string)it->as_string() + "$";
         }
 
         // gzip
@@ -307,24 +314,23 @@ namespace granada{
       #endif
     }
 
-
     bool WebResourceCacheHandler::RecursiveLoad(const std::string &relative_path,int& maximum_cache_memory){
 
       std::string application_and_relative_path = root_path_ + relative_path;
 
       if ( boost::filesystem::exists(application_and_relative_path) ){
 
-        boost::filesystem::directory_iterator end_itr;
+        boost::filesystem::directory_iterator end_it;
         boost::filesystem::path path;
         std::string filename;
         std::string extension;
         std::string content_encoding;
 
-        for ( boost::filesystem::directory_iterator itr(application_and_relative_path); itr != end_itr; ++itr ){
+        for ( boost::filesystem::directory_iterator it(application_and_relative_path); it != end_it; ++it ){
           content_encoding = "";
-          path = itr->path();
+          path = it->path();
           filename = path.filename().string();
-          if ( boost::filesystem::is_directory(itr->status()) ){
+          if ( boost::filesystem::is_directory(it->status()) ){
             // file is a directory, content cached must be from a file so call recursive load again
             // to cache the files from the directory.
             RecursiveLoad(relative_path + filename + "/", maximum_cache_memory);
@@ -373,8 +379,8 @@ namespace granada{
               // check if file is a default kind of file, if so
               // we store two additional possible client requests for this file:
               // these are path/to/file/, path/to/file.
-              for (rapidjson::Value::ConstValueIterator itr = default_files_.Begin(); itr != default_files_.End(); ++itr){
-                if (filename == itr->GetString()){
+              for(auto it = default_files_.as_array().cbegin(); it != default_files_.as_array().cend(); ++it){
+                if (filename == it->as_string()){
                   // store path/to/file/
 
                   CacheRecord(relative_path,resource);
@@ -418,8 +424,8 @@ namespace granada{
 
     std::string WebResourceCacheHandler::GetExtensionContentEncoding(const std::string& extension){
       if (gzip_content_){
-        for (rapidjson::Value::ConstValueIterator itr = gzip_extensions_.Begin(); itr != gzip_extensions_.End(); ++itr){
-          if ((std::string)itr->GetString() == extension){
+        for(auto it = gzip_extensions_.as_array().cbegin(); it != gzip_extensions_.as_array().cend(); ++it){
+          if ((std::string)it->as_string() == extension){
             return "gzip";
           }
         }

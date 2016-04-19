@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    To test POST set the "session_token_support" property to "post" in the server.conf file and restart the server application.<br/>
+<pre># cookie || get || post
+session_token_support=post</pre>
+    To test GET set the "session_token_support" property to "get" in the server.conf file and restart the server application.<br/>
+<pre># cookie || get || post
+session_token_support=get</pre>
+To test with Redis, use RedisStorageSession and include RedisCacheDriver in the project.
+    <br/><br/>
+    <b>LOG:</b><pre id="log"></pre>
+    <script type="text/javascript" src="resources/qwest/js/qwest.min.js"></script>
+    <script>
+
+      var logEl = document.getElementById("log");
+
+      function log(message){
+        logEl.innerHTML += "<br/>" + message;
+      };
+
+      function POSTAuth(){};
+
+      POSTAuth.token = "";
+
+      function POSTSetTest(callback){
+        qwest.post("test/set/",{"token":POSTAuth.token},{"dataType":"json","responseType":"json"})
+         .then(function(xhr, response) {
+           log("Store value related to session = " + response.value);
+           if (callback){
+             callback();
+           }
+         })
+         .catch(function(e, xhr, response) {
+            log("ERROR: " + response);
+            if (callback){
+              callback();
+            }
+         });
+      };
+
+      function POSTGetTest(callback){
+        qwest.post("test/get/",{"token":POSTAuth.token},{"dataType":"json","responseType":"json"})
+         .then(function(xhr, response) {
+           log("Retrieve value related to session = " + response.value);
+           if (callback){
+             callback();
+           }
+         })
+         .catch(function(e, xhr, response) {
+            log("ERROR: " + response);
+            if (callback){
+              callback();
+            }
+         });
+      };
+
+      POSTAuth.login = function(callback){
+        qwest.post("test/auth/",null,{"dataType":"json","responseType":"json"})
+         .then(function(xhr, response) {
+           POSTAuth.token = response.token;
+           log("Session opened with token = " + POSTAuth.token);
+           if (callback){
+             callback();
+           }
+         })
+         .catch(function(e, xhr, response) {
+            log("ERROR: " + response);
+            if (callback){
+              callback();
+            }
+         });
+      };
+
+
+      function GETAuth(){};
+
+      GETAuth.token = "";
+
+      function GETSetTest(callback){
+        qwest.get("test/set?token=" + GETAuth.token,null,{"responseType":"json"})
+         .then(function(xhr, response) {
+           log("Store value related to session = " + response.value);
+           if (callback){
+             callback();
+           }
+         })
+         .catch(function(e, xhr, response) {
+            log("ERROR: " + response);
+            if (callback){
+              callback();
+            }
+         });
+      };
+
+      function GETGetTest(callback){
+        qwest.get("test/get?token="+GETAuth.token,null,{"responseType":"json"})
+         .then(function(xhr, response) {
+           log("Retrieve value related to session = " + response.value);
+           if (callback){
+             callback();
+           }
+         })
+         .catch(function(e, xhr, response) {
+            log("ERROR: " + response);
+            if (callback){
+              callback();
+            }
+         });
+      };
+
+      GETAuth.login = function(callback){
+        qwest.get("test/auth/",null,{"dataType":"json","responseType":"json"})
+         .then(function(xhr, response) {
+           GETAuth.token = response.token;
+           log("Session opened with token = " + GETAuth.token);
+           if (callback){
+             callback();
+           }
+         })
+         .catch(function(e, xhr, response) {
+            log("ERROR: " + response);
+            if (callback){
+              callback();
+            }
+         });
+      };
+
+      window.onload = function(){
+        log("---------------- Testing POST token session ----------------")
+        POSTAuth.login(function(){
+          POSTSetTest(function(){
+            POSTGetTest(function(){
+              log("-------------- END Testing POST token session --------------");
+
+              log("---------------- Testing GET token session ----------------")
+              GETAuth.login(function(){
+                GETSetTest(function(){
+                  GETGetTest(function(){
+                    log("-------------- END Testing GET token session --------------");
+                  });
+                });
+              });
+
+
+            });
+          });
+        });
+      };
+    </script>
+  </body>
+</html>

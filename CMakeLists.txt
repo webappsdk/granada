@@ -195,3 +195,4 @@ endfunction()
 
 add_subdirectory(src)
 add_subdirectory(examples/sessions-login-and-cart)
+add_subdirectory(examples/sessions-get-and-post)

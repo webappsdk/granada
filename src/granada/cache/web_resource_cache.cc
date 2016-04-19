@@ -78,10 +78,13 @@ namespace granada{
           }
 
           if (error_paths_.has_field("404")){
-            const web::json::value &error_404_file_path_json = error_paths_.at("404");
-            std::string error_404_file_path = error_404_file_path_json.as_string();
-            if (file_path == error_404_file_path || file_path == error_404_file_path + "/"){
-
+            try{
+              const web::json::value &error_404_file_path_json = error_paths_.at("404");
+              std::string error_404_file_path = error_404_file_path_json.as_string();
+              if (file_path == error_404_file_path || file_path == error_404_file_path + "/"){
+                return granada::cache::Resource();
+              }
+            }catch(const web::json::json_exception& e){
               return granada::cache::Resource();
             }
           }else{
@@ -89,7 +92,6 @@ namespace granada{
               file_path.assign("");
             }
           }
-
         }
       }else{
         if (GetExtensionContentEncoding(extension) == "gzip"){
@@ -102,9 +104,11 @@ namespace granada{
       if (file_path.empty() || !boost::filesystem::exists(file_path)){
         // return 404 file content if it exists..
         if (error_paths_.has_field("404")){
-          const web::json::value &error_404_file_path_json = error_paths_.at("404");
-          std::string error_404_file_path = error_404_file_path_json.as_string();
-          return GetFile(error_404_file_path);
+          try{
+            const web::json::value &error_404_file_path_json = error_paths_.at("404");
+            std::string error_404_file_path = error_404_file_path_json.as_string();
+            return GetFile(error_404_file_path);
+          }catch(const web::json::json_exception& e){}
         }
       }else{
         // read the file and assign content to content string variable
@@ -206,7 +210,7 @@ namespace granada{
               }
 
           }
-        }catch(const std::exception& e){}
+        }catch(const web::json::json_exception& e){}
       }
 
       ////
@@ -215,7 +219,11 @@ namespace granada{
       // only includes the directory path.
       std::string default_files_str = granada::util::application::GetProperty("default_files");
       if (!default_files_str.empty()){
-        default_files_ = web::json::value::parse(default_files_str);
+        try{
+          default_files_ = web::json::value::parse(default_files_str);
+        }catch(const web::json::json_exception& e){
+          default_files_ = web::json::value::array();
+        }
       }
 
       ////
@@ -223,7 +231,11 @@ namespace granada{
       // get the path of the files to get content from when there is an error.
       std::string error_paths_str = granada::util::application::GetProperty("error_paths");
       if (!error_paths_str.empty()){
-        error_paths_ = web::json::value::parse(error_paths_str);
+        try{
+          error_paths_ = web::json::value::parse(error_paths_str);
+        }catch(const web::json::json_exception& e){
+          error_paths_ = web::json::value::object(false);
+        }
       }
 
       ////
@@ -232,7 +244,11 @@ namespace granada{
       // in the server configuration file.
       std::string gzip_extensions_str = granada::util::application::GetProperty("gzip_extensions");
       if (!gzip_extensions_str.empty()){
-        gzip_extensions_ = web::json::value::parse(gzip_extensions_str);
+        try{
+          gzip_extensions_ = web::json::value::parse(gzip_extensions_str);
+        }catch(const web::json::json_exception& e){
+          gzip_extensions_ = web::json::value::array();
+        }
       }
 
       ////

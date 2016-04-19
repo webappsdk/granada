@@ -39,7 +39,7 @@ namespace granada{
        * Trim from start
        * @param s String to ltrim.
        */
-      static void ltrim(std::string &s) {
+      static inline void ltrim(std::string &s) {
           s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
       }
 
@@ -47,7 +47,7 @@ namespace granada{
        * Trim from end
        * @param s String to rtrim.
        */
-      static void rtrim(std::string &s) {
+      static inline void rtrim(std::string &s) {
           s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
       }
 
@@ -55,7 +55,7 @@ namespace granada{
        * Trim from both ends
        * @param s String to trim.
        */
-      static void trim(std::string &s) {
+      static inline void trim(std::string &s) {
           ltrim(s);
           rtrim(s);
       }

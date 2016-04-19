@@ -29,7 +29,7 @@ namespace granada{
     namespace session{
 
       std::string Session::DEFAULT_TOKEN_LABEL = "token";
-      std::vector<std::string> Session::DEFAULT_SESSIONS_TOKEN_SUPPORT = {"cookie","post"};
+      std::vector<std::string> Session::DEFAULT_SESSIONS_TOKEN_SUPPORT = {"cookie","json"};
       long Session::DEFAULT_SESSION_TIMEOUT = 86400;
 
       void Session::LoadProperties(){
@@ -86,8 +86,8 @@ namespace granada{
           session_token_support_ = Session::DEFAULT_SESSIONS_TOKEN_SUPPORT[1];
         }
 
-        // retrieve token from post body json.
-        if (session_token_support_ == "post"){
+        // retrieve token from body json.
+        if (session_token_support_ == "json"){
           try{
             const web::json::value& obj = request.extract_json().get();
             if (obj.is_object() && obj.has_field("token")){
@@ -99,8 +99,8 @@ namespace granada{
             }
           }catch(const std::exception& e){}
         }else{
-          // retrieve token from get query.
-          if (session_token_support_ == "get"){
+          // retrieve token from query string.
+          if (session_token_support_ == "query"){
             std::string query = request.relative_uri().query();
             std::vector<std::string> keys_and_values;
             granada::util::string::split(query,'&',keys_and_values);

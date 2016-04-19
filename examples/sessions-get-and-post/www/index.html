@@ -5,13 +5,15 @@
     <title></title>
   </head>
   <body>
-    To test POST set the "session_token_support" property to "post" in the server.conf file and restart the server application.<br/>
-<pre># cookie || get || post
-session_token_support=post</pre>
-    To test GET set the "session_token_support" property to "get" in the server.conf file and restart the server application.<br/>
-<pre># cookie || get || post
-session_token_support=get</pre>
+    To test POST set the "session_token_support" property to "json" in the server.conf file and restart the server application.<br/>
+<pre># cookie || query || json
+session_token_support=json</pre>
+    To test GET set the "session_token_support" property to "query" in the server.conf file and restart the server application.<br/>
+<pre># cookie || query || json
+session_token_support=query</pre>
+
 To test with Redis, use RedisStorageSession and include RedisCacheDriver in the project.
+
     <br/><br/>
     <b>LOG:</b><pre id="log"></pre>
     <script type="text/javascript" src="resources/qwest/js/qwest.min.js"></script>
@@ -131,17 +133,17 @@ To test with Redis, use RedisStorageSession and include RedisCacheDriver in the 
       };
 
       window.onload = function(){
-        log("---------------- Testing POST token session ----------------")
+        log("---------------- Testing POST, session token in JSON ----------------")
         POSTAuth.login(function(){
           POSTSetTest(function(){
             POSTGetTest(function(){
-              log("-------------- END Testing POST token session --------------");
+              log("-------------- END Testing POST, session token in JSON --------------");
 
-              log("---------------- Testing GET token session ----------------")
+              log("---------------- Testing GET, session token in Query string ----------------")
               GETAuth.login(function(){
                 GETSetTest(function(){
                   GETGetTest(function(){
-                    log("-------------- END Testing GET token session --------------");
+                    log("-------------- END Testing GET, session token in Query string --------------");
                   });
                 });
               });

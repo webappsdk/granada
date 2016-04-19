@@ -143,7 +143,7 @@ namespace granada{
 
 
           /**
-           * Default token support, cookie | post | get.
+           * Default token support, cookie || query || json.
            * Where the token will be stored-retrieved in the client-side.
            * This default value is taken in case "session_token_support" property is not found.
            */
@@ -177,7 +177,7 @@ namespace granada{
 
 
           /**
-           * Where the session token is stored: cookie | get | post
+           * Where the session token is stored: cookie || query || json
            */
           std::string session_token_support_;
 

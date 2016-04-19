@@ -68,7 +68,7 @@ namespace granada{
            * @param  role_name Name of the role to check.
            * @return           true | false
            */
-          virtual bool Is(const std::string& role_name){ return false; };
+          virtual const bool Is(const std::string& role_name){ return false; };
 
 
           /**
@@ -78,7 +78,7 @@ namespace granada{
            *                   has not been added, for example because the role
            *                   is already added.
            */
-          virtual bool Add(const std::string& role_name){ return false; };
+          virtual const bool Add(const std::string& role_name){ return false; };
 
 
           /**
@@ -103,7 +103,7 @@ namespace granada{
            * @param  key       Key or name of the property.
            * @return           Value of the property (string).
            */
-          virtual std::string GetProperty(const std::string& role_name, const std::string& key){ return std::string(); };
+          virtual const std::string GetProperty(const std::string& role_name, const std::string& key){ return std::string(); };
 
 
           /**

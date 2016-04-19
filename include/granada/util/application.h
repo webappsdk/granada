@@ -29,7 +29,7 @@ namespace granada{
        * Returns the path of the application.
        * @return Path.
        */
-      std::string get_selfpath();
+      const std::string& get_selfpath();
 
 
       /**
@@ -37,7 +37,7 @@ namespace granada{
        * @param  name Name of the property to retrieve.
        * @return      Value of the property.
        */
-      std::string GetProperty(const std::string& name);
+      const std::string GetProperty(const std::string& name);
     }
   }
 }

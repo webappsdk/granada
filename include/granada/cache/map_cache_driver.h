@@ -46,7 +46,7 @@ namespace granada{
 
 
         // override
-        std::string Read(const std::string& key);
+        const std::string Read(const std::string& key);
 
 
         // override

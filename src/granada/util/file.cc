@@ -29,7 +29,7 @@ namespace granada{
   namespace util{
     namespace file{
 
-      std::string GetExtension(const std::string& filename){
+      const std::string GetExtension(const std::string& filename){
         // extract the extension of the file from the filename.
         std::size_t found = filename.find_last_of(".");
         if (found != std::string::npos){
@@ -46,7 +46,7 @@ namespace granada{
         properties_ = ParseConfigurationFile(file_path);
       }
 
-      std::string PropertyFile::GetProperty(const std::string& name){
+      const std::string PropertyFile::GetProperty(const std::string& name){
         auto it = properties_.find(name);
         if (it != properties_.end()){
           return it->second;
@@ -72,7 +72,7 @@ namespace granada{
        return properties;
       }
 
-      bool PropertyFile::ParseProperty(const std::string &line,std::unordered_map<std::string,std::string> &properties){
+      const bool PropertyFile::ParseProperty(const std::string &line,std::unordered_map<std::string,std::string> &properties){
         // check if line has content.
         if (line.length()>0){
           if(line[0]=='#'){

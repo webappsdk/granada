@@ -66,7 +66,7 @@ namespace granada{
       }
 
       void SimpleSession::Open(){
-        Session::_Open();
+        Session::Open();
       }
 
       void SimpleSession::Update(){
@@ -79,15 +79,15 @@ namespace granada{
       }
 
       void SimpleSession::Close(){
-        Session::_Close();
+        Session::Close();
       }
 
-      bool SimpleSession::IsValid(){
-        return Session::_IsValid();
+      const bool SimpleSession::IsValid(){
+        return Session::IsValid();
       }
 
-      bool SimpleSession::IsGarbage(){
-        return Session::_IsGarbage();
+      const bool SimpleSession::IsGarbage(){
+        return Session::IsGarbage();
       }
     }
   }

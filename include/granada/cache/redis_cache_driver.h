@@ -51,7 +51,7 @@ namespace granada{
          * @param  key Key associated with the value.
          * @return     Value.
          */
-        std::string Read(const std::string& key);
+        const std::string Read(const std::string& key);
 
 
         /**
@@ -60,7 +60,7 @@ namespace granada{
          * @param  key  Key associated with the value.
          * @return      Value.
          */
-        std::string Read(const std::string& hash, const std::string& key);
+        const std::string Read(const std::string& hash, const std::string& key);
 
 
         /**

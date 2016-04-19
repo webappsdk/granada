@@ -61,13 +61,13 @@ namespace granada{
          * @param  key  Key to identify the value.
          * @return      Value.
          */
-        std::string Read(const std::string& hash,const std::string& key);
+        const std::string Read(const std::string& hash,const std::string& key);
 
 
         /**
          * Returns an unordered map with given name containing key-value pairs.
          */
-        std::unordered_map<std::string,std::string> GetProperties(const std::string& hash);
+        const std::unordered_map<std::string,std::string> GetProperties(const std::string& hash);
 
 
         /**
@@ -108,7 +108,7 @@ namespace granada{
          * @param  hash Name of the unordered map containing the key-value pairs.
          * @return      Number of key-value pairs contained in the unordered-map.
          */
-        int Length(const std::string& hash);
+        const int Length(const std::string& hash);
 
       private:
 

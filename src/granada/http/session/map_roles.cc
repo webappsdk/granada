@@ -33,7 +33,7 @@ namespace granada{
         session_ = session;
       }
 
-      bool MapRoles::Is(const std::string& role_name){
+      const bool MapRoles::Is(const std::string& role_name){
         auto it = roles_and_properties_.find(role_name);
         if (it != roles_and_properties_.end()){
           return true;
@@ -41,7 +41,7 @@ namespace granada{
         return false;
       }
 
-      bool MapRoles::Add(const std::string& role_name){
+      const bool MapRoles::Add(const std::string& role_name){
         // add only if role is not already added.
         if (!Is(role_name)){
           std::unordered_map<std::string, std::string> properties;
@@ -69,7 +69,7 @@ namespace granada{
         }
       }
 
-      std::string MapRoles::GetProperty(const std::string& role_name, const std::string& key){
+      const std::string MapRoles::GetProperty(const std::string& role_name, const std::string& key){
         auto it = roles_and_properties_.find(role_name);
         if (it != roles_and_properties_.end()){
           std::unordered_map<std::string, std::string> properties = it->second;

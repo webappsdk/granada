@@ -42,7 +42,7 @@ namespace granada{
        * @param  filename File name or path from which to extract the extension.
        * @return          Extension of the file.
        */
-      std::string GetExtension(const std::string& filename);
+      const std::string GetExtension(const std::string& filename);
 
 
       /**
@@ -75,12 +75,12 @@ namespace granada{
            * @param  name [description]
            * @return      [description]
            */
-          std::string GetProperty(const std::string& name);
+          const std::string GetProperty(const std::string& name);
 
           /**
            * Check if file properties are parsed
            */
-          bool empty(){ return properties_.empty(); };
+          const bool empty(){ return properties_.empty(); };
         private:
 
 
@@ -114,7 +114,7 @@ namespace granada{
            * @param  properties unordered_map containing pairs of properties and values.
            * @return            True if property has been parsed, false if not or the line to parse does not contain a property name and value.
            */
-          bool ParseProperty(const std::string &line,std::unordered_map<std::string,std::string> &properties);
+          const bool ParseProperty(const std::string &line,std::unordered_map<std::string,std::string> &properties);
 
 
           /**

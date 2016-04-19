@@ -57,11 +57,11 @@ namespace granada{
         }
       }
 
-      std::string SharedMapSessionHandler::GetProperty(const std::string& name){
+      const std::string SharedMapSessionHandler::GetProperty(const std::string& name){
         return granada::util::application::GetProperty(name);
       }
 
-      bool SharedMapSessionHandler::SessionExists(const std::string& token){
+      const bool SharedMapSessionHandler::SessionExists(const std::string& token){
         if (!token.empty()){
           mtx.lock();
           auto it = sessions_->find(token);
@@ -74,7 +74,7 @@ namespace granada{
         return false;
       }
 
-      std::string SharedMapSessionHandler::GenerateToken(){
+      const std::string SharedMapSessionHandler::GenerateToken(){
         return SharedMapSessionHandler::n_generator_.generate();
       }
 

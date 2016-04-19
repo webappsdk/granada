@@ -53,7 +53,7 @@ namespace granada{
       }
 
 
-      bool Session::LoadSession(web::http::http_request &request,web::http::http_response &response){
+      const bool Session::LoadSession(web::http::http_request &request,web::http::http_response &response){
         if (session_token_support_.empty()){
           // request token by default
           session_token_support_ = Session::DEFAULT_SESSIONS_TOKEN_SUPPORT[0];
@@ -80,7 +80,7 @@ namespace granada{
       }
 
 
-      bool Session::LoadSession(web::http::http_request &request){
+      const bool Session::LoadSession(web::http::http_request &request){
         if (session_token_support_.empty()){
           // request token by default
           session_token_support_ = Session::DEFAULT_SESSIONS_TOKEN_SUPPORT[1];
@@ -119,7 +119,7 @@ namespace granada{
       }
 
 
-      bool Session::LoadSession(const std::string& token){
+      const bool Session::LoadSession(const std::string& token){
         if (!token.empty()){
           // use session handler to load session from wherever the sessions are stored.
           // If session is found the value of this session will be replaced by the
@@ -135,7 +135,7 @@ namespace granada{
         return false;
       }
 
-      void Session::_Open(){
+      void Session::Open(){
         // generate token
         token_.assign(session_handler()->GenerateToken());
         // check if session do not already exist.
@@ -149,32 +149,32 @@ namespace granada{
         }
       }
 
-      void Session::_Update(){
+      void Session::Update(){
         // set the update time to now.
         update_time_ = std::time(nullptr);
         // save the session wherever all the sessions are stored.
         //session_handler()->SaveSession(this);
       }
 
-      void Session::_Close(){
+      void Session::Close(){
         // removes a session from wherever sessions are stored.
         session_handler()->DeleteSession(this);
       }
 
-      bool Session::_IsValid(){
+      const bool Session::IsValid(){
         return !IsTimedOut();
       }
 
-      bool Session::_IsGarbage(){
+      const bool Session::IsGarbage(){
         return !IsValid();
       }
 
 
-      bool Session::IsTimedOut(){
+      const bool Session::IsTimedOut(){
         return IsTimedOut(0);
       }
 
-      bool Session::IsTimedOut(const long& extra_seconds){
+      const bool Session::IsTimedOut(const long& extra_seconds){
         if (session_timeout_>-1){
           std::time_t now = time(&now);
           long seconds = difftime(now,update_time_);

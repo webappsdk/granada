@@ -46,7 +46,7 @@ namespace granada{
       }
     }
 
-    std::string RedisCacheDriver::Read(const std::string& key){
+    const std::string RedisCacheDriver::Read(const std::string& key){
       mtx.lock();
       RedisValue result = redis_->command("GET", key);
       if( result.isOk() )
@@ -58,7 +58,7 @@ namespace granada{
       return std::string();
     }
 
-    std::string RedisCacheDriver::Read(const std::string& hash,const std::string& key){
+    const std::string RedisCacheDriver::Read(const std::string& hash,const std::string& key){
       mtx.lock();
       RedisValue result = redis_->command("HGET", hash, key);
       if( result.isOk() )

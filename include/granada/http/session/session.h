@@ -71,13 +71,13 @@ namespace granada{
           /**
            * Opens a new session with a unique token.
            */
-          virtual void Open(){};
+          virtual void Open();
 
 
           /**
            * Closes a session deleting it.
            */
-          virtual void Close(){};
+          virtual void Close();
 
 
           /**
@@ -85,7 +85,7 @@ namespace granada{
            * That means the session will timeout in now + timeout. It will keep
            * the session alive.
            */
-          virtual void Update(){};
+          virtual void Update();
 
 
           /**
@@ -94,7 +94,7 @@ namespace granada{
            * may be overriden if we need to add other validity factors.
            * @return true if session is valid, false if it is not.
            */
-          virtual bool IsValid(){ return false; };
+          virtual const bool IsValid();
 
 
           /**
@@ -107,7 +107,7 @@ namespace granada{
            * will only be a garbage session after it has been timed out for three hours.
            * @return true is session is garbage, false if it is not.
            */
-          virtual bool IsGarbage(){ return false; };
+          virtual const bool IsGarbage();
 
 
           /**
@@ -121,14 +121,14 @@ namespace granada{
            * Returns the session unique token.
            * @return token
            */
-          std::string GetToken(){ return token_; };
+          const std::string& GetToken(){ return token_; };
 
 
           /**
            * Returns the last modification time.
            * @return Last modification time.
            */
-          std::time_t GetUpdateTime(){ return update_time_; };
+          const std::time_t& GetUpdateTime(){ return update_time_; };
 
 
         protected:
@@ -195,12 +195,6 @@ namespace granada{
           virtual granada::http::session::SessionHandler* session_handler(){ return nullptr; };
 
 
-          virtual void _Open();
-          virtual void _Update();
-          virtual void _Close();
-          virtual bool _IsValid();
-          virtual bool _IsGarbage();
-
           /**
            * Load session.
            * Retrieves the token of the session and loads a session
@@ -217,23 +211,23 @@ namespace granada{
            * @param  response Http response.
            * @return          True if session has been retrieved or created successfuly.
            */
-          virtual bool LoadSession(web::http::http_request &request,web::http::http_response &response);
-          virtual bool LoadSession(web::http::http_request &request);
-          virtual bool LoadSession(const std::string& token);
+          virtual const bool LoadSession(web::http::http_request &request,web::http::http_response &response);
+          virtual const bool LoadSession(web::http::http_request &request);
+          virtual const bool LoadSession(const std::string& token);
 
 
           /**
            * Returns true if the session is timed out, false if it is not.
            * @return true | false.
            */
-          virtual bool IsTimedOut();
+          virtual const bool IsTimedOut();
           /**
            * Returns true if the session is timed out since the given extra seconds,
            * false if it is not.
            * @param  extra_seconds
            * @return               true | false
            */
-          virtual bool IsTimedOut(const long& extra_seconds);
+          virtual const bool IsTimedOut(const long& extra_seconds);
 
           /**
            * Method that loads the session properties: token label,

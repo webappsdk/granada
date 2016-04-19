@@ -4,7 +4,7 @@ namespace granada{
   namespace util{
     namespace application{
 
-      std::string get_selfpath(){
+      const std::string& get_selfpath(){
         if (selfpath.empty()){
           #ifdef WINDOWS
             char result[MAX_PATH];
@@ -25,7 +25,7 @@ namespace granada{
         return selfpath;
       }
 
-      std::string GetProperty(const std::string& name){
+      const std::string GetProperty(const std::string& name){
         if (property_file_ == NULL){
           std::string configuration_file_path = get_selfpath() + "/server.conf";
           property_file_ = std::unique_ptr<granada::util::file::PropertyFile>(new granada::util::file::PropertyFile(configuration_file_path));

@@ -66,7 +66,7 @@ namespace granada{
       }
 
       void StorageSession::Open(){
-        Session::_Open();
+        Session::Open();
       }
 
       void StorageSession::Update(){
@@ -79,18 +79,18 @@ namespace granada{
       }
 
       void StorageSession::Close(){
-        Session::_Close();
+        Session::Close();
       }
 
-      bool StorageSession::IsValid(){
-        return Session::_IsValid();
+      const bool StorageSession::IsValid(){
+        return Session::IsValid();
       }
 
-      bool StorageSession::IsGarbage(){
-        return Session::_IsGarbage();
+      const bool StorageSession::IsGarbage(){
+        return Session::IsGarbage();
       }
 
-      std::string StorageSession::Read(const std::string& key){
+      const std::string StorageSession::Read(const std::string& key){
         return cache_.Read(key);
       }
 

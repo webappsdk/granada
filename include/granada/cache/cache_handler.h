@@ -51,7 +51,7 @@ namespace granada{
          * @param  key Key of the value.
          * @return     Value
          */
-        virtual std::string Read(const std::string& key){ return std::string(); };
+        virtual const std::string Read(const std::string& key){ return std::string(); };
 
 
         /**

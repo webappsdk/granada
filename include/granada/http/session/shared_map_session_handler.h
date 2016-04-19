@@ -51,15 +51,15 @@ namespace granada{
 
 
           // override
-          std::string GetProperty(const std::string& name);
+          const std::string GetProperty(const std::string& name);
 
 
           // override
-          bool SessionExists(const std::string& token);
+          const bool SessionExists(const std::string& token);
 
 
           // override
-          std::string GenerateToken();
+          const std::string GenerateToken();
 
 
           // override

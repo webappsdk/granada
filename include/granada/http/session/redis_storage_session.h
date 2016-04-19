@@ -63,10 +63,10 @@ namespace granada{
           void Update();
 
           // override
-          bool IsValid();
+          const bool IsValid();
 
           //override
-          bool IsGarbage();
+          const bool IsGarbage();
 
           // override
           granada::http::session::Roles* roles(){ return roles_.get(); };
@@ -85,7 +85,7 @@ namespace granada{
            * @param  key Key or name of the data.
            * @return     Data as string.
            */
-          std::string Read(const std::string& key);
+          const std::string Read(const std::string& key);
 
 
           /**

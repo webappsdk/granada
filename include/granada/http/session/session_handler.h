@@ -54,7 +54,7 @@ namespace granada{
            * @param  name Name of the property.
            * @return      Value of the property.
            */
-          virtual std::string GetProperty(const std::string& name){ return std::string(); };
+          virtual const std::string GetProperty(const std::string& name){ return std::string(); };
 
 
           /**
@@ -63,14 +63,14 @@ namespace granada{
            * @param  token Token of the session to check.
            * @return       true if session exists and false if it does not.
            */
-          virtual bool SessionExists(const std::string& token){ return true; };
+          virtual const bool SessionExists(const std::string& token){ return true; };
 
 
           /**
            * Generate a new unique token.
            * @return Generated Token.
            */
-          virtual std::string GenerateToken(){ return std::string(); };
+          virtual const std::string GenerateToken(){ return std::string(); };
 
 
           /**

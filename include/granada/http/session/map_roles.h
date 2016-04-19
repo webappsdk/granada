@@ -40,11 +40,11 @@ namespace granada{
           MapRoles(granada::http::session::Session* session);
 
           // override
-          bool Is(const std::string& role_name);
+          const bool Is(const std::string& role_name);
 
 
           // override
-          bool Add(const std::string& role_name);
+          const bool Add(const std::string& role_name);
 
 
           // override
@@ -56,7 +56,7 @@ namespace granada{
 
 
           // override
-          std::string GetProperty(const std::string& role_name, const std::string& key);
+          const std::string GetProperty(const std::string& role_name, const std::string& key);
 
 
           // override

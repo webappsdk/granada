@@ -98,7 +98,22 @@ namespace granada{
            * From cpprest/asyncrt_utils.h
            * Generate a nonce string containing random alphanumeric characters (A-Za-z0-9).
            */
-          utility::nonce_generator n_generator_;
+          std::unique_ptr<utility::nonce_generator> n_generator_;
+
+
+          /**
+           * Default token length.
+           * This default value is taken in case "session_default_token_length" property is
+           * not found.
+           */
+          const double DEFAULT_TOKEN_LENGTH = 64;
+
+
+          /**
+           * Token length. It will be set on LoadProperties(), if not found, it will take
+           * the value of DEFAULT_TOKEN_LENGTH.
+           */
+          double token_length_;
 
 
           /**

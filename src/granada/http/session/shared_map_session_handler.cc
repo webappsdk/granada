@@ -32,7 +32,9 @@ namespace granada{
     namespace session{
 
       SharedMapSessionHandler::SharedMapSessionHandler() : SessionHandler(){
-        n_generator_ = utility::nonce_generator(64);
+        LoadProperties();
+
+        std::unique_ptr<utility::nonce_generator> n_generator_ = std::unique_ptr<utility::nonce_generator>(new utility::nonce_generator(64));
         sessions_ = std::unique_ptr<std::map<std::string,std::shared_ptr<granada::http::session::Session>>>(new std::map<std::string,std::shared_ptr<granada::http::session::Session>>);
 
         LoadProperties();
@@ -55,6 +57,16 @@ namespace granada{
             clean_sessions_frequency_ = DEFAULT_CLEAN_SESSIONS_FREQUENCY;
           }
         }
+        std::string token_length_str(GetProperty("session_default_token_length"));
+        if (token_length_str.empty()){
+          token_length_ = DEFAULT_TOKEN_LENGTH;
+        }else{
+          try{
+            token_length_ = std::stod(token_length_str);
+          }catch(const std::exception& e){
+            token_length_ = DEFAULT_TOKEN_LENGTH;
+          }
+        }
       }
 
       const std::string SharedMapSessionHandler::GetProperty(const std::string& name){
@@ -75,7 +87,7 @@ namespace granada{
       }
 
       const std::string SharedMapSessionHandler::GenerateToken(){
-        return SharedMapSessionHandler::n_generator_.generate();
+        return SharedMapSessionHandler::n_generator_->generate();
       }
 
       void SharedMapSessionHandler::LoadSession(const std::string& token,granada::http::session::Session* virgin){

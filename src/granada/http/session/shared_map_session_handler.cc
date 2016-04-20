@@ -34,10 +34,9 @@ namespace granada{
       SharedMapSessionHandler::SharedMapSessionHandler() : SessionHandler(){
         LoadProperties();
 
-        std::unique_ptr<utility::nonce_generator> n_generator_ = std::unique_ptr<utility::nonce_generator>(new utility::nonce_generator(64));
+        n_generator_ = std::unique_ptr<utility::nonce_generator>(new utility::nonce_generator(token_length_));
         sessions_ = std::unique_ptr<std::map<std::string,std::shared_ptr<granada::http::session::Session>>>(new std::map<std::string,std::shared_ptr<granada::http::session::Session>>);
 
-        LoadProperties();
         // thread for cleaning the sessions.
         if (clean_sessions_frequency_>-1){
           pplx::create_task([this]{
@@ -62,7 +61,7 @@ namespace granada{
           token_length_ = DEFAULT_TOKEN_LENGTH;
         }else{
           try{
-            token_length_ = std::stod(token_length_str);
+            token_length_ = std::stoi(token_length_str);
           }catch(const std::exception& e){
             token_length_ = DEFAULT_TOKEN_LENGTH;
           }

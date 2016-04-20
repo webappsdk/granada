@@ -106,14 +106,14 @@ namespace granada{
            * This default value is taken in case "session_default_token_length" property is
            * not found.
            */
-          const double DEFAULT_TOKEN_LENGTH = 64;
+          const int DEFAULT_TOKEN_LENGTH = 64;
 
 
           /**
            * Token length. It will be set on LoadProperties(), if not found, it will take
            * the value of DEFAULT_TOKEN_LENGTH.
            */
-          double token_length_;
+          int token_length_;
 
 
           /**

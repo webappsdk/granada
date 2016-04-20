@@ -31,8 +31,10 @@ namespace granada{
 
     RedisCacheDriver::RedisCacheDriver(){
 
-      boost::asio::ip::address address = boost::asio::ip::address::from_string("127.0.0.1");
-      const unsigned short port = 6379;
+      LoadProperties();
+
+      boost::asio::ip::address address = boost::asio::ip::address::from_string(redis_address_);
+      const unsigned short port = redis_port_;
 
       boost::asio::io_service ioService;
       redis_ = std::shared_ptr<RedisSyncClient>(new RedisSyncClient(ioService));
@@ -41,10 +43,29 @@ namespace granada{
 
       if( !redis_->connect(address, port, errmsg) )
       {
-          // log debug
           std::cout << "Can t connect to redis: " << errmsg << std::endl;
       }
     }
+
+
+    void RedisCacheDriver::LoadProperties(){
+      redis_address_.assign(granada::util::application::GetProperty("redis_cache_driver_address"));
+      if (redis_address_.empty()){
+        redis_address_.assign(DEFAULT_REDIS_ADDRESS);
+      }
+
+      std::string redis_port_str = granada::util::application::GetProperty("redis_cache_driver_port");
+      if (redis_port_str.empty()){
+        redis_port_ = DEFAULT_REDIS_PORT;
+      }else{
+        try{
+          redis_port_ = (unsigned short) std::strtoul(redis_port_str.c_str(), NULL, 0);
+        }catch(const std::exception& e){
+          redis_port_ = DEFAULT_REDIS_PORT;
+        }
+      }
+    }
+
 
     const std::string RedisCacheDriver::Read(const std::string& key){
       mtx.lock();
@@ -58,6 +79,7 @@ namespace granada{
       return std::string();
     }
 
+
     const std::string RedisCacheDriver::Read(const std::string& hash,const std::string& key){
       mtx.lock();
       RedisValue result = redis_->command("HGET", hash, key);
@@ -70,11 +92,13 @@ namespace granada{
       return std::string();
     }
 
+
     void RedisCacheDriver::Write(const std::string& key,const std::string& value){
       mtx.lock();
       redis_->command("SET", key, value);
       mtx.unlock();
     }
+
 
     void RedisCacheDriver::Write(const std::string& hash,const std::string& key,const std::string& value){
       mtx.lock();
@@ -82,11 +106,13 @@ namespace granada{
       mtx.unlock();
     }
 
+
     void RedisCacheDriver::Destroy(const std::string& key){
       mtx.lock();
       redis_->command("DEL", key);
       mtx.unlock();
     }
+
 
     void RedisCacheDriver::Destroy(const std::string& hash,const std::string& key){
       mtx.lock();

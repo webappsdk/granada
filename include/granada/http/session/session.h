@@ -130,7 +130,6 @@ namespace granada{
            */
           const std::time_t& GetUpdateTime(){ return update_time_; };
 
-
         protected:
 
 

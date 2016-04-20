@@ -44,25 +44,25 @@ namespace granada{
 
         web::http::http_response response;
 
-        granada::http::session::StorageSession simple_session(request,response);
+        granada::http::session::StorageSession storage_session(request,response);
 
         auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
         if (!paths.empty()){
           std::string name = paths[0];
 
           if(name == "set"){
-            simple_session.Write("test","testvalue!");
-            std::string value = simple_session.Read("test");
+            storage_session.Write("test","testvalue!");
+            std::string value = storage_session.Read("test");
             response.set_body("{\"success\":true,\"value\":\"" + value + "\"}");
 
           }else if (name == "get"){
-            std::string value = simple_session.Read("test");
+            std::string value = storage_session.Read("test");
             response.set_body("{\"success\":true,\"value\":\"" + value + "\"}");
           }else if (name == "auth"){
-            if (simple_session.GetToken().empty()){
-              simple_session.Open();
+            if (storage_session.GetToken().empty()){
+              storage_session.Open();
             }
-            response.set_body("{\"success\":true,\"token\":\"" + simple_session.GetToken() + "\"}");
+            response.set_body("{\"success\":true,\"token\":\"" + storage_session.GetToken() + "\"}");
           }
         }
 
@@ -85,25 +85,25 @@ namespace granada{
       {
         web::http::http_response response;
 
-        granada::http::session::StorageSession simple_session(request,response);
+        granada::http::session::StorageSession storage_session(request,response);
 
         auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
         if (!paths.empty()){
           std::string name = paths[0];
 
           if(name == "set"){
-            simple_session.Write("test","testvalue!");
-            std::string value = simple_session.Read("test");
+            storage_session.Write("test","testvalue!");
+            std::string value = storage_session.Read("test");
             response.set_body("{\"success\":true,\"value\":\"" + value + "\"}");
 
           }else if (name == "get"){
-            std::string value = simple_session.Read("test");
+            std::string value = storage_session.Read("test");
             response.set_body("{\"success\":true,\"value\":\"" + value + "\"}");
           }else if (name == "auth"){
-            if (simple_session.GetToken().empty()){
-              simple_session.Open();
+            if (storage_session.GetToken().empty()){
+              storage_session.Open();
             }
-            response.set_body("{\"success\":true,\"token\":\"" + simple_session.GetToken() + "\"}");
+            response.set_body("{\"success\":true,\"token\":\"" + storage_session.GetToken() + "\"}");
           }
         }
 

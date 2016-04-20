@@ -28,6 +28,7 @@
   *
   */
 #pragma once
+#include "granada/util/application.h"
 #include "cache_handler.h"
 #include <string>
 #include <mutex>
@@ -108,6 +109,43 @@ namespace granada{
          * Mutex. For multi-thread safety.
          */
         std::mutex mtx;
+
+
+        /**
+         * Address used in case "redis_cache_driver_address" property
+         * is not provided.
+         */
+        const std::string DEFAULT_REDIS_ADDRESS = "127.0.0.1";
+
+
+        /**
+         * Loaded in LoadProperties() function, will take the value
+         * of the "redis_cache_driver_address" property. If the property
+         * is not provided DEFAULT_REDIS_ADDRESS will be taken instead.
+         */
+        std::string redis_address_;
+
+
+        /**
+         * Port used in case "redis_cache_driver_port" property
+         * is not provided.
+         */
+        const unsigned short DEFAULT_REDIS_PORT = 6379;
+
+
+        /**
+         * Loaded in LoadProperties() function, will take the value
+         * of the "redis_cache_driver_port" property. If the property
+         * is not provided DEFAULT_REDIS_PORT will be taken instead.
+         */
+        unsigned short redis_port_;
+
+
+        /**
+         * Load properties for configuring the redis server connection.
+         */
+        void LoadProperties();
+
     };
   }
 }

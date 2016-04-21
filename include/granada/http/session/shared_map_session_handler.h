@@ -103,7 +103,7 @@ namespace granada{
 
           /**
            * Default token length.
-           * This default value is taken in case "session_default_token_length" property is
+           * This default value is taken in case "session_token_length" property is
            * not found.
            */
           const int DEFAULT_TOKEN_LENGTH = 64;

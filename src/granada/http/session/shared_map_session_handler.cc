@@ -56,7 +56,7 @@ namespace granada{
             clean_sessions_frequency_ = DEFAULT_CLEAN_SESSIONS_FREQUENCY;
           }
         }
-        std::string token_length_str(GetProperty("session_default_token_length"));
+        std::string token_length_str(GetProperty("session_token_length"));
         if (token_length_str.empty()){
           token_length_ = DEFAULT_TOKEN_LENGTH;
         }else{

@@ -80,7 +80,7 @@ namespace granada{
       }
 
       void RedisStorageSession::Close(){
-        cache_->Destroy("SESSION_STORAGE_" + token_);
+        cache_->Destroy("session:storage:" + token_);
         Session::Close();
       }
 
@@ -93,15 +93,15 @@ namespace granada{
       }
 
       const std::string RedisStorageSession::Read(const std::string& key){
-        return cache_->Read("SESSION_STORAGE_" + token_, key);
+        return cache_->Read("session:storage:" + token_, key);
       }
 
       void RedisStorageSession::Write(const std::string& key, const std::string& value){
-        cache_->Write("SESSION_STORAGE_" + token_, key, value);
+        cache_->Write("session:storage:" + token_, key, value);
       }
 
       void RedisStorageSession::Destroy(const std::string& key){
-        cache_->Destroy("SESSION_STORAGE_" + token_, key);
+        cache_->Destroy("session:storage:" + token_, key);
       }
     }
   }

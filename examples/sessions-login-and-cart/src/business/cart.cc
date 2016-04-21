@@ -98,7 +98,7 @@ namespace business{
 
 
   void Cart::SwitchToUser(){
-    std::string old_hash = "CART_" + session_->GetToken();
+    std::string old_hash = "cart:" + session_->GetToken();
     if (cache_->Length(old_hash) > 0){
       std::unordered_map<std::string,std::string> products = cache_->GetProperties(old_hash);
       cache_->Write(GetHash(),products);
@@ -109,9 +109,9 @@ namespace business{
 
   std::string Cart::GetHash(){
     if (session_->roles()->Is("USER")){
-      return "CART_" + session_->roles()->GetProperty("USER", "username");
+      return "cart:" + session_->roles()->GetProperty("USER", "username");
     }else{
-      return "CART_"+session_->GetToken();
+      return "cart:"+session_->GetToken();
     }
   }
 }

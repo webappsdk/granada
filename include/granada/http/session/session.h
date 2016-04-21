@@ -62,6 +62,18 @@ namespace granada{
             (*this) = (*session);
           };
 
+
+          /**
+           * Set the value of the sessions, may be overriden in case we want to
+           * make other actions.
+           * @param session
+           */
+          virtual void set(const std::string& token,const std::time_t& update_time){
+            SetToken(token);
+            SetUpdateTime(update_time);
+          };
+
+
           /**
            * Destructor
            */
@@ -125,10 +137,22 @@ namespace granada{
 
 
           /**
+           * Sets the session unique token.
+           */
+          void SetToken(const std::string& token){ token_.assign(token); };
+
+
+          /**
            * Returns the last modification time.
            * @return Last modification time.
            */
           const std::time_t& GetUpdateTime(){ return update_time_; };
+
+
+          /**
+           * Sets the last modification time.
+           */
+          void SetUpdateTime(const std::time_t& update_time){ update_time_ = update_time; };
 
         protected:
 

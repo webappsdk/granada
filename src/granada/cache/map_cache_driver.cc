@@ -33,6 +33,14 @@ namespace granada{
       data_ = std::shared_ptr<std::unordered_map<std::string,std::string>>(new std::unordered_map<std::string,std::string>());
     }
 
+    const bool MapCacheDriver::Exists(const std::string& key){
+      auto it = data_->find(key);
+      if (it != data_->end()){
+        return true;
+      }
+      return false;
+    }
+
     const std::string MapCacheDriver::Read(const std::string& key){
       auto it = data_->find(key);
       if (it != data_->end()){

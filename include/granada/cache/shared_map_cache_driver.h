@@ -54,6 +54,19 @@ namespace granada{
         SharedMapCacheDriver();
 
 
+        // override
+        const bool Exists(const std::string& key);
+
+
+        /**
+         * Checks if a key exist in a set with given hash.
+         * @param  hash Name of the set of key-value.
+         * @param  key  Key of the value
+         * @return      True if exist, false if it does not.
+         */
+        const bool Exists(const std::string& hash,const std::string& key);
+
+
         /**
          * Returns the value of a key-value pair stored in
          * an unordered_map with the given name.

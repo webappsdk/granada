@@ -47,6 +47,19 @@ namespace granada{
         RedisCacheDriver();
 
 
+        // override
+        const bool Exists(const std::string& key);
+
+
+        /**
+         * Checks if a key exist in a set with given hash.
+         * @param  hash Name of the set of key-value.
+         * @param  key  Key of the value
+         * @return      True if exist, false if it does not.
+         */
+        const bool Exists(const std::string& hash,const std::string& key);
+
+
         /**
          * Override. Returns the value associated with the given key.
          * @param  key Key associated with the value.

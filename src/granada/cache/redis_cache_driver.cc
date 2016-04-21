@@ -67,6 +67,33 @@ namespace granada{
     }
 
 
+    const bool RedisCacheDriver::Exists(const std::string& key){
+      mtx.lock();
+      RedisValue result = redis_->command("EXISTS", key);
+      if( result.isOk() )
+      {
+        mtx.unlock();
+        return result.toInt();
+      }
+      mtx.unlock();
+      return false;
+    }
+
+    const bool RedisCacheDriver::Exists(const std::string& hash,const std::string& key){
+      mtx.lock();
+      RedisValue result = redis_->command("EXISTS", hash);
+      if( result.isOk() )
+      {
+        if (result.toInt()){
+          mtx.unlock();
+          return !Read(key).empty();
+        }
+      }
+      mtx.unlock();
+      return false;
+    }
+
+
     const std::string RedisCacheDriver::Read(const std::string& key){
       mtx.lock();
       RedisValue result = redis_->command("GET", key);

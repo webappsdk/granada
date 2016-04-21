@@ -47,6 +47,14 @@ namespace granada{
 
 
         /**
+         * Returns true if key exists, false if it does not.
+         * @param  key Key.
+         * @return     True if key exists, false if it does not.
+         */
+        virtual const bool Exists(const std::string& key){ return false; };
+
+
+        /**
          * Returns value from the cache.
          * @param  key Key of the value.
          * @return     Value

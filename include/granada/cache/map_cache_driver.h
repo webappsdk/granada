@@ -46,6 +46,10 @@ namespace granada{
 
 
         // override
+        const bool Exists(const std::string& key);
+
+
+        // override
         const std::string Read(const std::string& key);
 
 

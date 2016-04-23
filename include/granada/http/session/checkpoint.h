@@ -46,10 +46,36 @@ namespace granada{
            * Checks if session is open / valid.
            * Can be used in case we want to open a session in case it does not exist,
            * or in case it is timed out.
+           */
+          virtual void check(){};
+
+
+          /**
+           * Checks if session is open / valid.
+           * Can be used in case we want to open a session in case it does not exist,
+           * or in case it is timed out.
            * @param request   HTTP request.
            * @param response  HTTP response.
            */
           virtual void check(web::http::http_request &request,web::http::http_response &response){};
+
+
+          /**
+           * Checks if session is open / valid.
+           * Can be used in case we want to open a session in case it does not exist,
+           * or in case it is timed out.
+           * @param request   HTTP request.
+           */
+          virtual void check(web::http::http_request &request){};
+
+
+          /**
+           * Checks if session is open / valid.
+           * Can be used in case we want to open a session in case it does not exist,
+           * or in case it is timed out.
+           * @param token   Session token.
+           */
+          virtual void check(const std::string& token){};
 
       };
     }

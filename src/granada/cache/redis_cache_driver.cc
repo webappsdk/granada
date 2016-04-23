@@ -70,26 +70,24 @@ namespace granada{
     const bool RedisCacheDriver::Exists(const std::string& key){
       mtx.lock();
       RedisValue result = redis_->command("EXISTS", key);
+      mtx.unlock();
       if( result.isOk() )
       {
-        mtx.unlock();
         return result.toInt();
       }
-      mtx.unlock();
       return false;
     }
 
     const bool RedisCacheDriver::Exists(const std::string& hash,const std::string& key){
       mtx.lock();
       RedisValue result = redis_->command("EXISTS", hash);
+      mtx.unlock();
       if( result.isOk() )
       {
         if (result.toInt()){
-          mtx.unlock();
           return !Read(key).empty();
         }
       }
-      mtx.unlock();
       return false;
     }
 
@@ -97,12 +95,11 @@ namespace granada{
     const std::string RedisCacheDriver::Read(const std::string& key){
       mtx.lock();
       RedisValue result = redis_->command("GET", key);
+      mtx.unlock();
       if( result.isOk() )
       {
-        mtx.unlock();
         return result.toString();
       }
-      mtx.unlock();
       return std::string();
     }
 
@@ -110,12 +107,11 @@ namespace granada{
     const std::string RedisCacheDriver::Read(const std::string& hash,const std::string& key){
       mtx.lock();
       RedisValue result = redis_->command("HGET", hash, key);
+      mtx.unlock();
       if( result.isOk() )
       {
-        mtx.unlock();
         return result.toString();
       }
-      mtx.unlock();
       return std::string();
     }
 

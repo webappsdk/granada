@@ -46,7 +46,7 @@ namespace granada{
           /**
            * Destructor
            */
-          ~SessionHandler(){};
+          virtual ~SessionHandler(){};
 
 
           /**

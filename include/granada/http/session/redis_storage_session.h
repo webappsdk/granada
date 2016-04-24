@@ -29,7 +29,7 @@
 #pragma once
 #include "session.h"
 #include "map_roles.h"
-#include "shared_map_session_handler.h"
+#include "redis_session_handler.h"
 #include "granada/cache/redis_cache_driver.h"
 
 namespace granada{
@@ -51,6 +51,13 @@ namespace granada{
           void set(granada::http::session::Session* session){
             (*this) = (*((granada::http::session::RedisStorageSession*)session));
             roles_->SetSession(this);
+          };
+
+          // override
+          void set(const std::string& token,const std::time_t& update_time){
+            LoadProperties();
+            SetToken(token);
+            SetUpdateTime(update_time);
           };
 
           // override
@@ -101,7 +108,7 @@ namespace granada{
           /**
            * Hanlder of the sessions lifetime, and where all the application sessions are stored.
            */
-          static std::unique_ptr<granada::http::session::SharedMapSessionHandler> session_handler_;
+          static std::unique_ptr<granada::http::session::RedisSessionHandler> session_handler_;
 
           /**
            * Loads the properties as session_clean_extra_timeout_.

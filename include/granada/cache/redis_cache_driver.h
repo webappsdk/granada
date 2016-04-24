@@ -37,6 +37,7 @@
 
 namespace granada{
   namespace cache{
+
     class RedisCacheDriver : public CacheHandler
     {
       public:
@@ -45,6 +46,12 @@ namespace granada{
          * Controler
          */
         RedisCacheDriver();
+
+
+        /**
+         * Init Redis Sync Client.
+         */
+        static void ConnectRedisSyncClient(RedisSyncClient* redis, const std::string& _address, const unsigned short& port);
 
 
         // override
@@ -159,6 +166,143 @@ namespace granada{
          */
         void LoadProperties();
 
+    };
+
+
+    /**
+     * Tool for SCAN or KEYS search in a Redis database, with a given pattern.
+     */
+    class RedisIterator{
+      public:
+
+        /**
+         * Type of search, SCAN or KEYS
+         */
+        enum Type {KEYS = 0, SCAN = 1};
+
+
+        /**
+         * Constructor
+         */
+        RedisIterator(RedisIterator::Type type, const std::string& expression);
+
+
+        /**
+         * Set the iterator, useful to reuse it.
+         * @param type       SCAN or KEYS command.
+         * @param expression Filter pattern/expression.
+         *                   Example:
+         *                   			session:*TOKEN46464* => will SCAN or KEYS keys that match the given expression.
+         */
+        void set(RedisIterator::Type type, const std::string& expression);
+
+
+        /**
+         * Return true if there is another value with same pattern, false
+         * if thereis not.
+         * @return True | False
+         */
+        const bool has_next();
+
+
+        /**
+         * Return the next key found with the given pattern.
+         * @return [description]
+         */
+        const std::string next();
+
+
+      private:
+
+        /**
+         * Results of the SCAN or KEYS search.
+         */
+        std::vector<RedisValue> keys_;
+
+
+        /**
+         * Index where we are in the results array.
+         */
+        int index_ = 0;
+
+
+        /**
+         * If SCAN search the cursor of the SCAN set we are in.
+         */
+        std::string cursor_ = "";
+
+
+        /**
+         * Search type: SCAN or KEYS
+         */
+        Type type_;
+
+
+        /**
+         * Filter pattern/expression.
+         * SCAN or KEYS keys that match the given expression.
+         */
+        std::string expression_;
+
+
+        /**
+         * True if there is a value to be returned.
+         */
+        bool has_next_ = false;
+
+
+        /**
+         * Redis sync client.
+         */
+        std::unique_ptr<RedisSyncClient> redis_;
+
+
+        /**
+         * Mutex for thread safety.
+         */
+        std::mutex mtx;
+
+
+        /**
+         * Address used in case "redis_cache_driver_address" property
+         * is not provided.
+         */
+        const std::string DEFAULT_REDIS_ADDRESS = "127.0.0.1";
+
+
+        /**
+         * Loaded in LoadProperties() function, will take the value
+         * of the "redis_cache_driver_address" property. If the property
+         * is not provided DEFAULT_REDIS_ADDRESS will be taken instead.
+         */
+        std::string redis_address_;
+
+
+        /**
+         * Port used in case "redis_cache_driver_port" property
+         * is not provided.
+         */
+        const unsigned short DEFAULT_REDIS_PORT = 6379;
+
+
+        /**
+         * Loaded in LoadProperties() function, will take the value
+         * of the "redis_cache_driver_port" property. If the property
+         * is not provided DEFAULT_REDIS_PORT will be taken instead.
+         */
+        unsigned short redis_port_;
+
+
+        /**
+         * Load properties for configuring the redis server connection.
+         */
+        void LoadProperties();
+
+
+        /**
+         * Get the next vector with data of SCAN or KEYS
+         */
+        void GetNextVector();
     };
   }
 }

@@ -90,12 +90,12 @@ namespace granada{
         // extract body from http_access as a vector of unsigned char
         auto body = request.extract_vector().get();
 
-        try{
-          while(ParseFieldsAndPropertiesMDF(body,boundary,multipart_form_data));
-        }catch(const std::exception& e){
-          return multipart_form_data;
+        if (!body.empty()){
+          try{
+            while(ParseFieldsAndPropertiesMDF(body,boundary,multipart_form_data));
+          }catch(const std::exception& e){}
         }
-
+        
         return multipart_form_data;
       }
 

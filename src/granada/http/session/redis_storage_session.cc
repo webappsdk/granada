@@ -33,6 +33,10 @@ namespace granada{
       std::unique_ptr<granada::cache::RedisCacheDriver> RedisStorageSession::cache_(new granada::cache::RedisCacheDriver());
       long RedisStorageSession::DEFAULT_SESSION_CLEAN_EXTRA_TIMEOUT = 0;
 
+      RedisStorageSession::RedisStorageSession(){
+        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
+      }
+
       RedisStorageSession::RedisStorageSession(web::http::http_request &request,web::http::http_response &response){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
         LoadProperties();

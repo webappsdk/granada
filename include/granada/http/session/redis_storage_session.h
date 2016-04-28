@@ -42,7 +42,7 @@ namespace granada{
           /**
            * Constructors
            */
-          RedisStorageSession(){};
+          RedisStorageSession();
           RedisStorageSession(web::http::http_request &request,web::http::http_response &response);
           RedisStorageSession(web::http::http_request &request);
           RedisStorageSession(const std::string& token);

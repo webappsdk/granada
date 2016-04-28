@@ -42,7 +42,7 @@ namespace granada{
           /**
            * Constructors
            */
-          StorageSession(){};
+          StorageSession();
           StorageSession(web::http::http_request &request,web::http::http_response &response);
           StorageSession(web::http::http_request &request);
           StorageSession(const std::string& token);

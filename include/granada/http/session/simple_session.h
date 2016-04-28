@@ -40,7 +40,7 @@ namespace granada{
           /**
            * Constructors
            */
-          SimpleSession(){};
+          SimpleSession();
           SimpleSession(web::http::http_request &request,web::http::http_response &response);
           SimpleSession(web::http::http_request &request);
           SimpleSession(const std::string& token);

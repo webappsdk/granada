@@ -32,7 +32,6 @@
 #pragma once
 #include <string>
 #include "session.h"
-#include <unordered_map>
 
 namespace granada{
   namespace http{

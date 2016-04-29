@@ -34,23 +34,23 @@ namespace granada{
       long RedisStorageSession::DEFAULT_SESSION_CLEAN_EXTRA_TIMEOUT = 0;
 
       RedisStorageSession::RedisStorageSession(){
-        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
+        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
       }
 
       RedisStorageSession::RedisStorageSession(web::http::http_request &request,web::http::http_response &response){
-        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
+        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
         LoadProperties();
         Session::LoadSession(request,response);
       }
 
       RedisStorageSession::RedisStorageSession(web::http::http_request &request){
-        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
+        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
         LoadProperties();
         Session::LoadSession(request);
       }
 
       RedisStorageSession::RedisStorageSession(const std::string& token){
-        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
+        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
         LoadProperties();
         Session::LoadSession(token);
       }

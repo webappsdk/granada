@@ -28,7 +28,7 @@
 
 #pragma once
 #include "session.h"
-#include "map_roles.h"
+#include "redis_roles.h"
 #include "redis_session_handler.h"
 #include "granada/cache/redis_cache_driver.h"
 

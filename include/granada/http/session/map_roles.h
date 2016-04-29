@@ -26,6 +26,7 @@
   */
 #pragma once
 #include "roles.h"
+#include <unordered_map>
 
 namespace granada{
   namespace http{

@@ -46,7 +46,7 @@ namespace granada{
 
     const bool SharedMapCacheDriver::Exists(const std::string& hash,const std::string& key){
       mtx.lock();
-      auto it = data_->find(key);
+      auto it = data_->find(hash);
       if (it != data_->end()){
         std::unordered_map<std::string,std::string> properties = it->second;
         auto it2 = properties.find(key);

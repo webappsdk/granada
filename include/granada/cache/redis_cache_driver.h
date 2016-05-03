@@ -38,6 +38,85 @@
 namespace granada{
   namespace cache{
 
+    class RedisSyncClientWrapper{
+      public:
+
+        /**
+         * Constructor.
+         */
+        RedisSyncClientWrapper();
+
+
+        /**
+         * Destructor.
+         */
+        ~RedisSyncClientWrapper(){
+          delete redis_;
+        };
+
+
+        /**
+         * Returns redis sync client pointer.
+         * @return Redis sync client Pointer.
+         */
+        RedisSyncClient* get(){
+          return redis_;
+        };
+
+      private:
+
+        /**
+         * Redis sync client.
+         */
+        RedisSyncClient* redis_;
+
+
+        /**
+         * Address used in case "redis_cache_driver_address" property
+         * is not provided.
+         */
+        const std::string DEFAULT_REDIS_ADDRESS = "127.0.0.1";
+
+
+        /**
+         * Loaded in LoadProperties() function, will take the value
+         * of the "redis_cache_driver_address" property. If the property
+         * is not provided DEFAULT_REDIS_ADDRESS will be taken instead.
+         */
+        std::string redis_address_;
+
+
+        /**
+         * Port used in case "redis_cache_driver_port" property
+         * is not provided.
+         */
+        const unsigned short DEFAULT_REDIS_PORT = 6379;
+
+
+        /**
+         * Loaded in LoadProperties() function, will take the value
+         * of the "redis_cache_driver_port" property. If the property
+         * is not provided DEFAULT_REDIS_PORT will be taken instead.
+         */
+        unsigned short redis_port_;
+
+
+        /**
+         * Load properties for configuring the redis server connection.
+         */
+        void LoadProperties();
+
+
+        /**
+         * Init Redis Sync Client.
+         * @param redis    Redis Sync client pointer.
+         * @param _address Redis server adress.
+         * @param port     Redis server port.
+         */
+        void ConnectRedisSyncClient(RedisSyncClient* redis, const std::string& _address, const unsigned short& port);
+    };
+
+
     class RedisCacheDriver : public CacheHandler
     {
       public:
@@ -45,13 +124,7 @@ namespace granada{
         /**
          * Controler
          */
-        RedisCacheDriver();
-
-
-        /**
-         * Init Redis Sync Client.
-         */
-        static void ConnectRedisSyncClient(RedisSyncClient* redis, const std::string& _address, const unsigned short& port);
+        RedisCacheDriver(){};
 
 
         // override
@@ -122,49 +195,13 @@ namespace granada{
         /**
          * Redis client.
          */
-        std::shared_ptr<RedisSyncClient> redis_;
+        static std::unique_ptr<RedisSyncClientWrapper> redis_;
 
 
         /**
          * Mutex. For multi-thread safety.
          */
         std::mutex mtx;
-
-
-        /**
-         * Address used in case "redis_cache_driver_address" property
-         * is not provided.
-         */
-        const std::string DEFAULT_REDIS_ADDRESS = "127.0.0.1";
-
-
-        /**
-         * Loaded in LoadProperties() function, will take the value
-         * of the "redis_cache_driver_address" property. If the property
-         * is not provided DEFAULT_REDIS_ADDRESS will be taken instead.
-         */
-        std::string redis_address_;
-
-
-        /**
-         * Port used in case "redis_cache_driver_port" property
-         * is not provided.
-         */
-        const unsigned short DEFAULT_REDIS_PORT = 6379;
-
-
-        /**
-         * Loaded in LoadProperties() function, will take the value
-         * of the "redis_cache_driver_port" property. If the property
-         * is not provided DEFAULT_REDIS_PORT will be taken instead.
-         */
-        unsigned short redis_port_;
-
-
-        /**
-         * Load properties for configuring the redis server connection.
-         */
-        void LoadProperties();
 
     };
 
@@ -214,6 +251,8 @@ namespace granada{
 
       private:
 
+        static std::unique_ptr<RedisSyncClientWrapper> redis_;
+
         /**
          * Results of the SCAN or KEYS search.
          */
@@ -252,51 +291,9 @@ namespace granada{
 
 
         /**
-         * Redis sync client.
-         */
-        std::unique_ptr<RedisSyncClient> redis_;
-
-
-        /**
          * Mutex for thread safety.
          */
         std::mutex mtx;
-
-
-        /**
-         * Address used in case "redis_cache_driver_address" property
-         * is not provided.
-         */
-        const std::string DEFAULT_REDIS_ADDRESS = "127.0.0.1";
-
-
-        /**
-         * Loaded in LoadProperties() function, will take the value
-         * of the "redis_cache_driver_address" property. If the property
-         * is not provided DEFAULT_REDIS_ADDRESS will be taken instead.
-         */
-        std::string redis_address_;
-
-
-        /**
-         * Port used in case "redis_cache_driver_port" property
-         * is not provided.
-         */
-        const unsigned short DEFAULT_REDIS_PORT = 6379;
-
-
-        /**
-         * Loaded in LoadProperties() function, will take the value
-         * of the "redis_cache_driver_port" property. If the property
-         * is not provided DEFAULT_REDIS_PORT will be taken instead.
-         */
-        unsigned short redis_port_;
-
-
-        /**
-         * Load properties for configuring the redis server connection.
-         */
-        void LoadProperties();
 
 
         /**

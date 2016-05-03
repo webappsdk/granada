@@ -29,26 +29,17 @@
 namespace granada{
   namespace cache{
 
-    RedisCacheDriver::RedisCacheDriver(){
-
+    RedisSyncClientWrapper::RedisSyncClientWrapper(){
       LoadProperties();
 
+      // init redis async client
       boost::asio::io_service ioService;
-      redis_ = std::shared_ptr<RedisSyncClient>(new RedisSyncClient(ioService));
-      ConnectRedisSyncClient(redis_.get(),redis_address_,redis_port_);
-    }
-
-    void RedisCacheDriver::ConnectRedisSyncClient(RedisSyncClient* redis, const std::string& _address, const unsigned short& port){
-      boost::asio::ip::address address = boost::asio::ip::address::from_string(_address);
-      std::string errmsg;
-      if( !redis->connect(address, port, errmsg) )
-      {
-          std::cout << "Can t connect to redis: " << errmsg << std::endl;
-      }
+      redis_ = new RedisSyncClient(ioService);
+      ConnectRedisSyncClient(redis_,redis_address_,redis_port_);
     }
 
 
-    void RedisCacheDriver::LoadProperties(){
+    void RedisSyncClientWrapper::LoadProperties(){
       redis_address_.assign(granada::util::application::GetProperty("redis_cache_driver_address"));
       if (redis_address_.empty()){
         redis_address_.assign(DEFAULT_REDIS_ADDRESS);
@@ -67,9 +58,22 @@ namespace granada{
     }
 
 
+    void RedisSyncClientWrapper::ConnectRedisSyncClient(RedisSyncClient* redis, const std::string& _address, const unsigned short& port){
+      boost::asio::ip::address address = boost::asio::ip::address::from_string(_address);
+      std::string errmsg;
+      if( !redis->connect(address, port, errmsg) )
+      {
+          std::cout << "Can t connect to redis: " << errmsg << std::endl;
+      }
+    }
+
+
+    std::unique_ptr<RedisSyncClientWrapper> RedisCacheDriver::redis_ = std::unique_ptr<RedisSyncClientWrapper>(new RedisSyncClientWrapper());
+
+
     const bool RedisCacheDriver::Exists(const std::string& key){
       mtx.lock();
-      RedisValue result = redis_->command("EXISTS", key);
+      RedisValue result = redis_->get()->command("EXISTS", key);
       mtx.unlock();
       if( result.isOk() )
       {
@@ -80,7 +84,7 @@ namespace granada{
 
     const bool RedisCacheDriver::Exists(const std::string& hash,const std::string& key){
       mtx.lock();
-      RedisValue result = redis_->command("EXISTS", hash);
+      RedisValue result = redis_->get()->command("EXISTS", hash);
       mtx.unlock();
       if( result.isOk() )
       {
@@ -94,7 +98,7 @@ namespace granada{
 
     const std::string RedisCacheDriver::Read(const std::string& key){
       mtx.lock();
-      RedisValue result = redis_->command("GET", key);
+      RedisValue result = redis_->get()->command("GET", key);
       mtx.unlock();
       if( result.isOk() )
       {
@@ -106,7 +110,7 @@ namespace granada{
 
     const std::string RedisCacheDriver::Read(const std::string& hash,const std::string& key){
       mtx.lock();
-      RedisValue result = redis_->command("HGET", hash, key);
+      RedisValue result = redis_->get()->command("HGET", hash, key);
       mtx.unlock();
       if( result.isOk() )
       {
@@ -118,39 +122,34 @@ namespace granada{
 
     void RedisCacheDriver::Write(const std::string& key,const std::string& value){
       mtx.lock();
-      redis_->command("SET", key, value);
+      redis_->get()->command("SET", key, value);
       mtx.unlock();
     }
 
 
     void RedisCacheDriver::Write(const std::string& hash,const std::string& key,const std::string& value){
       mtx.lock();
-      redis_->command("HSET", hash, key, value);
+      redis_->get()->command("HSET", hash, key, value);
       mtx.unlock();
     }
 
 
     void RedisCacheDriver::Destroy(const std::string& key){
       mtx.lock();
-      redis_->command("DEL", key);
+      redis_->get()->command("DEL", key);
       mtx.unlock();
     }
 
 
     void RedisCacheDriver::Destroy(const std::string& hash,const std::string& key){
       mtx.lock();
-      redis_->command("HDEL", hash, key);
+      redis_->get()->command("HDEL", hash, key);
       mtx.unlock();
     }
 
+    std::unique_ptr<RedisSyncClientWrapper> RedisIterator::redis_ = std::unique_ptr<RedisSyncClientWrapper>(new RedisSyncClientWrapper());
 
     RedisIterator::RedisIterator(RedisIterator::Type type, const std::string& expression){
-      LoadProperties();
-
-      // init redis async client
-      boost::asio::io_service ioService;
-      redis_ = std::unique_ptr<RedisSyncClient>(new RedisSyncClient(ioService));
-      granada::cache::RedisCacheDriver::ConnectRedisSyncClient(redis_.get(),redis_address_,redis_port_);
 
       type_ = type;
       expression_.assign(expression);
@@ -207,7 +206,7 @@ namespace granada{
         if (type_ == 0){
           // KEYS search.
           mtx.lock();
-          RedisValue result = redis_->command("KEYS", expression_);
+          RedisValue result = redis_->get()->command("KEYS", expression_);
           mtx.unlock();
           if( result.isOk() ){
             keys_ = result.toArray();
@@ -220,39 +219,24 @@ namespace granada{
         }else if (type_ == 1){
           // SCAN search.
           mtx.lock();
-          RedisValue result = redis_->command("SCAN", cursor_, "MATCH", expression_);
+          RedisValue result = redis_->get()->command("SCAN", cursor_, "MATCH", expression_);
           mtx.unlock();
           if( result.isOk() ){
             std::vector<RedisValue> result_v = result.toArray();
             if (result_v.size() == 2){
               cursor_ = result_v.at(0).toString();
               keys_ = result_v.at(1).toArray();
-              if (cursor_ == "0" && keys_.empty()){
-                has_next_ = false;
+              if (keys_.empty()){
+                if (cursor_ == "0"){
+                  has_next_ = false;
+                }else{
+                  GetNextVector();
+                }
               }
             }
           }else{
             has_next_ = false;
           }
-        }
-      }
-    }
-
-    void RedisIterator::LoadProperties(){
-      
-      redis_address_.assign(granada::util::application::GetProperty("redis_cache_driver_address"));
-      if (redis_address_.empty()){
-        redis_address_.assign(DEFAULT_REDIS_ADDRESS);
-      }
-
-      std::string redis_port_str = granada::util::application::GetProperty("redis_cache_driver_port");
-      if (redis_port_str.empty()){
-        redis_port_ = DEFAULT_REDIS_PORT;
-      }else{
-        try{
-          redis_port_ = (unsigned short) std::strtoul(redis_port_str.c_str(), NULL, 0);
-        }catch(const std::exception& e){
-          redis_port_ = DEFAULT_REDIS_PORT;
         }
       }
     }

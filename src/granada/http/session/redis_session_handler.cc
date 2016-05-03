@@ -120,10 +120,6 @@ namespace granada{
       }
 
       void RedisSessionHandler::CleanSessions(){
-        CleanSessions(false);
-      }
-
-      void RedisSessionHandler::CleanSessions(bool recursive){
         std::vector<std::string> delete_patterns;
 
         granada::cache::RedisIterator redis_iterator(granada::cache::RedisIterator::Type::SCAN,"session:value:*");
@@ -149,14 +145,19 @@ namespace granada{
             sessions_->Destroy(redis_iterator.next());
           }
         }
+      }
+
+      void RedisSessionHandler::CleanSessions(bool recursive){
+        CleanSessions();
 
         if (clean_sessions_frequency_>-1){
           // wait for x seconds...
           std::this_thread::sleep_for (std::chrono::duration<double>(clean_sessions_frequency_));
           // ... and clean sessions again.
-          CleanSessions();
+          CleanSessions(true);
         }
       }
+
     }
   }
 }

@@ -122,10 +122,6 @@ namespace granada{
       }
 
       void SharedMapSessionHandler::CleanSessions(){
-        CleanSessions(false);
-      }
-
-      void SharedMapSessionHandler::CleanSessions(bool recursive){
         std::string token;
         std::vector<granada::http::session::Session*> sessions_to_erase;
         mtx.lock();
@@ -147,12 +143,16 @@ namespace granada{
         for (auto it = sessions_to_erase.begin(); it != sessions_to_erase.end();++it){
           (*it)->Close();
         }
+      }
+
+      void SharedMapSessionHandler::CleanSessions(bool recursive){
+        CleanSessions();
 
         if (clean_sessions_frequency_>-1){
           // wait for x seconds...
           std::this_thread::sleep_for (std::chrono::duration<double>(clean_sessions_frequency_));
           // ... and clean sessions again.
-          CleanSessions();
+          CleanSessions(true);
         }
       }
     }

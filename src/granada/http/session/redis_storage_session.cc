@@ -70,10 +70,6 @@ namespace granada{
         }
       }
 
-      void RedisStorageSession::Open(){
-        Session::Open();
-      }
-
       void RedisStorageSession::Update(){
         update_time_ = std::time(nullptr);
         granada::http::session::RedisStorageSession* redis_storage_session_ptr = new granada::http::session::RedisStorageSession();
@@ -86,14 +82,6 @@ namespace granada{
       void RedisStorageSession::Close(){
         cache_->Destroy("session:data:" + token_);
         Session::Close();
-      }
-
-      const bool RedisStorageSession::IsValid(){
-        return Session::IsValid();
-      }
-
-      const bool RedisStorageSession::IsGarbage(){
-        return Session::IsGarbage();
       }
 
       const std::string RedisStorageSession::Read(const std::string& key){

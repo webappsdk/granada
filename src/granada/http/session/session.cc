@@ -69,10 +69,7 @@ namespace granada{
             session_exists = LoadSession(token);
           }
           if(!session_exists){
-            // open session
-            Open();
-            // add cookie with token
-            response.headers().add(U("Set-Cookie"), token_label_ + "=" + token_ + "; path=/");
+            Open(response);
           }
           return true;
         }
@@ -146,6 +143,15 @@ namespace granada{
         }else{
           // session is created, update it, for example the sesison update time.
           Update();
+        }
+      }
+
+      void Session::Open(web::http::http_response &response){
+        // open session
+        Open();
+        if (session_token_support_ == "cookie"){
+          // add cookie with token
+          response.headers().add(U("Set-Cookie"), token_label_ + "=" + token_ + "; path=/");
         }
       }
 

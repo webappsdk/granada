@@ -61,19 +61,10 @@ namespace granada{
           };
 
           // override
-          void Open();
-
-          // override
           void Close();
 
           // override
           void Update();
-
-          // override
-          const bool IsValid();
-
-          //override
-          const bool IsGarbage();
 
           // override
           granada::http::session::Roles* roles(){ return roles_.get(); };

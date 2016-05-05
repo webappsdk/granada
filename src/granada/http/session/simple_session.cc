@@ -69,10 +69,6 @@ namespace granada{
         }
       }
 
-      void SimpleSession::Open(){
-        Session::Open();
-      }
-
       void SimpleSession::Update(){
         update_time_ = std::time(nullptr);
         granada::http::session::SimpleSession* simple_session_ptr = new granada::http::session::SimpleSession();
@@ -80,18 +76,6 @@ namespace granada{
         std::shared_ptr<granada::http::session::SimpleSession> simple_session_shared_ptr(simple_session_ptr);
         // save the session wherever all the sessions are stored.
         session_handler()->SaveSession(simple_session_shared_ptr);
-      }
-
-      void SimpleSession::Close(){
-        Session::Close();
-      }
-
-      const bool SimpleSession::IsValid(){
-        return Session::IsValid();
-      }
-
-      const bool SimpleSession::IsGarbage(){
-        return Session::IsGarbage();
       }
     }
   }

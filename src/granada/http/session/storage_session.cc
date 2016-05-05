@@ -69,10 +69,6 @@ namespace granada{
         }
       }
 
-      void StorageSession::Open(){
-        Session::Open();
-      }
-
       void StorageSession::Update(){
         update_time_ = std::time(nullptr);
         granada::http::session::StorageSession* storage_session_ptr = new granada::http::session::StorageSession();
@@ -80,18 +76,6 @@ namespace granada{
         std::shared_ptr<granada::http::session::StorageSession> storage_session_shared_ptr(storage_session_ptr);
         // save the session wherever all the sessions are stored.
         session_handler()->SaveSession(storage_session_shared_ptr);
-      }
-
-      void StorageSession::Close(){
-        Session::Close();
-      }
-
-      const bool StorageSession::IsValid(){
-        return Session::IsValid();
-      }
-
-      const bool StorageSession::IsGarbage(){
-        return Session::IsGarbage();
       }
 
       const std::string StorageSession::Read(const std::string& key){

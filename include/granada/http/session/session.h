@@ -87,6 +87,14 @@ namespace granada{
 
 
           /**
+           * Opens a new session with a unique token and if session token
+           * support is a cookie it stores the token value in a cookie.
+           * @param response Response to store the cookie with the session token.
+           */
+          virtual void Open(web::http::http_response &response);
+
+
+          /**
            * Closes a session deleting it.
            */
           virtual void Close();

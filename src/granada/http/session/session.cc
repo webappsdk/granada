@@ -133,6 +133,10 @@ namespace granada{
       }
 
       void Session::Open(){
+        // if token already exist, delete the copy of the "old" session
+        // from where it is stored, so its not used again.
+        Close();
+
         // generate token
         token_.assign(session_handler()->GenerateToken());
         // check if session do not already exist.

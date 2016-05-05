@@ -53,6 +53,10 @@ namespace granada{
 
 
           // override
+          void RemoveAll();
+
+
+          // override
           void SetProperty(const std::string& role_name, const std::string& key, const std::string& value);
 
 

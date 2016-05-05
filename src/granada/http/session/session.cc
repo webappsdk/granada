@@ -168,6 +168,7 @@ namespace granada{
 
       void Session::Close(){
         // removes a session from wherever sessions are stored.
+        roles()->RemoveAll();
         session_handler()->DeleteSession(this);
       }
 

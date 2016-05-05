@@ -80,8 +80,7 @@ namespace granada{
       }
 
       void RedisStorageSession::Close(){
-        cache_->Destroy("session:data:" + token_);
-        Session::Close();
+        session_handler()->DeleteSession(this);
       }
 
       const std::string RedisStorageSession::Read(const std::string& key){

@@ -88,6 +88,12 @@ namespace granada{
 
 
           /**
+           * Remove all roles.
+           */
+          virtual void RemoveAll(){};
+
+
+          /**
            * Set a role property, it has to be a string.
            * @param role_name Role name
            * @param key       Key or name of the property.
@@ -111,6 +117,8 @@ namespace granada{
            * @param key       Key or name of the property.
            */
           virtual void DestroyProperty(const std::string& role_name, const std::string& key){};
+
+
 
 
         protected:

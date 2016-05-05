@@ -52,6 +52,13 @@ namespace granada{
         cache_->Destroy("session:roles:" + session_->GetToken() + ":" + role_name);
       }
 
+      void RedisRoles::RemoveAll(){
+        granada::cache::RedisIterator redis_iterator(granada::cache::RedisIterator::Type::KEYS,"session:roles:" + session_->GetToken() + ":*");
+        while(redis_iterator.has_next()){
+          cache_->Destroy(redis_iterator.next());
+        }
+      };
+
       void RedisRoles::SetProperty(const std::string& role_name, const std::string& key, const std::string& value){
         cache_->Write("session:roles:" + session_->GetToken() + ":" + role_name, key, value);
       }

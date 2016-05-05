@@ -115,12 +115,14 @@ namespace granada{
       void RedisSessionHandler::DeleteSession(granada::http::session::Session* session){
         std::string token = session->GetToken();
         if (!token.empty()){
-          sessions_->Destroy("session:value:" + token);
+          granada::cache::RedisIterator redis_iterator(granada::cache::RedisIterator::Type::KEYS,"session:*" + token + "*");
+          while(redis_iterator.has_next()){
+            sessions_->Destroy(redis_iterator.next());
+          }
         }
       }
 
       void RedisSessionHandler::CleanSessions(){
-        std::vector<std::string> delete_patterns;
 
         granada::cache::RedisIterator redis_iterator(granada::cache::RedisIterator::Type::SCAN,"session:value:*");
         while(redis_iterator.has_next()){
@@ -134,15 +136,7 @@ namespace granada{
           }catch(const std::logic_error& e){}
           reference_session_->set(token,update_time);
           if (reference_session_->IsGarbage()){
-            delete_patterns.push_back("session:*" + token + "*");
-          }
-        }
-
-        // erase sessions
-        for (auto it = delete_patterns.begin(); it != delete_patterns.end();++it){
-          redis_iterator.set(granada::cache::RedisIterator::Type::KEYS, (*it));
-          while(redis_iterator.has_next()){
-            sessions_->Destroy(redis_iterator.next());
+            reference_session_->Close();
           }
         }
       }

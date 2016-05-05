@@ -59,6 +59,10 @@ namespace granada{
         session_->Update();
       }
 
+      void MapRoles::RemoveAll(){
+        roles_and_properties_.clear();
+      };
+
       void MapRoles::SetProperty(const std::string& role_name, const std::string& key, const std::string& value){
         // set property only if role exists.
         auto it = roles_and_properties_.find(role_name);

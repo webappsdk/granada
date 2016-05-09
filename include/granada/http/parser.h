@@ -22,7 +22,7 @@
   * SOFTWARE.
   *
   * Parsers for C++ Rest SDK (Casablanca) HTTP requests.
-  * 
+  *
   */
 #pragma once
 
@@ -30,6 +30,7 @@
 #include <sstream>
 #include <unordered_map>
 #include "cpprest/http_listener.h"
+#include "cpprest/base_uri.h"
 #include "granada/util/string.h"
 
 namespace granada{

@@ -63,7 +63,7 @@ namespace granada{
           std::vector<std::string> key_and_value;
           granada::util::string::split(keys_and_values[len],'=',key_and_value);
           if (key_and_value.size() > 1){
-            parsed_query.insert(std::make_pair(key_and_value[0],key_and_value[1]));
+            parsed_query.insert(std::make_pair(key_and_value[0],web::uri::decode(key_and_value[1])));
           }
         }
         return parsed_query;
@@ -95,7 +95,7 @@ namespace granada{
             while(ParseFieldsAndPropertiesMDF(body,boundary,multipart_form_data));
           }catch(const std::exception& e){}
         }
-        
+
         return multipart_form_data;
       }
 

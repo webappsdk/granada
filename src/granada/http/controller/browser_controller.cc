@@ -25,6 +25,8 @@
 
 #include "granada/http/controller/browser_controller.h"
 
+using namespace web::http;
+
 namespace granada{
   namespace http{
     namespace controller{
@@ -60,22 +62,22 @@ namespace granada{
 
         // check if this resource version has already been used by the client,
         // Tell the client if so using ETag.
-        std::string if_none_match = request.headers()["If-None-Match"];
+        std::string if_none_match = request.headers()[header_names::if_none_match];
 
-        response.headers().add(U("ETag"), resource.ETag);
+        response.headers().add(U(header_names::etag), resource.ETag);
 
         if (!if_none_match.empty() && if_none_match==resource.ETag){
           response.set_status_code(status_codes::NotModified);
         }else{
           try{
             // resource has not already been delivered.
-            response.headers().add(U("Content-Encoding"),resource.content_encoding);
-            response.headers().add(U("Server"), "granada");
-            response.headers().add(U("Connection"), "keep-alive");
-            response.headers().add(U("Last-Modified"), resource.last_modified);
+            response.headers().add(header_names::content_encoding,resource.content_encoding);
+            response.headers().add(header_names::server, "granada");
+            response.headers().add(header_names::connection, "keep-alive");
+            response.headers().add(header_names::last_modified, resource.last_modified);
             response.set_status_code(status_codes::OK);
 
-            response.headers().add(U("Content-Type"), resource.content_type);
+            response.headers().add(header_names::content_type, resource.content_type);
             response.set_body(resource.content);
           }catch(const std::exception& e){
             response.set_status_code(status_codes::NotFound);

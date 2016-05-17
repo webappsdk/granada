@@ -30,6 +30,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <unordered_map>
 
 namespace granada{
   namespace util{
@@ -73,6 +74,47 @@ namespace granada{
         while (std::getline(ss, item, delim)) {
             elems.push_back(item);
         }
+      }
+
+      /**
+       * Replace a map of key tags in a string by a value.
+       * Example:
+       * 			content:
+       * 					hello {{username}} !!! {{date}}
+       * 			Replace map:
+       * 					username  => "John Doe"
+       * 					date      => "Tuesday, May 17, 2016"
+       * 		  Open: {{ , Close: }}
+       * 			Result:
+       * 					hello John Doe !!! Tuesday, May 17, 2016
+       *
+       * @param  content   Content containing the tags to replace.
+       * @param  values    Map with the key-values pairs containing the
+       *                   values to replace in the file.
+       * @param  open      Before tag mark.
+       * @param  close     After tag mark.
+       */
+      static void replace(std::string& content,const std::unordered_map<std::string,std::string>& values, const std::string& open, const std::string& close){
+        std::string tag;
+        for (auto it = values.begin(); it != values.end(); ++it){
+          tag.assign(open + it->first + close);
+          auto pos = content.find(tag);
+          if (pos != std::string::npos){
+            content.replace(pos,tag.length(),it->second);
+          }
+        }
+      }
+
+
+      /**
+       * Replace a map of key tags in a string by a value using before and after
+       * tag marks: open "{{" and default close "}}"
+       * @param content ontent containing the tags to replace.
+       * @param values  Map with the key-values pairs containing the
+       *                values to replace in the file.
+       */
+      static inline void replace(std::string& content,const std::unordered_map<std::string,std::string>& values){
+        granada::util::string::replace(content,values,"{{","}}");
       }
     }
   }

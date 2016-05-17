@@ -32,6 +32,7 @@
 #include <unordered_map>
 #include <fstream>
 #include <sstream>
+#include "string.h"
 
 namespace granada{
   namespace util{
@@ -42,7 +43,61 @@ namespace granada{
        * @param  filename File name or path from which to extract the extension.
        * @return          Extension of the file.
        */
-      const std::string GetExtension(const std::string& filename);
+      static const std::string GetExtension(const std::string& filename){
+        // extract the extension of the file from the filename.
+        std::size_t found = filename.find_last_of(".");
+        if (found != std::string::npos){
+          std::string extension = filename.substr(found,filename.length());
+          if (!extension.empty()){
+            extension = extension.substr(1);
+            return extension;
+          }
+        }
+        return std::string();
+      }
+
+
+      /**
+       * Replace a map of key tags in a file by a value.
+       * Example:
+       * 			file:
+       * 					hello {{username}} !!! {{date}}
+       * 			Replace map:
+       * 					username  => "John Doe"
+       * 					date      => "Tuesday, May 17, 2016"
+       * 		  Open: {{ , Close: }}
+       * 			Result:
+       * 					hello John Doe !!! Tuesday, May 17, 2016
+       *
+       * @param  file_path Path of the file containing the tags to replace.
+       * @param  values    Map with the key-values pairs containing the
+       *                   values to replace in the file.
+       * @param  open      Before tag mark.
+       * @param  close     After tag mark.
+       * @return           Content of the file with values replaced.
+       */
+      static const std::string Replace(const std::string& file_path,const std::unordered_map<std::string,std::string>& values, const std::string& open, const std::string& close){
+        // get file content.
+        std::ifstream ifs(file_path.c_str());
+        std::string content( (std::istreambuf_iterator<char>(ifs) ),
+                           (std::istreambuf_iterator<char>()));
+        // replace tags in content by values in map.
+        granada::util::string::replace(content,values,open,close);
+        return content;
+      }
+
+
+      /**
+       * Same as Replace: Replace a map of key tags in a file by a value
+       * but use default before and after tag marks: "{{" and "}}".
+       * @param  file_path Path of the file containing the tags to replace.
+       * @param  values    Map with the key-values pairs containing the
+       *                   values to replace in the file.
+       * @return           Content of the file with values replaced.
+       */
+      static inline const std::string Replace(const std::string& file_path,const std::unordered_map<std::string,std::string>& values){
+        return granada::util::file::Replace(file_path,values,"{{","}}");
+      }
 
 
       /**

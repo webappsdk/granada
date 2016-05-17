@@ -29,19 +29,6 @@ namespace granada{
   namespace util{
     namespace file{
 
-      const std::string GetExtension(const std::string& filename){
-        // extract the extension of the file from the filename.
-        std::size_t found = filename.find_last_of(".");
-        if (found != std::string::npos){
-          std::string extension = filename.substr(found,filename.length());
-          if (!extension.empty()){
-            extension = extension.substr(1);
-            return extension;
-          }
-        }
-        return std::string();
-      }
-
       PropertyFile::PropertyFile(const std::string& file_path){
         properties_ = ParseConfigurationFile(file_path);
       }

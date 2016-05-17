@@ -63,7 +63,7 @@ namespace granada{
         }else{
           try{
             session_clean_extra_timeout_ = std::stol(session_clean_extra_timeout_str);
-          }catch(const std::exception& e){
+          }catch(const std::logic_error& e){
             session_clean_extra_timeout_ = StorageSession::DEFAULT_SESSION_CLEAN_EXTRA_TIMEOUT;
           }
         }

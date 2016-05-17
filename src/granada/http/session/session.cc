@@ -46,7 +46,7 @@ namespace granada{
         }else{
           try{
             session_timeout_ = std::stol(session_timeout_str);
-          }catch(const std::exception& e){
+          }catch(const std::logic_error& e){
             session_timeout_ = DEFAULT_SESSION_TIMEOUT;
           }
         }
@@ -185,15 +185,8 @@ namespace granada{
         return IsTimedOut(0);
       }
 
-      const bool Session::IsTimedOut(const long& extra_seconds){
-        if (session_timeout_>-1){
-          std::time_t now = time(&now);
-          long seconds = difftime(now,update_time_);
-          if (seconds > session_timeout_+extra_seconds){
-            return true;
-          }
-        }
-        return false;
+      const bool Session::IsTimedOut(const long int& extra_seconds){
+        return granada::util::time::is_timedout(update_time_,session_timeout_,extra_seconds);
       }
     }
   }

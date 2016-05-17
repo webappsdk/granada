@@ -33,6 +33,7 @@
 #include <memory>
 #include <string>
 #include <sstream>
+#include "granada/util/time.h"
 #include "granada/util/application.h"
 #include "session_handler.h"
 #include "granada/cache/redis_cache_driver.h"

@@ -29,6 +29,7 @@
 #include <string>
 #include "cpprest/json.h"
 #include "cpprest/http_listener.h"
+#include "granada/util/time.h"
 #include "granada/util/string.h"
 #include "granada/http/parser.h"
 #include "roles.h"
@@ -258,7 +259,7 @@ namespace granada{
            * @param  extra_seconds
            * @return               true | false
            */
-          virtual const bool IsTimedOut(const long& extra_seconds);
+          virtual const bool IsTimedOut(const long int& extra_seconds);
 
           /**
            * Method that loads the session properties: token label,

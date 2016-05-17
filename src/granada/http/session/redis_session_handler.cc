@@ -88,12 +88,7 @@ namespace granada{
 
       void RedisSessionHandler::LoadSession(const std::string& token,granada::http::session::Session* virgin){
         if (!token.empty()){
-          std::string update_time_str = sessions_->Read("session:value:" + token, "update.time");
-          time_t update_time = 0;
-          try{
-            long int seconds = std::stol(update_time_str);
-            update_time = seconds;
-          }catch(const std::logic_error& e){}
+          time_t update_time = granada::util::time::parse(sessions_->Read("session:value:" + token, "update.time"));
           virgin->set(token,update_time);
           if (!virgin->IsValid()){
             virgin->set("",0);
@@ -104,11 +99,8 @@ namespace granada{
       void RedisSessionHandler::SaveSession(std::shared_ptr<granada::http::session::Session> session){
         std::string token = session->GetToken();
         if (!token.empty()){
-          std::stringstream ss;
-          ss << session->GetUpdateTime();
-          std::string update_time_str = ss.str();
           sessions_->Write("session:value:" + token, "token", token);
-          sessions_->Write("session:value:" + token, "update.time", update_time_str);
+          sessions_->Write("session:value:" + token, "update.time", granada::util::time::stringify(session->GetUpdateTime()));
         }
       }
 
@@ -128,12 +120,7 @@ namespace granada{
         while(redis_iterator.has_next()){
           std::string key = redis_iterator.next();
           std::string token = sessions_->Read(key, "token");
-          std::string update_time_str = sessions_->Read(key, "update.time");
-          time_t update_time = 0;
-          try{
-            long int seconds = std::stol(update_time_str);
-            update_time = seconds;
-          }catch(const std::logic_error& e){}
+          time_t update_time = granada::util::time::parse(sessions_->Read(key, "update.time"));
           reference_session_->set(token,update_time);
           if (reference_session_->IsGarbage()){
             reference_session_->Close();

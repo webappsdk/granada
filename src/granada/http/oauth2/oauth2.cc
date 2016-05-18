@@ -1,4 +1,4 @@
-#include "granada/http/oauth2.h"
+#include "granada/http/oauth2/oauth2.h"
 
 #define _OAUTH2_ERRORS
 #define DAT(a_, b_) const oauth2_error oauth2_errors::a_(_XPLATSTR(b_));

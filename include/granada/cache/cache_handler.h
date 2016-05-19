@@ -55,11 +55,29 @@ namespace granada{
 
 
         /**
+         * Checks if a key exist in a set with given hash.
+         * @param  hash Name of the set of key-value.
+         * @param  key  Key of the value
+         * @return      True if exist, false if it does not.
+         */
+        virtual const bool Exists(const std::string& hash,const std::string& key){ return false; };
+
+
+        /**
          * Returns value from the cache.
          * @param  key Key of the value.
          * @return     Value
          */
         virtual const std::string Read(const std::string& key){ return std::string(); };
+
+
+        /**
+         * Returns the value stored in a set and associated with the given key.
+         * @param  hash Name of the set where the key-value pairs are stored.
+         * @param  key  Key associated with the value.
+         * @return      Value.
+         */
+        virtual const std::string Read(const std::string& hash, const std::string& key){ return std::string(); };
 
 
         /**
@@ -71,10 +89,28 @@ namespace granada{
 
 
         /**
+         * Inserts or rewrite a key-value pair in a set with the given name.
+         * If the set does not exist, it creates it.
+         * @param hash  Name of the set.
+         * @param key   Key to identify the value inside the set.
+         * @param value Value
+         */
+        virtual void Write(const std::string& hash,const std::string& key,const std::string& value){};
+
+
+        /**
          * Removes a key-value pair from the cache.
          * @param key
          */
         virtual void Destroy(const std::string& key){};
+
+
+        /**
+         * Destroy a key-value pair stored in a set.
+         * @param hash Name of the set where the key-value pair is stored.
+         * @param key  Key associated with the value.
+         */
+        virtual void Destroy(const std::string& hash,const std::string& key){};
     };
   }
 }

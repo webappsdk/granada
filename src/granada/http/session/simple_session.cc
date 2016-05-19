@@ -29,7 +29,7 @@ namespace granada{
     namespace session{
 
       // we use a session handler that use a map shared by all user to store the sessions.
-      std::unique_ptr<granada::http::session::SharedMapSessionHandler> SimpleSession::session_handler_(new granada::http::session::SharedMapSessionHandler());
+      std::unique_ptr<granada::http::session::SessionHandler> SimpleSession::session_handler_(new granada::http::session::SharedMapSessionHandler());
       long SimpleSession::DEFAULT_SESSION_CLEAN_EXTRA_TIMEOUT = 0;
 
       SimpleSession::SimpleSession(){

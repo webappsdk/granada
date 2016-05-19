@@ -29,7 +29,7 @@ namespace granada{
   namespace http{
     namespace session{
 
-      std::unique_ptr<granada::cache::RedisCacheDriver> RedisRoles::cache_ = std::unique_ptr<granada::cache::RedisCacheDriver>(new granada::cache::RedisCacheDriver());
+      std::unique_ptr<granada::cache::CacheHandler> RedisRoles::cache_ = std::unique_ptr<granada::cache::CacheHandler>(new granada::cache::RedisCacheDriver());
 
       RedisRoles::RedisRoles(granada::http::session::Session* session){
         session_ = session;

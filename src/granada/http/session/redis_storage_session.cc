@@ -29,8 +29,8 @@ namespace granada{
     namespace session{
 
       // we use a session handler that use a map shared by all user to store the sessions.
-      std::unique_ptr<granada::http::session::RedisSessionHandler> RedisStorageSession::session_handler_(new granada::http::session::RedisSessionHandler(std::shared_ptr<granada::http::session::RedisStorageSession>(new granada::http::session::RedisStorageSession())));
-      std::unique_ptr<granada::cache::RedisCacheDriver> RedisStorageSession::cache_(new granada::cache::RedisCacheDriver());
+      std::unique_ptr<granada::http::session::SessionHandler> RedisStorageSession::session_handler_ = std::unique_ptr<granada::http::session::SessionHandler>(new granada::http::session::RedisSessionHandler(std::shared_ptr<granada::http::session::RedisStorageSession>(new granada::http::session::RedisStorageSession())));
+      std::unique_ptr<granada::cache::RedisCacheDriver> RedisStorageSession::cache_ = std::unique_ptr<granada::cache::RedisCacheDriver>(new granada::cache::RedisCacheDriver());
       long RedisStorageSession::DEFAULT_SESSION_CLEAN_EXTRA_TIMEOUT = 0;
 
       RedisStorageSession::RedisStorageSession(){

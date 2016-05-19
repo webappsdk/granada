@@ -73,7 +73,7 @@ namespace granada{
            * Manager of the storage, and contains
            * the data stored.
            */
-          static std::unique_ptr<granada::cache::RedisCacheDriver> cache_;
+          static std::unique_ptr<granada::cache::CacheHandler> cache_;
       };
     }
   }

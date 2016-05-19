@@ -64,7 +64,7 @@ namespace granada{
           /**
            * Hanlder of the sessions lifetime, and where all the application sessions are stored.
            */
-          static std::unique_ptr<granada::http::session::SharedMapSessionHandler> session_handler_;
+          static std::unique_ptr<granada::http::session::SessionHandler> session_handler_;
 
           /**
            * Loads the properties as session_clean_extra_timeout_.

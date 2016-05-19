@@ -26,3 +26,14 @@ DAT(unauthorized_client,        "The authenticated client is not authorized to u
 DAT(unsupported_grant_type,     "The authorization grant type is not supported by the authorization server.")
 DAT(unsupported_response_type,  "The authorization server does not support obtaining an access token using this method.")
 #endif // _OAUTH2_ERRORS_DESCRIPTION
+
+#ifdef _OAUTH2_CLIENT_TYPES
+DAT(confidential,               "confidential")
+DAT(_public,                     "public")
+#endif // _OAUTH2_CLIENT_TYPES
+
+
+#ifdef _OAUTH2_STRINGS_2
+DAT(username,                    "username")
+DAT(password,                    "password")
+#endif // _OAUTH2_STRINGS_2

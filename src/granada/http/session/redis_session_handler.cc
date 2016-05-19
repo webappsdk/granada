@@ -37,7 +37,7 @@ namespace granada{
 
         LoadProperties();
 
-        n_generator_ = std::unique_ptr<utility::nonce_generator>(new utility::nonce_generator(token_length_));
+        n_generator_ = std::unique_ptr<granada::crypto::NonceGenerator>(new granada::crypto::CPPRESTNonceGenerator());
         sessions_ = std::unique_ptr<granada::cache::RedisCacheDriver>(new granada::cache::RedisCacheDriver());
 
         //thread for cleaning the sessions.
@@ -83,7 +83,7 @@ namespace granada{
       }
 
       const std::string RedisSessionHandler::GenerateToken(){
-        return RedisSessionHandler::n_generator_->generate();
+        return RedisSessionHandler::n_generator_->generate(token_length_);
       }
 
       void RedisSessionHandler::LoadSession(const std::string& token,granada::http::session::Session* virgin){

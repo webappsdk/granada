@@ -34,7 +34,7 @@ namespace granada{
       SharedMapSessionHandler::SharedMapSessionHandler() : SessionHandler(){
         LoadProperties();
 
-        n_generator_ = std::unique_ptr<utility::nonce_generator>(new utility::nonce_generator(token_length_));
+        n_generator_ = std::unique_ptr<granada::crypto::NonceGenerator>(new granada::crypto::CPPRESTNonceGenerator());
         sessions_ = std::unique_ptr<std::map<std::string,std::shared_ptr<granada::http::session::Session>>>(new std::map<std::string,std::shared_ptr<granada::http::session::Session>>);
 
         // thread for cleaning the sessions.
@@ -86,7 +86,7 @@ namespace granada{
       }
 
       const std::string SharedMapSessionHandler::GenerateToken(){
-        return SharedMapSessionHandler::n_generator_->generate();
+        return n_generator_->generate(token_length_);
       }
 
       void SharedMapSessionHandler::LoadSession(const std::string& token,granada::http::session::Session* virgin){

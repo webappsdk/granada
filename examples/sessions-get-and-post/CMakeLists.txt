@@ -7,6 +7,7 @@ add_executable(sessions-get-and-post
   ../../src/granada/util/file.cc
   ../../src/granada/util/application.cc
   ../../src/granada/http/parser.cc
+  ../../src/granada/crypto/nonce_generator.cc
   ../../src/granada/cache/web_resource_cache.cc
   ../../src/granada/http/controller/browser_controller.cc
   ../../src/granada/http/session/session.cc

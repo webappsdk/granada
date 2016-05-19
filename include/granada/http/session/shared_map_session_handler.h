@@ -28,13 +28,13 @@
 #include <thread>
 #include <chrono>
 #include <mutex>
-#include "cpprest/asyncrt_utils.h"
 #include "pplx/pplxtasks.h"
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include "session_handler.h"
 #include "granada/util/application.h"
+#include "granada/crypto/nonce_generator.h"
 
 namespace granada{
   namespace http{
@@ -95,10 +95,9 @@ namespace granada{
 
           /**
            * Nonce string generator, for generating unique strings tokens.
-           * From cpprest/asyncrt_utils.h
            * Generate a nonce string containing random alphanumeric characters (A-Za-z0-9).
            */
-          std::unique_ptr<utility::nonce_generator> n_generator_;
+          std::unique_ptr<granada::crypto::NonceGenerator> n_generator_;
 
 
           /**

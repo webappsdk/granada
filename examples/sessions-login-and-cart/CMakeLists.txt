@@ -7,6 +7,7 @@ add_executable(sessions-login-and-cart
   ../../src/granada/util/file.cc
   ../../src/granada/util/application.cc
   ../../src/granada/http/parser.cc
+  ../../src/granada/crypto/nonce_generator.cc
   ../../src/granada/http/session/session.cc
   ../../src/granada/http/session/simple_session.cc
   ../../src/granada/http/session/shared_map_session_handler.cc

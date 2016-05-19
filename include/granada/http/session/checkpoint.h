@@ -27,7 +27,9 @@
   *
   */
 #pragma once
+#include <memory>
 #include "cpprest/http_listener.h"
+#include "granada/http/session/session.h"
 
 namespace granada{
   namespace http{
@@ -47,7 +49,7 @@ namespace granada{
            * Can be used in case we want to open a session in case it does not exist,
            * or in case it is timed out.
            */
-          virtual void check(){};
+          virtual std::shared_ptr<granada::http::session::Session> check(){};
 
 
           /**
@@ -57,7 +59,7 @@ namespace granada{
            * @param request   HTTP request.
            * @param response  HTTP response.
            */
-          virtual void check(web::http::http_request &request,web::http::http_response &response){};
+          virtual std::shared_ptr<granada::http::session::Session> check(web::http::http_request &request,web::http::http_response &response){};
 
 
           /**
@@ -66,7 +68,7 @@ namespace granada{
            * or in case it is timed out.
            * @param request   HTTP request.
            */
-          virtual void check(web::http::http_request &request){};
+          virtual std::shared_ptr<granada::http::session::Session> check(web::http::http_request &request){};
 
 
           /**
@@ -75,7 +77,7 @@ namespace granada{
            * or in case it is timed out.
            * @param token   Session token.
            */
-          virtual void check(const std::string& token){};
+          virtual std::shared_ptr<granada::http::session::Session> check(const std::string& token){};
 
       };
     }

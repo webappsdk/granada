@@ -40,8 +40,8 @@ namespace granada{
            */
           StorageSessionCheckpoint(){};
 
-          void check(web::http::http_request &request,web::http::http_response &response){
-            granada::http::session::StorageSession storage_session(request,response);
+          std::shared_ptr<granada::http::session::Session> check(web::http::http_request &request,web::http::http_response &response){
+            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::StorageSession(request,response));
           };
 
       };

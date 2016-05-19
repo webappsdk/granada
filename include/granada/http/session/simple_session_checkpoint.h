@@ -40,8 +40,12 @@ namespace granada{
            */
           SimpleSessionCheckpoint(){};
 
-          void check(web::http::http_request &request,web::http::http_response &response){
-            granada::http::session::SimpleSession simple_session(request,response);
+          std::shared_ptr<granada::http::session::Session> check(){
+            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::SimpleSession());
+          };
+
+          std::shared_ptr<granada::http::session::Session> check(web::http::http_request &request,web::http::http_response &response){
+            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::SimpleSession(request,response));
           };
 
       };

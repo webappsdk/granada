@@ -186,7 +186,11 @@ namespace granada{
       }
 
       const bool Session::IsTimedOut(const long int& extra_seconds){
-        return granada::util::time::is_timedout(update_time_,session_timeout_,extra_seconds);
+        if ( session_timeout_ < 0){
+          return false;
+        }else{
+          return granada::util::time::is_timedout(update_time_,session_timeout_,extra_seconds);
+        }
       }
     }
   }

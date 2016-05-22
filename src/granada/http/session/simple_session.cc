@@ -34,6 +34,7 @@ namespace granada{
 
       SimpleSession::SimpleSession(){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
+        LoadProperties();
       }
 
       SimpleSession::SimpleSession(web::http::http_request &request,web::http::http_response &response){

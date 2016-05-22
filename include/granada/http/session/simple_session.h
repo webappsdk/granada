@@ -48,14 +48,14 @@ namespace granada{
           // override
           void set(granada::http::session::Session* session){
             (*this) = (*((granada::http::session::SimpleSession*)session));
-            roles_->SetSession(this);
+            roles()->SetSession(this);
           };
 
           // override
           void Update();
 
           // override
-          granada::http::session::Roles* roles(){ return roles_.get(); };
+          std::shared_ptr<granada::http::session::Roles> roles(){ return roles_; };
 
         protected:
 

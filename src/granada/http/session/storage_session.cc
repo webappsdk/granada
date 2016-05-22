@@ -34,6 +34,7 @@ namespace granada{
 
       StorageSession::StorageSession(){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
+        LoadProperties();
       }
 
       StorageSession::StorageSession(web::http::http_request &request,web::http::http_response &response){

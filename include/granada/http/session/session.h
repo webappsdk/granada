@@ -135,7 +135,7 @@ namespace granada{
            * Returns the roles of a session.
            * @return The roles of the session.
            */
-          virtual granada::http::session::Roles* roles(){ return nullptr; };
+          virtual std::shared_ptr<granada::http::session::Roles> roles(){ return std::shared_ptr<granada::http::session::Roles>(nullptr); };
 
 
           /**

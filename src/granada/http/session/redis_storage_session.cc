@@ -35,6 +35,7 @@ namespace granada{
 
       RedisStorageSession::RedisStorageSession(){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
+        LoadProperties();
       }
 
       RedisStorageSession::RedisStorageSession(web::http::http_request &request,web::http::http_response &response){

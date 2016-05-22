@@ -67,7 +67,7 @@ namespace granada{
           void Update();
 
           // override
-          granada::http::session::Roles* roles(){ return roles_.get(); };
+          std::shared_ptr<granada::http::session::Roles> roles(){ return roles_; };
 
 
           /**

@@ -29,11 +29,12 @@ DAT(unsupported_response_type,  "The authorization server does not support obtai
 
 #ifdef _OAUTH2_CLIENT_TYPES
 DAT(confidential,               "confidential")
-DAT(_public,                     "public")
+DAT(_public,                    "public")
 #endif // _OAUTH2_CLIENT_TYPES
 
 
 #ifdef _OAUTH2_STRINGS_2
-DAT(username,                    "username")
-DAT(password,                    "password")
+DAT(username,                   "username")
+DAT(password,                   "password")
+DAT(authorize,                  "authorize")
 #endif // _OAUTH2_STRINGS_2

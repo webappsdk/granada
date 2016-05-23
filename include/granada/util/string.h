@@ -96,11 +96,14 @@ namespace granada{
        */
       static void replace(std::string& content,const std::unordered_map<std::string,std::string>& values, const std::string& open, const std::string& close){
         std::string tag;
+        std::string value;
         for (auto it = values.begin(); it != values.end(); ++it){
           tag.assign(open + it->first + close);
-          auto pos = content.find(tag);
-          if (pos != std::string::npos){
-            content.replace(pos,tag.length(),it->second);
+          value = it->second;
+          size_t pos = 0;
+          while ((pos = content.find(tag, pos)) != std::string::npos) {
+               content.replace(pos, tag.length(), value);
+               pos += value.length();
           }
         }
       }

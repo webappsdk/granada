@@ -31,8 +31,8 @@ namespace granada{
       std::unordered_map<std::string, std::string> ParseCookies(web::http::http_request &request){
         std::unordered_map<std::string, std::string> cookies;
         web::http::http_headers headers = request.headers();
-        if( headers.has("Cookie") ){
-          std::string cookies_str = headers["Cookie"];
+        if( headers.has(entity_keys::http_parser_cookie) ){
+          std::string cookies_str = headers[entity_keys::http_parser_cookie];
 
           // separate different cookies.
           std::stringstream ss(cookies_str);
@@ -103,7 +103,7 @@ namespace granada{
       std::string ExtractBoundaryMDF(web::http::http_headers &headers){
         std::string content_type = headers.content_type();
         if (!content_type.empty()){
-          std::string delimiter("; boundary=----");
+          std::string delimiter(entity_keys::http_parser_boundary_delimiter);
           auto pos = content_type.rfind(delimiter);
           if (pos != std::string::npos) {
             content_type.erase(0,pos + delimiter.length());
@@ -143,10 +143,10 @@ namespace granada{
           body.assign(value_begin_it, body.end());
           auto value_end_it = std::search(body.begin(), body.end(), boundary_c, boundary_c + boundary_length)-8;
           std::vector<unsigned char> value(body.begin(),value_end_it);
-          parsed_properties.insert(std::make_pair("value", value));
+          parsed_properties.insert(std::make_pair(entity_keys::http_parser_property_value_label, value));
 
           // insert the unordered_map of properties into the unordered_map of fields
-          std::vector<unsigned char> key_name = parsed_properties["name"];
+          std::vector<unsigned char> key_name = parsed_properties[entity_keys::http_parser_property_name_label];
           std::string key(key_name.begin(),key_name.end());
           multipart_form_data.insert(std::make_pair(key, parsed_properties));
 

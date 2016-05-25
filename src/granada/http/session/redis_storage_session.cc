@@ -31,7 +31,6 @@ namespace granada{
       // we use a session handler that use a map shared by all user to store the sessions.
       std::unique_ptr<granada::http::session::SessionHandler> RedisStorageSession::session_handler_ = std::unique_ptr<granada::http::session::SessionHandler>(new granada::http::session::RedisSessionHandler(std::shared_ptr<granada::http::session::RedisStorageSession>(new granada::http::session::RedisStorageSession())));
       std::unique_ptr<granada::cache::CacheHandler> RedisStorageSession::cache_ = std::unique_ptr<granada::cache::CacheHandler>(new granada::cache::RedisCacheDriver());
-      long RedisStorageSession::DEFAULT_SESSION_CLEAN_EXTRA_TIMEOUT = 0;
 
       RedisStorageSession::RedisStorageSession(){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
@@ -59,14 +58,14 @@ namespace granada{
 
       void RedisStorageSession::LoadProperties(){
         Session::LoadProperties();
-        std::string session_clean_extra_timeout_str(session_handler()->GetProperty("session_clean_extra_timeout"));
+        std::string session_clean_extra_timeout_str(session_handler()->GetProperty(entity_keys::session_clean_extra_timeout));
         if (session_clean_extra_timeout_str.empty()){
-          session_clean_extra_timeout_ = RedisStorageSession::DEFAULT_SESSION_CLEAN_EXTRA_TIMEOUT;
+          session_clean_extra_timeout_ = default_numbers::session_session_clean_extra_timeout;
         }else{
           try{
             session_clean_extra_timeout_ = std::stol(session_clean_extra_timeout_str);
           }catch(const std::logic_error& e){
-            session_clean_extra_timeout_ = RedisStorageSession::DEFAULT_SESSION_CLEAN_EXTRA_TIMEOUT;
+            session_clean_extra_timeout_ = default_numbers::session_session_clean_extra_timeout;
           }
         }
       }
@@ -88,18 +87,18 @@ namespace granada{
         if (token_.empty()){
           return std::string();
         }
-        return cache_->Read("session:data:" + token_, key);
+        return cache_->Read(cache_namespaces::session_data + token_, key);
       }
 
       void RedisStorageSession::Write(const std::string& key, const std::string& value){
         if (!token_.empty()){
-          cache_->Write("session:data:" + token_, key, value);
+          cache_->Write(cache_namespaces::session_data + token_, key, value);
         }
       }
 
       void RedisStorageSession::Destroy(const std::string& key){
         if (!token_.empty()){
-          cache_->Destroy("session:data:" + token_, key);
+          cache_->Destroy(cache_namespaces::session_data + token_, key);
         }
       }
     }

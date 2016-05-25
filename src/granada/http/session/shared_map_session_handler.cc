@@ -46,24 +46,24 @@ namespace granada{
       }
 
       void SharedMapSessionHandler::LoadProperties(){
-        std::string clean_sessions_frequency_str(GetProperty("session_clean_frequency"));
+        std::string clean_sessions_frequency_str(GetProperty(entity_keys::session_clean_frequency));
         if (clean_sessions_frequency_str.empty()){
-          clean_sessions_frequency_ = DEFAULT_CLEAN_SESSIONS_FREQUENCY;
+          clean_sessions_frequency_ = default_numbers::session_clean_sessions_frequency;
         }else{
           try{
             clean_sessions_frequency_ = std::stod(clean_sessions_frequency_str);
           }catch(const std::exception& e){
-            clean_sessions_frequency_ = DEFAULT_CLEAN_SESSIONS_FREQUENCY;
+            clean_sessions_frequency_ = default_numbers::session_clean_sessions_frequency;
           }
         }
-        std::string token_length_str(GetProperty("session_token_length"));
+        std::string token_length_str(GetProperty(entity_keys::session_token_length));
         if (token_length_str.empty()){
-          token_length_ = DEFAULT_TOKEN_LENGTH;
+          token_length_ = nonce_lenghts::session_token;
         }else{
           try{
             token_length_ = std::stoi(token_length_str);
           }catch(const std::exception& e){
-            token_length_ = DEFAULT_TOKEN_LENGTH;
+            token_length_ = nonce_lenghts::session_token;
           }
         }
       }

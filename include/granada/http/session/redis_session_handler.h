@@ -33,6 +33,7 @@
 #include <memory>
 #include <string>
 #include <sstream>
+#include "granada/defaults.h"
 #include "granada/util/time.h"
 #include "granada/util/application.h"
 #include "granada/crypto/nonce_generator.h"
@@ -116,31 +117,16 @@ namespace granada{
 
 
           /**
-           * Default token length.
-           * This default value is taken in case "session_default_token_length" property is
-           * not found.
-           */
-          const int DEFAULT_TOKEN_LENGTH = 64;
-
-
-          /**
            * Token length. It will be set on LoadProperties(), if not found, it will take
-           * the value of DEFAULT_TOKEN_LENGTH.
+           * the value of nonce_lengths::ession_token.
            */
           int token_length_;
 
 
           /**
-           * Default frequency in seconds the CleanSessions function will be executed.
-           * This default value is taken in case "session_clean_frequency" property is not found.
-           * By default every hour = 3600 seconds.
-           */
-          const double DEFAULT_CLEAN_SESSIONS_FREQUENCY = 3600;
-
-          /**
            * Frequency in seconds the CleanSessions function will be executed.
            * it will be set on LoadProperties(), if not found, it will take the
-           * value of DEFAULT_CLEAN_SESSIONS_FREQUENCY.
+           * value of default_numbers::session_clean_sessions_frequency.
            */
           double clean_sessions_frequency_;
 

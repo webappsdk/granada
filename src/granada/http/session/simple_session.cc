@@ -30,7 +30,6 @@ namespace granada{
 
       // we use a session handler that use a map shared by all user to store the sessions.
       std::unique_ptr<granada::http::session::SessionHandler> SimpleSession::session_handler_(new granada::http::session::SharedMapSessionHandler());
-      long SimpleSession::DEFAULT_SESSION_CLEAN_EXTRA_TIMEOUT = 0;
 
       SimpleSession::SimpleSession(){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
@@ -58,14 +57,14 @@ namespace granada{
 
       void SimpleSession::LoadProperties(){
         Session::LoadProperties();
-        std::string session_clean_extra_timeout_str(session_handler()->GetProperty("session_clean_extra_timeout"));
+        std::string session_clean_extra_timeout_str(session_handler()->GetProperty(entity_keys::session_clean_extra_timeout));
         if (session_clean_extra_timeout_str.empty()){
-          session_clean_extra_timeout_ = SimpleSession::DEFAULT_SESSION_CLEAN_EXTRA_TIMEOUT;
+          session_clean_extra_timeout_ = default_numbers::session_session_clean_extra_timeout;
         }else{
           try{
             session_clean_extra_timeout_ = std::stol(session_clean_extra_timeout_str);
           }catch(const std::logic_error& e){
-            session_clean_extra_timeout_ = SimpleSession::DEFAULT_SESSION_CLEAN_EXTRA_TIMEOUT;
+            session_clean_extra_timeout_ = default_numbers::session_session_clean_extra_timeout;
           }
         }
       }

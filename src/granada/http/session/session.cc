@@ -28,26 +28,24 @@ namespace granada{
   namespace http{
     namespace session{
 
-      std::string Session::DEFAULT_TOKEN_LABEL = "token";
-      std::vector<std::string> Session::DEFAULT_SESSIONS_TOKEN_SUPPORT = {"cookie","json"};
-      long Session::DEFAULT_SESSION_TIMEOUT = 86400;
+      std::vector<std::string> Session::DEFAULT_SESSIONS_TOKEN_SUPPORT = {entity_keys::session_token_support,default_strings::session_second_token_support};
 
       void Session::LoadProperties(){
-        token_label_.assign(session_handler()->GetProperty("session_token_label"));
+        token_label_.assign(session_handler()->GetProperty(entity_keys::session_token_label));
         if (token_label_.empty()){
-          token_label_.assign(Session::DEFAULT_TOKEN_LABEL);
+          token_label_.assign(default_strings::session_token_label);
         }
 
-        session_token_support_ = session_handler()->GetProperty("session_token_support");
+        session_token_support_ = session_handler()->GetProperty(entity_keys::session_token_support);
 
-        std::string session_timeout_str = session_handler()->GetProperty("session_timeout");
+        std::string session_timeout_str = session_handler()->GetProperty(entity_keys::session_timeout);
         if (session_timeout_str.empty()){
-          session_timeout_ = DEFAULT_SESSION_TIMEOUT;
+          session_timeout_ = default_numbers::session_timeout;
         }else{
           try{
             session_timeout_ = std::stol(session_timeout_str);
           }catch(const std::logic_error& e){
-            session_timeout_ = DEFAULT_SESSION_TIMEOUT;
+            session_timeout_ = default_numbers::session_timeout;
           }
         }
       }
@@ -60,7 +58,7 @@ namespace granada{
         }
 
         // search and retrieve token from cookies.
-        if (session_token_support_ == "cookie"){
+        if (session_token_support_ == entity_keys::session_cookie){
           bool session_exists = false;
           std::unordered_map<std::string, std::string> cookies = granada::http::parser::ParseCookies(request);
           auto it = cookies.find(token_label_);
@@ -84,11 +82,11 @@ namespace granada{
         }
 
         // retrieve token from body json.
-        if (session_token_support_ == "json"){
+        if (session_token_support_ == entity_keys::session_json){
           try{
             const web::json::value& obj = request.extract_json().get();
-            if (obj.is_object() && obj.has_field("token")){
-              const web::json::value token_json = obj.at("token");
+            if (obj.is_object() && obj.has_field(token_label_)){
+              const web::json::value token_json = obj.at(token_label_);
               if (token_json.is_string()){
                 std::string token = token_json.as_string();
                 return LoadSession(token);
@@ -97,7 +95,7 @@ namespace granada{
           }catch(const std::exception& e){}
         }else{
           // retrieve token from query string.
-          if (session_token_support_ == "query"){
+          if (session_token_support_ == entity_keys::session_query){
             std::string query = request.relative_uri().query();
             std::vector<std::string> keys_and_values;
             granada::util::string::split(query,'&',keys_and_values);
@@ -153,9 +151,9 @@ namespace granada{
       void Session::Open(web::http::http_response &response){
         // open session
         Open();
-        if (session_token_support_ == "cookie"){
+        if (session_token_support_ == entity_keys::session_cookie){
           // add cookie with token
-          response.headers().add(U("Set-Cookie"), token_label_ + "=" + token_ + "; path=/");
+          response.headers().add(entity_keys::session_set_cookie, token_label_ + "=" + token_ + "; path=/");
         }
       }
 

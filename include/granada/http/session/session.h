@@ -29,6 +29,7 @@
 #include <string>
 #include "cpprest/json.h"
 #include "cpprest/http_listener.h"
+#include "granada/defaults.h"
 #include "granada/util/time.h"
 #include "granada/util/string.h"
 #include "granada/http/parser.h"
@@ -167,26 +168,11 @@ namespace granada{
 
 
           /**
-           * Default token name, the cookie name containing the token or, in case of
-           * using POST or GET, the key name of the token value.
-           * This default value is taken in case "session_token_label" property is not found.
-           */
-          static std::string DEFAULT_TOKEN_LABEL;
-
-
-          /**
            * Default token support, cookie || query || json.
            * Where the token will be stored-retrieved in the client-side.
            * This default value is taken in case "session_token_support" property is not found.
            */
           static std::vector<std::string> DEFAULT_SESSIONS_TOKEN_SUPPORT;
-
-
-          /**
-           * Default session timeout seconds, by default one day = 86400 seconds.
-           * This default value is taken in case "session_timeout" property is not found.
-           */
-          static long DEFAULT_SESSION_TIMEOUT;
 
 
           /**

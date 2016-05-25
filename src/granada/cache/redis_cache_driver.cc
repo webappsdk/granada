@@ -40,19 +40,19 @@ namespace granada{
 
 
     void RedisSyncClientWrapper::LoadProperties(){
-      redis_address_.assign(granada::util::application::GetProperty("redis_cache_driver_address"));
+      redis_address_.assign(granada::util::application::GetProperty(entity_keys::redis_cache_driver_address));
       if (redis_address_.empty()){
-        redis_address_.assign(DEFAULT_REDIS_ADDRESS);
+        redis_address_.assign(default_strings::redis_cache_redis_address);
       }
 
-      std::string redis_port_str = granada::util::application::GetProperty("redis_cache_driver_port");
+      std::string redis_port_str = granada::util::application::GetProperty(entity_keys::redis_cache_driver_port);
       if (redis_port_str.empty()){
-        redis_port_ = DEFAULT_REDIS_PORT;
+        redis_port_ = default_strings::redis_cache_redis_port;
       }else{
         try{
           redis_port_ = (unsigned short) std::strtoul(redis_port_str.c_str(), NULL, 0);
         }catch(const std::exception& e){
-          redis_port_ = DEFAULT_REDIS_PORT;
+          redis_port_ = default_strings::redis_cache_redis_port;
         }
       }
     }

@@ -31,6 +31,7 @@
 #include <unordered_map>
 #include "cpprest/http_listener.h"
 #include "cpprest/base_uri.h"
+#include "granada/defaults.h"
 #include "granada/util/string.h"
 
 namespace granada{

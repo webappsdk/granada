@@ -34,7 +34,7 @@ DAT(_public,                    "public")
 
 
 #ifdef _OAUTH2_STRINGS_2
+DAT(authorize,                  "authorize")
 DAT(username,                   "username")
 DAT(password,                   "password")
-DAT(authorize,                  "authorize")
 #endif // _OAUTH2_STRINGS_2

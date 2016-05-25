@@ -36,39 +36,39 @@ namespace granada{
       }
 
       const bool RedisRoles::Is(const std::string& role_name){
-        return cache_->Exists("session:roles:" + session_->GetToken() + ":" + role_name);
+        return cache_->Exists(cache_namespaces::session_roles + session_->GetToken() + ":" + role_name);
       }
 
       const bool RedisRoles::Add(const std::string& role_name){
         // add only if role is not already added.
         if (!Is(role_name)){
-          cache_->Write("session:roles:" + session_->GetToken() + ":" + role_name, "0", "0");
+          cache_->Write(cache_namespaces::session_roles + session_->GetToken() + ":" + role_name, "0", "0");
           return true;
         }
         return false;
       }
 
       void RedisRoles::Remove(const std::string& role_name){
-        cache_->Destroy("session:roles:" + session_->GetToken() + ":" + role_name);
+        cache_->Destroy(cache_namespaces::session_roles + session_->GetToken() + ":" + role_name);
       }
 
       void RedisRoles::RemoveAll(){
-        granada::cache::RedisIterator redis_iterator(granada::cache::RedisIterator::Type::KEYS,"session:roles:" + session_->GetToken() + ":*");
+        granada::cache::RedisIterator redis_iterator(granada::cache::RedisIterator::Type::KEYS,cache_namespaces::session_roles + session_->GetToken() + ":*");
         while(redis_iterator.has_next()){
           cache_->Destroy(redis_iterator.next());
         }
       };
 
       void RedisRoles::SetProperty(const std::string& role_name, const std::string& key, const std::string& value){
-        cache_->Write("session:roles:" + session_->GetToken() + ":" + role_name, key, value);
+        cache_->Write(cache_namespaces::session_roles + session_->GetToken() + ":" + role_name, key, value);
       }
 
       const std::string RedisRoles::GetProperty(const std::string& role_name, const std::string& key){
-        return cache_->Read("session:roles:" + session_->GetToken() + ":" + role_name, key);
+        return cache_->Read(cache_namespaces::session_roles + session_->GetToken() + ":" + role_name, key);
       }
 
       void RedisRoles::DestroyProperty(const std::string& role_name, const std::string& key){
-        cache_->Destroy("session:roles:" + session_->GetToken() + ":" + role_name, key);
+        cache_->Destroy(cache_namespaces::session_roles + session_->GetToken() + ":" + role_name, key);
       }
     }
   }

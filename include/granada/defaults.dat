@@ -1,0 +1,127 @@
+#ifdef _CACHE_NAMESPACES
+////
+// OAuth 2.0 entities cache namespaces
+//
+// OAuth 2.0 Client namespace
+DAT(oauth2_client_value,                "oauth2.client:value:")
+// OAuth 2.0 Code namespace
+DAT(oauth2_code_value,                  "oauth2.code:value:")
+// OAuth 2.0 User namespace
+DAT(oauth2_user_value,                  "oauth2.user:value:")
+
+////
+// Session namespaces
+//
+DAT(session_value,                      "session:value:")
+DAT(session_data,                       "session:data:")
+DAT(session_roles,                      "session:roles:")
+#endif // _CACHE_NAMESPACES
+
+
+#ifdef _ENTITY_KEYS
+////
+// OAuth 2.0 constants
+//
+// OAuth 2.0 Client keys
+DAT(oauth2_client_application_name,     "application.name")
+DAT(oauth2_client_id,                   "client.id")
+DAT(oauth2_client_client_type,          "client.type")
+DAT(oauth2_client_creation_time,        "creation.time")
+DAT(oauth2_client_key,                  "key")
+DAT(oauth2_client_redirect_uris,        "redirect.uris")
+DAT(oauth2_client_roles,                "roles")
+DAT(oauth2_client_username,             "username")
+// OAuth 2.0 Code keys
+DAT(oauth2_code_client_id,              "client.id")
+DAT(oauth2_code_code,                   "code")
+DAT(oauth2_code_creation_time,          "creation.time")
+DAT(oauth2_code_roles,                  "roles")
+DAT(oauth2_code_username,               "username")
+// OAuth 2.0 User keys
+DAT(oauth2_user_creation_time,          "creation.time")
+DAT(oauth2_user_key,                    "key")
+DAT(oauth2_user_roles,                  "roles")
+DAT(oauth2_user_username,               "username")
+
+
+////
+// Session entities keys
+//
+DAT(session_cookie,                     "cookie")
+DAT(session_json,                       "json")
+DAT(session_query,                      "query")
+DAT(session_clean_extra_timeout,        "session_clean_extra_timeout")
+DAT(session_clean_frequency,            "session_clean_frequency")
+DAT(session_set_cookie,                 "Set-Cookie")
+DAT(session_timeout,                    "session_timeout")
+DAT(session_token_support,              "session_token_support")
+DAT(session_token_label,                "session_token_label")
+DAT(session_token_length,               "session_token_length")
+DAT(session_token,                      "token")
+DAT(session_update_time,                "update.time")
+
+
+////
+// Cache entities keys
+//
+DAT(redis_cache_driver_address,         "redis_cache_driver_address")
+DAT(redis_cache_driver_port,            "redis_cache_driver_port")
+
+////
+// Http parser
+//
+DAT(http_parser_cookie,                 "Cookie")
+DAT(http_parser_boundary_delimiter,     "; boundary=----")
+DAT(http_parser_property_name_label,    "name")
+DAT(http_parser_property_value_label,   "value")
+
+#endif // _ENTITY_KEYS
+
+
+#ifdef _NONCE_LENGTHS
+////
+// OAuth 2.0 entities nonce lengths
+//
+DAT(oauth2_client_id,                   16)
+DAT(oauth2_code,                        32)
+
+////
+// Session entities nonce lengths
+//
+// Default token length. This default value is taken in case "session_default_token_length" property is not found.
+DAT(session_token,                      64)
+#endif // _NONCE_LENGTHS
+
+#ifdef _DEFAULT_STRINGS
+// Default token name, the cookie name containing the token or, in case of
+// using POST or GET, the key name of the token value.
+// This default value is taken in case "session_token_label" property is not found.
+DAT(session_token_support,              "cookie")
+DAT(session_second_token_support,       "json")
+DAT(session_token_label,                "token")
+
+// Address used in case "redis_cache_driver_address" property is not provided.
+DAT(redis_cache_redis_address,          "127.0.0.1")
+// Port used in case "redis_cache_driver_port" property is not provided.
+DAT(redis_cache_redis_port,             "6379")
+
+#endif // _DEFAULT_NUMBERS
+
+#ifdef _DEFAULT_NUMBERS
+////
+// Session default numbers
+//
+// Default session timeout seconds, by default one day = 86400 seconds.
+// This default value is taken in case "session_timeout" property is not found.
+DAT(session_timeout,                     86400)
+
+// Default frequency in seconds the CleanSessions function will be executed.
+// This default value is taken in case "session_clean_frequency" property is not found.
+// By default every hour = 3600 seconds.
+DAT(session_clean_sessions_frequency,    3600)
+// This default value is taken in case "session_clean_extra_timeout" property is not found.
+DAT(session_session_clean_extra_timeout, 0)
+
+
+
+#endif // _DEFAULT_NUMBERS

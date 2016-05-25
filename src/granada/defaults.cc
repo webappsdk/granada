@@ -21,61 +21,37 @@
   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   * SOFTWARE.
   *
-  * Manage the roles of a session and their properties using redis.
-  *
+  * Default values and entity keys.
   */
-#pragma once
-#include "roles.h"
+ 
 #include "granada/defaults.h"
-#include "granada/cache/redis_cache_driver.h"
 
-namespace granada{
-  namespace http{
-    namespace session{
-      class RedisRoles : public Roles
-      {
-        public:
+#define _CACHE_NAMESPACES
+#define DAT(a_, b_) const cache_namespace cache_namespaces::a_(_XPLATSTR(b_));
+#include "granada/defaults.dat"
+#undef _CACHE_NAMESPACES
+#undef DAT
 
-          /**
-           * Controlers
-           */
-          RedisRoles(granada::http::session::Session* session);
+#define _ENTITY_KEYS
+#define DAT(a_, b_) const entity_key entity_keys::a_(_XPLATSTR(b_));
+#include "granada/defaults.dat"
+#undef _ENTITY_KEYS
+#undef DAT
 
-          // override
-          const bool Is(const std::string& role_name);
+#define _NONCE_LENGTHS
+#define DAT(a_, b_) const nonce_length nonce_lenghts::a_(_XPLATSTR(b_));
+#include "granada/defaults.dat"
+#undef _NONCE_LENGTHS
+#undef DAT
 
+#define _DEFAULT_STRINGS
+#define DAT(a_, b_) const default_string default_strings::a_(_XPLATSTR(b_));
+#include "granada/defaults.dat"
+#undef _DEFAULT_STRINGS
+#undef DAT
 
-          // override
-          const bool Add(const std::string& role_name);
-
-
-          // override
-          void Remove(const std::string& role_name);
-
-
-          // override
-          void RemoveAll();
-
-
-          // override
-          void SetProperty(const std::string& role_name, const std::string& key, const std::string& value);
-
-
-          // override
-          const std::string GetProperty(const std::string& role_name, const std::string& key);
-
-
-          // override
-          void DestroyProperty(const std::string& role_name, const std::string& key);
-
-        private:
-
-          /**
-           * Manager of the storage, and contains
-           * the data stored.
-           */
-          static std::unique_ptr<granada::cache::CacheHandler> cache_;
-      };
-    }
-  }
-}
+#define _DEFAULT_NUMBERS
+#define DAT(a_, b_) const default_number default_numbers::a_(_XPLATSTR(b_));
+#include "granada/defaults.dat"
+#undef _DEFAULT_NUMBERS
+#undef DAT

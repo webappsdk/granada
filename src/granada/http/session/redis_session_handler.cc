@@ -49,24 +49,24 @@ namespace granada{
       }
 
       void RedisSessionHandler::LoadProperties(){
-        std::string clean_sessions_frequency_str(GetProperty("session_clean_frequency"));
+        std::string clean_sessions_frequency_str(GetProperty(entity_keys::session_clean_frequency));
         if (clean_sessions_frequency_str.empty()){
-          clean_sessions_frequency_ = DEFAULT_CLEAN_SESSIONS_FREQUENCY;
+          clean_sessions_frequency_ = default_numbers::session_clean_sessions_frequency;
         }else{
           try{
             clean_sessions_frequency_ = std::stod(clean_sessions_frequency_str);
           }catch(const std::exception& e){
-            clean_sessions_frequency_ = DEFAULT_CLEAN_SESSIONS_FREQUENCY;
+            clean_sessions_frequency_ = default_numbers::session_clean_sessions_frequency;
           }
         }
-        std::string token_length_str(GetProperty("session_token_length"));
+        std::string token_length_str(GetProperty(entity_keys::session_token_length));
         if (token_length_str.empty()){
-          token_length_ = DEFAULT_TOKEN_LENGTH;
+          token_length_ = nonce_lengths::session_token;
         }else{
           try{
             token_length_ = std::stoi(token_length_str);
           }catch(const std::exception& e){
-            token_length_ = DEFAULT_TOKEN_LENGTH;
+            token_length_ = nonce_lengths::session_token;
           }
         }
       }
@@ -77,7 +77,7 @@ namespace granada{
 
       const bool RedisSessionHandler::SessionExists(const std::string& token){
         if (!token.empty()){
-          return sessions_->Exists("session:value:"+token);
+          return sessions_->Exists(cache_namespaces::session_value + token);
         }
         return false;
       }
@@ -88,7 +88,7 @@ namespace granada{
 
       void RedisSessionHandler::LoadSession(const std::string& token,granada::http::session::Session* virgin){
         if (!token.empty()){
-          time_t update_time = granada::util::time::parse(sessions_->Read("session:value:" + token, "update.time"));
+          time_t update_time = granada::util::time::parse(sessions_->Read(cache_namespaces::session_value + token, entity_keys::session_update_time));
           virgin->set(token,update_time);
           if (!virgin->IsValid()){
             virgin->set("",0);
@@ -98,9 +98,10 @@ namespace granada{
 
       void RedisSessionHandler::SaveSession(std::shared_ptr<granada::http::session::Session> session){
         std::string token = session->GetToken();
+        std::string hash = cache_namespaces::session_value + token;
         if (!token.empty()){
-          sessions_->Write("session:value:" + token, "token", token);
-          sessions_->Write("session:value:" + token, "update.time", granada::util::time::stringify(session->GetUpdateTime()));
+          sessions_->Write(hash, entity_keys::session_token, token);
+          sessions_->Write(hash, entity_keys::session_update_time, granada::util::time::stringify(session->GetUpdateTime()));
         }
       }
 
@@ -116,11 +117,11 @@ namespace granada{
 
       void RedisSessionHandler::CleanSessions(){
 
-        granada::cache::RedisIterator redis_iterator(granada::cache::RedisIterator::Type::SCAN,"session:value:*");
+        granada::cache::RedisIterator redis_iterator(granada::cache::RedisIterator::Type::SCAN, cache_namespaces::session_value + "*");
         while(redis_iterator.has_next()){
           std::string key = redis_iterator.next();
-          std::string token = sessions_->Read(key, "token");
-          time_t update_time = granada::util::time::parse(sessions_->Read(key, "update.time"));
+          std::string token = sessions_->Read(key, entity_keys::session_token);
+          time_t update_time = granada::util::time::parse(sessions_->Read(key, entity_keys::session_update_time));
           reference_session_->set(token,update_time);
           if (reference_session_->IsGarbage()){
             reference_session_->Close();

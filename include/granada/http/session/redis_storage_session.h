@@ -30,6 +30,7 @@
 #include "session.h"
 #include "redis_roles.h"
 #include "redis_session_handler.h"
+#include "granada/defaults.h"
 #include "granada/cache/redis_cache_driver.h"
 
 namespace granada{
@@ -122,15 +123,9 @@ namespace granada{
            * Used for determining if the session is garbage.
            * In case the session is timed out since x seconds indicated
            * in the "session_clean_extra_timeout" property
-           * If no property indicated, it will take DEFAULT_SESSION_CLEAN_EXTRA_TIMEOUT.
+           * If no property indicated, it will take entity_keys::session_clean_extra_timeout.
            */
           long session_clean_extra_timeout_;
-
-
-          /**
-           * This default value is taken in case "session_clean_extra_timeout" property is not found.
-           */
-          static long DEFAULT_SESSION_CLEAN_EXTRA_TIMEOUT;
 
       };
     }

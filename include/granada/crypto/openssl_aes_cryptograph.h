@@ -47,8 +47,6 @@ namespace granada{
         // override
         std::string Encrypt(const std::string& text, std::string password){
 
-          password = password + "0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz";
-
           unsigned char text_to_encrypt[text.size()+1];
           memcpy(text_to_encrypt,text.c_str(),text.size()+1);
 
@@ -61,13 +59,11 @@ namespace granada{
 
           AES_set_encrypt_key(key, AES_SIZE, &enc_key);
           AES_encrypt(text_to_encrypt, enc_out, &enc_key);
-
-          return std::string(reinterpret_cast<char*>(enc_out));
+          return std::string(reinterpret_cast<const char*>(enc_out),AES_SIZE);
         };
 
         // override
         std::string Decrypt(const std::string& text, std::string password){
-          password = password + "0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz";
           unsigned char key[password.size()+1];
           memcpy(key,password.c_str(),password.size()+1);
           unsigned char dec_out[AES_SIZE];
@@ -76,8 +72,7 @@ namespace granada{
           unsigned char crypted_text[text.size()+1];
           memcpy(crypted_text,text.c_str(),text.size()+1);
           AES_decrypt(crypted_text, dec_out, &dec_key);
-
-          return std::string(reinterpret_cast<char*>(dec_out));
+          return std::string(reinterpret_cast<const char*>(dec_out));
         };
 
       private:

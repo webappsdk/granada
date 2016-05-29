@@ -47,12 +47,18 @@ namespace granada{
 
       std::string redis_port_str = granada::util::application::GetProperty(entity_keys::redis_cache_driver_port);
       if (redis_port_str.empty()){
-        redis_port_ = default_strings::redis_cache_redis_port;
+        redis_port_str = default_strings::redis_cache_redis_port;
+        try{
+          redis_port_ = (unsigned short) std::strtoul(redis_port_str.c_str(), NULL, 0);
+        }catch(const std::exception& e){}
       }else{
         try{
           redis_port_ = (unsigned short) std::strtoul(redis_port_str.c_str(), NULL, 0);
         }catch(const std::exception& e){
-          redis_port_ = default_strings::redis_cache_redis_port;
+          redis_port_str = default_strings::redis_cache_redis_port;
+          try{
+            redis_port_ = (unsigned short) std::strtoul(redis_port_str.c_str(), NULL, 0);
+          }catch(const std::exception& e){}
         }
       }
     }

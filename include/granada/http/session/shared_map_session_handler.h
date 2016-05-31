@@ -103,7 +103,7 @@ namespace granada{
 
           /**
            * Token length. It will be set on LoadProperties(), if not found, it will take
-           * the value of nonce_lenghts::session_token.
+           * the value of nonce_lengths::session_token.
            */
           int token_length_;
 

@@ -28,11 +28,11 @@
 #include <thread>
 #include <chrono>
 #include <mutex>
-#include "cpprest/asyncrt_utils.h"
-#include "pplx/pplxtasks.h"
 #include <memory>
 #include <string>
 #include <sstream>
+#include "pplx/pplxtasks.h"
+#include "cpprest/asyncrt_utils.h"
 #include "granada/defaults.h"
 #include "granada/util/time.h"
 #include "granada/util/application.h"

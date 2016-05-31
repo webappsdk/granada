@@ -40,6 +40,10 @@ namespace granada{
            */
           RedisStorageSessionCheckpoint(){};
 
+          std::shared_ptr<granada::http::session::Session> check(){
+            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::RedisStorageSession());
+          };
+
           std::shared_ptr<granada::http::session::Session> check(web::http::http_request &request,web::http::http_response &response){
             return std::shared_ptr<granada::http::session::Session>(new granada::http::session::RedisStorageSession(request,response));
           };

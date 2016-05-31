@@ -9,7 +9,7 @@ namespace granada{
     class NonceGenerator{
       public:
         NonceGenerator(){};
-        
+
         virtual std::string generate(int& length){
           return std::string();
         };

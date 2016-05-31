@@ -23,7 +23,7 @@
   *
   * Default values and entity keys.
   */
- 
+
 #include "granada/defaults.h"
 
 #define _CACHE_NAMESPACES
@@ -39,7 +39,7 @@
 #undef DAT
 
 #define _NONCE_LENGTHS
-#define DAT(a_, b_) const nonce_length nonce_lenghts::a_(_XPLATSTR(b_));
+#define DAT(a_, b_) const nonce_length nonce_lengths::a_(_XPLATSTR(b_));
 #include "granada/defaults.dat"
 #undef _NONCE_LENGTHS
 #undef DAT

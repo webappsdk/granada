@@ -64,7 +64,7 @@ public:
  * Length of the random alphanumeric "ids"
  */
 typedef int nonce_length;
-class nonce_lenghts
+class nonce_lengths
 {
 public:
 #define _NONCE_LENGTHS

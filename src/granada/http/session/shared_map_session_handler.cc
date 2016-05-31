@@ -58,12 +58,12 @@ namespace granada{
         }
         std::string token_length_str(GetProperty(entity_keys::session_token_length));
         if (token_length_str.empty()){
-          token_length_ = nonce_lenghts::session_token;
+          token_length_ = nonce_lengths::session_token;
         }else{
           try{
             token_length_ = std::stoi(token_length_str);
           }catch(const std::exception& e){
-            token_length_ = nonce_lenghts::session_token;
+            token_length_ = nonce_lengths::session_token;
           }
         }
       }

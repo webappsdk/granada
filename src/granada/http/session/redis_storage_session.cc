@@ -57,15 +57,17 @@ namespace granada{
 
 
       void RedisStorageSession::LoadProperties(){
-        Session::LoadProperties();
-        std::string session_clean_extra_timeout_str(session_handler()->GetProperty(entity_keys::session_clean_extra_timeout));
-        if (session_clean_extra_timeout_str.empty()){
-          session_clean_extra_timeout_ = default_numbers::session_session_clean_extra_timeout;
-        }else{
-          try{
-            session_clean_extra_timeout_ = std::stol(session_clean_extra_timeout_str);
-          }catch(const std::logic_error& e){
+        if (session_handler() != nullptr){
+          Session::LoadProperties();
+          std::string session_clean_extra_timeout_str(session_handler()->GetProperty(entity_keys::session_clean_extra_timeout));
+          if (session_clean_extra_timeout_str.empty()){
             session_clean_extra_timeout_ = default_numbers::session_session_clean_extra_timeout;
+          }else{
+            try{
+              session_clean_extra_timeout_ = std::stol(session_clean_extra_timeout_str);
+            }catch(const std::logic_error& e){
+              session_clean_extra_timeout_ = default_numbers::session_session_clean_extra_timeout;
+            }
           }
         }
       }

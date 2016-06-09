@@ -46,17 +46,13 @@ namespace granada{
 
         // override
         std::string Encrypt(const std::string& text, std::string password){
-
+          password += "qwertyuiopasdfghjklzxcvbnmqwertyqwertyuiopasdfghjklzxcvbnmqwerty";
           unsigned char text_to_encrypt[text.size()+1];
           memcpy(text_to_encrypt,text.c_str(),text.size()+1);
-
           unsigned char key[password.size()+1];
           memcpy(key,password.c_str(),password.size()+1);
-
           unsigned char enc_out[AES_SIZE];
-
           AES_KEY enc_key;
-
           AES_set_encrypt_key(key, AES_SIZE, &enc_key);
           AES_encrypt(text_to_encrypt, enc_out, &enc_key);
           return std::string(reinterpret_cast<const char*>(enc_out),AES_SIZE);
@@ -64,19 +60,21 @@ namespace granada{
 
         // override
         std::string Decrypt(const std::string& text, std::string password){
+          password += "qwertyuiopasdfghjklzxcvbnmqwertyqwertyuiopasdfghjklzxcvbnmqwerty";
           unsigned char key[password.size()+1];
           memcpy(key,password.c_str(),password.size()+1);
           unsigned char dec_out[AES_SIZE];
           AES_KEY dec_key;
           AES_set_decrypt_key(key,AES_SIZE,&dec_key);
-          unsigned char crypted_text[text.size()+1];
-          memcpy(crypted_text,text.c_str(),text.size()+1);
+          unsigned char crypted_text[AES_SIZE];
+          memcpy(crypted_text,text.c_str(),AES_SIZE);
           AES_decrypt(crypted_text, dec_out, &dec_key);
           return std::string(reinterpret_cast<const char*>(dec_out));
         };
 
+
       private:
-        const int AES_SIZE = 128;
+        const int AES_SIZE = 256;
 
     };
   }

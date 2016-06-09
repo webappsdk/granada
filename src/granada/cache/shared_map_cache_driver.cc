@@ -29,6 +29,44 @@
 namespace granada{
   namespace cache{
 
+    SharedMapIterator::SharedMapIterator(const std::string& expression, std::shared_ptr<std::map<std::string,std::unordered_map<std::string,std::string>>>& data){
+      expression_ = expression;
+      std::unordered_map<std::string,std::string> values;
+      values.insert(std::make_pair("*",".*"));
+      granada::util::string::replace(expression_,values,"","");
+
+      data_ = data;
+
+      FilterKeys();
+
+      it_ = keys_.begin();
+    }
+
+    const bool SharedMapIterator::has_next(){
+      return it_ != keys_.end();
+    }
+
+    const std::string SharedMapIterator::next(){
+      if (it_ != keys_.end()){
+        std::string value = *it_;
+        ++it_;
+        return value;
+      }
+      return std::string();
+    }
+
+    void SharedMapIterator::FilterKeys(){
+      std::string key;
+      mtx.lock();
+      for(auto it = data_->begin(); it != data_->end(); ++it) {
+        key = it->first;
+        if (std::regex_match(key, std::regex(expression_))){
+          keys_.push_back(it->first);
+        }
+      }
+      mtx.unlock();
+    }
+
     SharedMapCacheDriver::SharedMapCacheDriver(){
       data_ = std::shared_ptr<std::map<std::string,std::unordered_map<std::string,std::string>>>(new std::map<std::string,std::unordered_map<std::string,std::string>>);
     }
@@ -59,6 +97,23 @@ namespace granada{
       return false;
     }
 
+
+    const std::string SharedMapCacheDriver::Read(const std::string& key){
+      mtx.lock();
+      auto it = data_->find(key);
+      if (it != data_->end()){
+        std::unordered_map<std::string,std::string> properties = it->second;
+        auto it2 = properties.find("__");
+        if(it2 != properties.end()){
+          mtx.unlock();
+          return it2->second;
+        }
+      }
+      mtx.unlock();
+      return std::string();
+    }
+
+
     const std::string SharedMapCacheDriver::Read(const std::string& hash,const std::string& key){
       mtx.lock();
       auto it = data_->find(hash);
@@ -83,6 +138,21 @@ namespace granada{
       }
       mtx.unlock();
       return std::unordered_map<std::string,std::string>();
+    }
+
+    void SharedMapCacheDriver::Write(const std::string& key,const std::string& value){
+      mtx.lock();
+      auto it = data_->find(key);
+      if (it == data_->end()){
+        std::unordered_map<std::string,std::string> properties;
+        properties["__"] = value;
+        (*data_)[key] = properties;
+      }else{
+        std::unordered_map<std::string,std::string> properties = it->second;
+        properties["__"] = value;
+        (*data_)[key] = properties;
+      }
+      mtx.unlock();
     }
 
     void SharedMapCacheDriver::Write(const std::string& hash,const std::string& key,const std::string& value){

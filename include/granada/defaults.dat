@@ -9,6 +9,8 @@ DAT(oauth2_code_value,                  "oauth2.code:value:")
 // OAuth 2.0 User namespace
 DAT(oauth2_user_value,                  "oauth2.user:value:")
 
+DAT(oauth2_authorization,               "oauth2.authorization:")
+
 ////
 // Session namespaces
 //
@@ -42,7 +44,8 @@ DAT(oauth2_user_creation_time,          "creation.time")
 DAT(oauth2_user_key,                    "key")
 DAT(oauth2_user_roles,                  "roles")
 DAT(oauth2_user_username,               "username")
-
+DAT(oauth2_session_role,                "__OAUTH2")
+DAT(oauth2_session_role_username,       "oauth2.user:username")
 
 ////
 // Session entities keys
@@ -60,6 +63,25 @@ DAT(session_token_length,               "session_token_length")
 DAT(session_token,                      "token")
 DAT(session_update_time,                "update.time")
 
+DAT(oauth2_client_value_namespace,      "oauth2_client_value_namespace")
+DAT(oauth2_client_id_length,            "oauth2_client_id_length")
+DAT(oauth2_user_value_namespace,        "oauth2_user_value_namespace")
+DAT(oauth2_code_length,                 "oauth2_code_length")
+DAT(oauth2_code_value_namespace,        "oauth2_code_value_namespace")
+
+DAT(oauth2_authorizing_login_template,  "oauth2_authorizing_login_template")
+DAT(oauth2_authorizing_message_template,"oauth2_authorizing_message_template")
+DAT(oauth2_logout_template,             "oauth2_logout_template")
+DAT(oauth2_authorizing_error_template,  "oauth2_authorizing_error_template")
+DAT(oauth2_authorize_uri,               "oauth2_authorize_uri")
+DAT(oauth2_logout_uri,                  "oauth2_logout_uri")
+DAT(oauth2_use_refresh_token,           "use_refresh_token")
+
+DAT(oauth2_info_uri,                     "oauth2_info_uri")
+
+DAT(oauth2_authorization_form_action,   "action")
+
+DAT(oauth2_authorization_namespace,     "oauth2_authorization_namespace")
 
 ////
 // Cache entities keys
@@ -75,6 +97,8 @@ DAT(http_parser_boundary_delimiter,     "; boundary=----")
 DAT(http_parser_property_name_label,    "name")
 DAT(http_parser_property_value_label,   "value")
 
+DAT(_true,                              "true")
+
 #endif // _ENTITY_KEYS
 
 
@@ -83,7 +107,7 @@ DAT(http_parser_property_value_label,   "value")
 // OAuth 2.0 entities nonce lengths
 //
 DAT(oauth2_client_id,                   16)
-DAT(oauth2_code,                        32)
+DAT(oauth2_code,                        64)
 
 ////
 // Session entities nonce lengths
@@ -99,6 +123,11 @@ DAT(session_token,                      64)
 DAT(session_token_support,              "cookie")
 DAT(session_second_token_support,       "json")
 DAT(session_token_label,                "token")
+
+DAT(oauth2_authorize_uri,               "auth")
+DAT(oauth2_logout_uri,                  "logout")
+DAT(oauth2_info_uri,                    "info")
+DAT(oauth2_use_refresh_token,           "false")
 
 // Address used in case "redis_cache_driver_address" property is not provided.
 DAT(redis_cache_redis_address,          "127.0.0.1")

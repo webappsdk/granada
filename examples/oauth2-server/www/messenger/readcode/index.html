@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Message Reader Application (Authorization Code Grant)</title>
+  </head>
+  <body style="background-color:#c7ffa8;width:620px;">
+    <pre id="log" style="border:1px solid #000;padding:10px;margin:20px;white-space:pre-wrap;word-wrap:break-word;"></pre>
+    <div style="border:1px solid #000;background-color:#fff;padding:20px;margin:20px;width:540px;">
+      <b>Message Reader Application Authorization Code Grant</b><br/><br/>
+      <div id="login" style="display:none;">
+        <a href="/application/readcode/auth">Please click here to allow the Message Reader to read your messages.</a><br/>
+      </div>
+      <table id="message-table" style="display:none;" border=1>
+        <thead><tr><td>Message</td></tr></thead><tbody id="message-list"></tbody>
+      </table>
+      <br />
+      <a href="/">back</a>
+    </div>
+    <script type="text/javascript" src="/resources/qwest/js/qwest.min.js"></script>
+    <script type="text/javascript" src="/resources/log/js/log.js"></script>
+    <script>
+      var loginEl = document.getElementById("login");
+      var messageTableEl = document.getElementById("message-table");
+      var messageListEl = document.getElementById("message-list");
+
+      function createMessage(){
+        var message = prompt("Enter message", "Message...");
+        if (message != null) {
+          qwest.put("/message",{"message":message},{"dataType":"json","responseType":"json"})
+           .then(function(xhr, response) {
+             if (response["error"]){
+               displayLogin();
+             }else{
+               printMessages(response["data"]);
+             }
+             log(response);
+           })
+           .catch(function(e, xhr, response) {
+              log({"error":"","error_description":"Error creating message"});
+           });
+        }
+      };
+
+      function editMessage(el){
+        var trEl = el.parentElement.parentElement;
+        var messageKey = trEl.getAttribute("message-key");
+        var text = trEl.firstElementChild.innerHTML;
+        var message = prompt("Edit message:",text);
+        if (message != null) {
+          qwest.post("/message/edit",{"message":message,"key":messageKey},{"dataType":"json","responseType":"json"})
+           .then(function(xhr, response) {
+             if (response["error"]){
+               displayLogin();
+             }else{
+               printMessages(response["data"]);
+             }
+             log(response);
+           })
+           .catch(function(e, xhr, response) {
+              log({"error":"","error_description":"Error editing message"});
+           });
+        }
+      };
+
+      function listMessages(){
+        // send to server
+        qwest.post("/application/list",null,{"responseType":"json"})
+         .then(function(xhr, response) {
+           if (response["error"]){
+             displayLogin();
+           }else{
+             printMessages(response["data"]);
+           }
+           log(response);
+         })
+         .catch(function(e, xhr, response) {
+            displayLogin();
+            log({"error":"","error_description":"Error listing messages."});
+         });
+      };
+
+      function printMessages(messages){
+        var len = messages.length;
+        var html = "";
+        var message = null;
+        while(len--){
+          message = messages[len];
+          html += "<tr style=\"width:100%;\" message-key=\"" + message["key"] + "\"><td style=\"width:100%;\">" + message["text"] + "</td></tr>";
+        }
+        messageListEl.innerHTML = html;
+        messageTableEl.style["display"] = "block";
+      }
+
+      function deleteMessage(el){
+        var trEl = el.parentElement.parentElement;
+
+        var messageKey = trEl.getAttribute("message-key");
+
+        qwest.delete("/message",{"key":messageKey},{"dataType":"json","responseType":"json"})
+         .then(function(xhr, response) {
+           if (!response["error"]){
+             printMessages(response["data"]);
+           }
+           log(response);
+         })
+         .catch(function(e, xhr, response) {
+            log({"error":"","error_description":"Error deleting message"});
+         });
+      }
+
+      function displayLogin(){
+        loginEl.style["display"] = "block";
+      }
+
+      window.onload = function(){
+        var errorQueryString=getParameterByName("error");
+        if (errorQueryString != ""){
+          log();
+          displayLogin();
+        }else{
+          log("************* Message Reader Application (Authorization Code Grant) *************");
+          listMessages();
+        }
+      };
+    </script>
+  </body>
+</html>

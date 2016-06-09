@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Client authorizations manager</title>
+  </head>
+  <body style="background-color:#c9ddff;width:620px;">
+    <pre id="log" style="border:1px solid #000;padding:10px;margin:20px;white-space:pre-wrap;word-wrap:break-word;"></pre>
+    <div style="border:1px solid #000;background-color:#fff;padding:20px;margin:20px;width:540px;">
+      <table id="client-table" border=1>
+        <thead>
+          <tr>
+            <td>
+              Application
+            </td>
+            <td>
+              Delete
+            </td>
+          </tr>
+        </thead>
+        <tbody id="client-list">
+
+        </tbody>
+      </table>
+      <br /><a href="/">back</a>
+    </div>
+    <script type="text/javascript" src="/resources/qwest/js/qwest.min.js"></script>
+    <script type="text/javascript" src="/resources/log/js/log.js"></script>
+    <script>
+
+      var clientTableEl = document.getElementById("client-table");
+      var clientListEl = document.getElementById("client-list");
+
+      function listClients(){
+        // send to server
+        qwest.get("/oauth2/info",null,{"responseType":"json"})
+         .then(function(xhr, response) {
+           if (response["error"]){
+             if (response["error"] == "access_denied"){
+               clientListEl.innerHTML = "<b>Probably no user is logged in the OAuth 2.0 server.</b>";
+             }
+           }else{
+             var data = response["data"];
+             printClients(data);
+           }
+         });
+      };
+
+      function printClients(clients){
+        var len = clients.length;
+        var html = "";
+        var client = null;
+        if (len == 0){
+          html += "<b>No application authorized at this moment.</b>";
+        }else{
+          while(len--){
+            client = clients[len];
+            html += "<tr client-id=\"" + client["client_id"] + "\"><td>" + client["application_name"] + "</td><td><button onclick=\"deleteClient(this)\" type=\"button\">Delete client</button></td></tr>";
+          }
+        }
+        clientListEl.innerHTML = html;
+      };
+
+      function deleteClient(el){
+        var trEl = el.parentElement.parentElement;
+
+        var clientId = trEl.getAttribute("client-id");
+
+        qwest.delete("/oauth2?client_id=" + clientId,null,{"responseType":"json"})
+         .then(function(xhr, response) {
+           if (!response["error"]){
+             listClients();
+           }
+         });
+      }
+
+      window.onload = function(){
+        log({"description":"**************** Client authorizations manager ****************<br/><br/>Here are listed the clients authorized by the user logged in the authorization server."});
+        listClients();
+      };
+
+    </script>
+  </body>
+</html>

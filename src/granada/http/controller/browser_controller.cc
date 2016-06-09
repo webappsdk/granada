@@ -56,7 +56,7 @@ namespace granada{
 
         session_checkpoint_->check(request,response);
 
-        // retrieve a ressource with this a given path from cache.
+        // retrieve a resource with this a given path from cache.
 
         granada::cache::Resource resource = cache_handler_->GetFile(relative_uri_path);
 

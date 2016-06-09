@@ -49,7 +49,9 @@ namespace granada{
            * Can be used in case we want to open a session in case it does not exist,
            * or in case it is timed out.
            */
-          virtual std::shared_ptr<granada::http::session::Session> check(){};
+          virtual std::shared_ptr<granada::http::session::Session> check(){
+            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::Session());
+          };
 
 
           /**
@@ -59,7 +61,9 @@ namespace granada{
            * @param request   HTTP request.
            * @param response  HTTP response.
            */
-          virtual std::shared_ptr<granada::http::session::Session> check(web::http::http_request &request,web::http::http_response &response){};
+          virtual std::shared_ptr<granada::http::session::Session> check(web::http::http_request &request,web::http::http_response &response){
+            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::Session(request,response));
+          };
 
 
           /**
@@ -68,7 +72,9 @@ namespace granada{
            * or in case it is timed out.
            * @param request   HTTP request.
            */
-          virtual std::shared_ptr<granada::http::session::Session> check(web::http::http_request &request){};
+          virtual std::shared_ptr<granada::http::session::Session> check(web::http::http_request &request){
+            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::Session(request));
+          };
 
 
           /**
@@ -77,7 +83,9 @@ namespace granada{
            * or in case it is timed out.
            * @param token   Session token.
            */
-          virtual std::shared_ptr<granada::http::session::Session> check(const std::string& token){};
+          virtual std::shared_ptr<granada::http::session::Session> check(const std::string& token){
+            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::Session(token));
+          };
 
       };
     }

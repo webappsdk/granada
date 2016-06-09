@@ -41,6 +41,7 @@ namespace granada{
            */
           RedisRoles(granada::http::session::Session* session);
 
+
           // override
           const bool Is(const std::string& role_name);
 
@@ -67,6 +68,7 @@ namespace granada{
 
           // override
           void DestroyProperty(const std::string& role_name, const std::string& key);
+
 
         private:
 

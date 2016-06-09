@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Message Read Application (Implicit Grant)</title>
+  </head>
+  <body style="background-color:#edc7c7;width:620px;">
+    <pre id="log" style="border:1px solid #000;padding:10px;margin:20px;white-space:pre-wrap;word-wrap:break-word;"></pre>
+    <div style="border:1px solid #000;background-color:#fff;padding:20px;margin:20px;width:540px;">
+      <div id="login">
+
+      </div>
+      <table id="message-table" style="display:none;" border=1>
+        <thead>
+          <tr>
+            <td>
+              Message
+            </td>
+          </tr>
+        </thead>
+        <tbody id="message-list">
+
+        </tbody>
+      </table>
+      <br/>
+      <a href="/">index</a>
+    </div>
+    <script type="text/javascript" src="/resources/qwest/js/qwest.min.js"></script>
+    <script type="text/javascript" src="/resources/log/js/log.js"></script>
+    <script type="text/javascript" src="/resources/random/js/random.js"></script>
+    <script>
+
+      var messageTableEl = document.getElementById("message-table");
+      var messageListEl = document.getElementById("message-list");
+
+
+      function listMessages(){
+        // send to server
+        qwest.post("/message/list",{"token":sessionStorage.getItem("token")},{"responseType":"json"})
+         .then(function(xhr, response) {
+           if (!response["error"]){
+             printMessages(response["data"]);
+           }else{
+             if (response["error"] != "access_denied"){
+               log(response);
+             }
+            displayLogin();
+           }
+         })
+         .catch(function(e, xhr, response) {
+            log({"error":"","error_description":"Error listing messages."});
+         });
+      };
+
+      function printMessages(messages){
+        var len = messages.length;
+        var html = "";
+        var message = null;
+        while(len--){
+          message = messages[len];
+          html += "<tr message-key=\"" + message["key"] + "\"><td>" + message["text"] + "</td></tr>";
+        }
+        messageListEl.innerHTML = html;
+        messageTableEl.style["display"] = "block";
+      };
+
+      function displayLogin(){
+        qwest.post("/client/",{"type":"public","redirect_uri":"/messenger/read","application_name":"Message Reader","roles":"msg.select","password":"message_reader_password"},{"responseType":"json"})
+         .then(function(xhr, response) {
+           var loginEl = document.getElementById("login");
+           var state = randomString(16);
+           sessionStorage.setItem("state", state);
+           loginEl.innerHTML = "<a href=\"/oauth2/auth?response_type=token&client_id=" + response["client_id"] + "&redirect_uri=%2Fmessenger%2Fread&scope=msg.select&state=" + state + "\">Please click here to allow the Message Reader to read your messages.</a><br/>";
+         })
+         .catch(function(e, xhr, response) {
+            log({"error":"error","error_description":"Error registering client."});
+         });
+      }
+
+      window.onload = function(){
+        log({"description":"******* Message Read Application (Implicit Grant) *******<br/><br/>"});
+
+        var stateSessionStorage = sessionStorage.getItem("state");
+        var stateQueryString = getParameterByName("state");
+        var accessToken = getParameterByName("access_token");
+
+        if (accessToken != "" && stateQueryString != "" && stateQueryString == stateSessionStorage){
+          sessionStorage.setItem("token", accessToken);
+        }
+
+        listMessages();
+      };
+
+    </script>
+  </body>
+</html>

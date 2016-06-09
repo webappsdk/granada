@@ -32,7 +32,6 @@
 #include "granada/util/application.h"
 #include "cache_handler.h"
 #include <string>
-#include <mutex>
 #include "redisclient/redissyncclient.h"
 
 
@@ -101,6 +100,101 @@ namespace granada{
          * @param port     Redis server port.
          */
         void ConnectRedisSyncClient(RedisSyncClient* redis, const std::string& _address, const unsigned short& port);
+    };
+
+
+    /**
+     * Tool for SCAN or KEYS search in a Redis database, with a given pattern.
+     */
+    class RedisIterator : public CacheHandlerIterator{
+      public:
+
+        /**
+         * Type of search, SCAN or KEYS
+         */
+        enum Type {KEYS = 0, SCAN = 1};
+
+        /**
+         * Constructor
+         */
+        RedisIterator(){};
+
+
+        /**
+         * Constructor
+         */
+        RedisIterator(const std::string& expression);
+
+
+        /**
+         * Constructor
+         */
+        RedisIterator(RedisIterator::Type type, const std::string& expression);
+
+
+        /**
+         * Set the iterator, useful to reuse it.
+         * @param type       SCAN or KEYS command.
+         * @param expression Filter pattern/expression.
+         *                   Example:
+         *                   			session:*TOKEN46464* => will SCAN or KEYS keys that match the given expression.
+         */
+        void set(RedisIterator::Type type, const std::string& expression);
+
+
+        /**
+         * Return true if there is another value with same pattern, false
+         * if there is not.
+         * @return True | False
+         */
+        const bool has_next();
+
+
+        /**
+         * Return the next key found with the given pattern.
+         * @return [description]
+         */
+        const std::string next();
+
+
+      protected:
+
+        static std::unique_ptr<RedisSyncClientWrapper> redis_;
+
+        /**
+         * Results of the SCAN or KEYS search.
+         */
+        std::vector<RedisValue> keys_;
+
+
+        /**
+         * Index where we are in the results array.
+         */
+        int index_ = 0;
+
+
+        /**
+         * If SCAN search the cursor of the SCAN set we are in.
+         */
+        std::string cursor_ = "";
+
+
+        /**
+         * Search type: SCAN or KEYS
+         */
+        Type type_;
+
+
+        /**
+         * True if there is a value to be returned.
+         */
+        bool has_next_ = false;
+
+
+        /**
+         * Get the next vector with data of SCAN or KEYS
+         */
+        void GetNextVector();
     };
 
 
@@ -177,6 +271,16 @@ namespace granada{
         void Destroy(const std::string& hash,const std::string& key);
 
 
+        /**
+         * Returns an iterator to iterate over keys with an expression.
+         * @param   Expression to be use to iterate over keys that match this expression.
+         *          Example: "user*" => we will iterate over all the keys that start with "user"
+         * @return  Iterator.
+         */
+        std::shared_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
+          return std::shared_ptr<granada::cache::CacheHandlerIterator>(new granada::cache::RedisIterator(expression));
+        };
+
       protected:
 
         /**
@@ -190,103 +294,6 @@ namespace granada{
          */
         std::mutex mtx;
 
-    };
-
-
-    /**
-     * Tool for SCAN or KEYS search in a Redis database, with a given pattern.
-     */
-    class RedisIterator{
-      public:
-
-        /**
-         * Type of search, SCAN or KEYS
-         */
-        enum Type {KEYS = 0, SCAN = 1};
-
-
-        /**
-         * Constructor
-         */
-        RedisIterator(RedisIterator::Type type, const std::string& expression);
-
-
-        /**
-         * Set the iterator, useful to reuse it.
-         * @param type       SCAN or KEYS command.
-         * @param expression Filter pattern/expression.
-         *                   Example:
-         *                   			session:*TOKEN46464* => will SCAN or KEYS keys that match the given expression.
-         */
-        void set(RedisIterator::Type type, const std::string& expression);
-
-
-        /**
-         * Return true if there is another value with same pattern, false
-         * if thereis not.
-         * @return True | False
-         */
-        const bool has_next();
-
-
-        /**
-         * Return the next key found with the given pattern.
-         * @return [description]
-         */
-        const std::string next();
-
-
-      private:
-
-        static std::unique_ptr<RedisSyncClientWrapper> redis_;
-
-        /**
-         * Results of the SCAN or KEYS search.
-         */
-        std::vector<RedisValue> keys_;
-
-
-        /**
-         * Index where we are in the results array.
-         */
-        int index_ = 0;
-
-
-        /**
-         * If SCAN search the cursor of the SCAN set we are in.
-         */
-        std::string cursor_ = "";
-
-
-        /**
-         * Search type: SCAN or KEYS
-         */
-        Type type_;
-
-
-        /**
-         * Filter pattern/expression.
-         * SCAN or KEYS keys that match the given expression.
-         */
-        std::string expression_;
-
-
-        /**
-         * True if there is a value to be returned.
-         */
-        bool has_next_ = false;
-
-
-        /**
-         * Mutex for thread safety.
-         */
-        std::mutex mtx;
-
-
-        /**
-         * Get the next vector with data of SCAN or KEYS
-         */
-        void GetNextVector();
     };
   }
 }

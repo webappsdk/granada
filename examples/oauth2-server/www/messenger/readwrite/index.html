@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Message Edition Application (Implicit Grant)</title>
+  </head>
+  <body style="background-color:#edc7c7;width:620px;">
+    <pre id="log" style="border:1px solid #000;padding:10px;margin:20px;white-space:pre-wrap;word-wrap:break-word;"></pre>
+    <div style="border:1px solid #000;background-color:#fff;padding:20px;margin:20px;width:540px;">
+      <div id="login"></div>
+      <button id="new-message-button" style="display:none;" type="button" onclick="createMessage()">New message</button>
+      <table id="message-table" style="display:none;" border=1>
+        <thead>
+          <tr>
+            <td>
+              Message
+            </td>
+            <td>
+              Edit
+            </td>
+            <td>
+              Delete
+            </td>
+          </tr>
+        </thead>
+        <tbody id="message-list">
+
+        </tbody>
+      </table>
+      <br /><br />
+      <a href="/">index</a>
+    </div>
+    <script type="text/javascript" src="/resources/qwest/js/qwest.min.js"></script>
+    <script type="text/javascript" src="/resources/log/js/log.js"></script>
+    <script type="text/javascript" src="/resources/random/js/random.js"></script>
+    <script>
+
+      var newMessageButton = document.getElementById("new-message-button");
+      var messageTableEl = document.getElementById("message-table");
+      var messageListEl = document.getElementById("message-list");
+
+      function createMessage(){
+        var message = prompt("Enter message", "Message...");
+        if (message != null) {
+          // send to server
+          qwest.put("/message",{"message":message,"token":sessionStorage.getItem("token")},{"responseType":"json"})
+           .then(function(xhr, response) {
+             if (!response["error"]){
+               printMessages(response["data"]);
+             }else{
+               displayLogin();
+             }
+             log(response);
+           })
+           .catch(function(e, xhr, response) {
+             displayLogin();
+              log({"error":"","error_description":"Error creating message"});
+           });
+        }
+      };
+
+      function editMessage(el){
+        var trEl = el.parentElement.parentElement;
+
+        var messageKey = trEl.getAttribute("message-key");
+        var text = trEl.firstElementChild.innerHTML;
+        var message = prompt("Edit message:",text);
+        if (message != null) {
+          // send to server
+          qwest.post("/message/edit",{"message":message,"key":messageKey,"token":sessionStorage.getItem("token")},{"responseType":"json"})
+           .then(function(xhr, response) {
+             if (!response["error"]){
+               printMessages(response["data"]);
+             }else{
+               displayLogin();
+             }
+             log(response);
+           })
+           .catch(function(e, xhr, response) {
+             displayLogin();
+              log({"error":"error","error_description":"Error editing message"});
+           });
+        }
+      };
+
+      function listMessages(){
+        // send to server
+        qwest.post("/message/list",{"token":sessionStorage.getItem("token")},{"responseType":"json"})
+         .then(function(xhr, response) {
+           if (!response["error"]){
+             printMessages(response["data"]);
+             log(response);
+           }else{
+             displayLogin();
+             if (response["error"] != "access_denied"){
+               log(response);
+             }
+           }
+         })
+         .catch(function(e, xhr, response) {
+           displayLogin();
+            log({"error":"","error_description":"Error listing messages."});
+         });
+      };
+
+      function printMessages(messages){
+        var len = messages.length;
+        var html = "";
+        var message = null;
+        while(len--){
+          message = messages[len];
+          html += "<tr message-key=\"" + message["key"] + "\"><td>" + message["text"] + "</td><td><button onclick=\"editMessage(this)\" type=\"button\">Edit message</button></td><td><button onclick=\"deleteMessage(this)\" type=\"button\">Delete message</button></td></tr>";
+        }
+        messageListEl.innerHTML = html;
+        messageTableEl["style"]["display"] = "block";
+        newMessageButton["style"]["display"] = "block";
+      };
+
+      function deleteMessage(el){
+        var trEl = el.parentElement.parentElement;
+
+        var messageKey = trEl.getAttribute("message-key");
+
+        qwest.delete("/message",{"key":messageKey,"token":sessionStorage.getItem("token")},{"responseType":"json"})
+         .then(function(xhr, response) {
+           if (!response["error"]){
+             printMessages(response["data"]);
+           }else{
+             displayLogin();
+           }
+           log(response);
+         })
+         .catch(function(e, xhr, response) {
+           displayLogin();
+            log({"error":"","error_description":"Error deleting message"});
+         });
+      }
+
+      function displayLogin(){
+        qwest.post("/client/",{"type":"public","redirect_uri":"/messenger/readwrite","application_name":"Message Editor","roles":"msg.select msg.insert msg.update msg.delete","password":"message_editor_password"},{"responseType":"json"})
+         .then(function(xhr, response) {
+           var loginEl = document.getElementById("login");
+           var state = randomString(16);
+           sessionStorage.setItem("state", state);
+           loginEl.innerHTML = "<a href=\"/oauth2/auth?response_type=token&client_id=" + response["client_id"] + "&redirect_uri=%2Fmessenger%2Freadwrite&scope=msg.select%20msg.insert%20msg.update%20msg.delete&state=" + state + "\">Please click here to allow the Message Editor to read, create, edit and delete your messages.</a><br/>";
+         })
+         .catch(function(e, xhr, response) {
+            log({"error":"error","error_description":"Error registering client."});
+         });
+      }
+
+      window.onload = function(){
+        log({"description":"******* Message Edition Application (Implicit Grant) *******<br/><br/>"});
+        var stateSessionStorage = sessionStorage.getItem("state");
+        var stateQueryString = getParameterByName("state");
+        var accessToken = getParameterByName("access_token");
+
+        if (accessToken != "" && stateQueryString != "" && stateQueryString == stateSessionStorage){
+          sessionStorage.setItem("token", accessToken);
+         }
+        listMessages();
+      };
+
+    </script>
+  </body>
+</html>

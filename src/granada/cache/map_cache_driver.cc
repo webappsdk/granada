@@ -29,6 +29,44 @@
 namespace granada{
   namespace cache{
 
+    MapIterator::MapIterator(const std::string& expression, std::shared_ptr<std::unordered_map<std::string,std::string>>& data){
+      expression_ = expression;
+      std::unordered_map<std::string,std::string> values;
+      values.insert(std::make_pair("*",".*"));
+      granada::util::string::replace(expression_,values,"","");
+
+      data_ = data;
+
+      FilterKeys();
+
+      it_ = keys_.begin();
+    }
+
+    const bool MapIterator::has_next(){
+      return it_ != keys_.end();
+    }
+
+    const std::string MapIterator::next(){
+      if (it_ != keys_.end()){
+        std::string value = *it_;
+        ++it_;
+        return value;
+      }
+      return std::string();
+    }
+
+    void MapIterator::FilterKeys(){
+      std::string key;
+      mtx.lock();
+      for(auto it = data_->begin(); it != data_->end(); ++it) {
+        key = it->first;
+        if (std::regex_match(key, std::regex(expression_))){
+          keys_.push_back(it->first);
+        }
+      }
+      mtx.unlock();
+    }
+
     MapCacheDriver::MapCacheDriver(){
       data_ = std::shared_ptr<std::unordered_map<std::string,std::string>>(new std::unordered_map<std::string,std::string>());
     }

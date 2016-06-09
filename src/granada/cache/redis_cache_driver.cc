@@ -155,6 +155,10 @@ namespace granada{
 
     std::unique_ptr<RedisSyncClientWrapper> RedisIterator::redis_ = std::unique_ptr<RedisSyncClientWrapper>(new RedisSyncClientWrapper());
 
+    RedisIterator::RedisIterator(const std::string& expression){
+      set(RedisIterator::Type::SCAN, expression);
+    }
+
     RedisIterator::RedisIterator(RedisIterator::Type type, const std::string& expression){
 
       type_ = type;

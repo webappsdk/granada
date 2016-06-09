@@ -192,6 +192,20 @@ namespace granada{
           return std::search(body.begin(), body.end(), chr, chr + chr_length);
         }
       }
+
+
+      std::string ParseURIFromReferer(const web::http::http_request& request){
+        const web::http::http_headers& headers = request.headers();
+        std::string uri_str;
+        auto it = headers.find(web::http::header_names::referer);
+        if (it != headers.end()){
+          web::uri uri(it->second);
+          int port = uri.port();
+          uri_str.assign(uri.scheme() + "://" + uri.host() + (port > 0 ? ":" + std::to_string(port) : "") + uri.path());
+        }
+        return uri_str;
+      }
+
     }
   }
 }

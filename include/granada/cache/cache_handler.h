@@ -27,9 +27,69 @@
   */
 #pragma once
 #include <string>
+#include <memory>
+#include <mutex>
 
 namespace granada{
   namespace cache{
+
+    class CacheHandlerIterator{
+      public:
+
+        /**
+         * Constructor
+         */
+        CacheHandlerIterator(){};
+
+        /**
+         * Constructor
+         */
+        CacheHandlerIterator(const std::string& expression){
+          set(expression);
+        };
+
+
+        /**
+         * Set the iterator, useful to reuse it.
+         * @param expression Filter pattern/expression.
+         *                   Example:
+         *                   			session:*TOKEN46464* => will SCAN or KEYS keys that match the given expression.
+         */
+        virtual void set(const std::string& expression){
+          expression_.assign(expression);
+        };
+
+
+        /**
+         * Return true if there is another value with same pattern, false
+         * if thereis not.
+         * @return True | False
+         */
+        virtual const bool has_next(){ return false; };
+
+
+        /**
+         * Return the next key found with the given pattern.
+         * @return [description]
+         */
+        virtual const std::string next(){ return std::string(); };
+
+
+      protected:
+
+        /**
+         * Filter pattern/expression.
+         * SCAN or KEYS keys that match the given expression.
+         */
+        std::string expression_;
+
+        /**
+         * Mutex for thread safety.
+         */
+        std::mutex mtx;
+    };
+
+
     class CacheHandler
     {
       public:
@@ -111,6 +171,15 @@ namespace granada{
          * @param key  Key associated with the value.
          */
         virtual void Destroy(const std::string& hash,const std::string& key){};
+
+
+        /**
+         * Returns an iterator to iterate over keys with an expression.
+         */
+        virtual std::shared_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
+          return std::shared_ptr<granada::cache::CacheHandlerIterator>(new granada::cache::CacheHandlerIterator(expression));
+        };
+
     };
   }
 }

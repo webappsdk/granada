@@ -48,6 +48,14 @@ namespace granada{
             return std::shared_ptr<granada::http::session::Session>(new granada::http::session::RedisStorageSession(request,response));
           };
 
+          std::shared_ptr<granada::http::session::Session> check(web::http::http_request &request){
+            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::RedisStorageSession(request));
+          };
+
+          std::shared_ptr<granada::http::session::Session> check(const std::string& token){
+            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::RedisStorageSession(token));
+          };
+
       };
     }
   }

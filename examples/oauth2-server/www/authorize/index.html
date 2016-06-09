@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Authorize or deny application</title>
+  </head>
+  <body>
+    <pre id="log" style="border:1px solid #000;padding:10px;margin-bottom:10px;white-space:pre-wrap;word-wrap:break-word;"></pre>
+    <div style="border:1px solid #000;padding:10px;margin-bottom:10px;">
+      Authenticate:<br />
+      <form id="authorization-form" method="POST" action="{{action}}" enctype="application/x-www-form-urlencoded">
+        <input type="text" name="username" placeholder="username"></input><br />
+        <input type="password" name="password" placeholder="password"></input><br />
+        <input type="hidden" name="response_type" value="{{response_type}}"></input>
+        <input type="hidden" name="scope" value="{{scope}}"></input>
+        <input type="hidden" name="client_id" value="{{client_id}}"></input>
+        <input type="hidden" name="redirect_uri" value="{{redirect_uri}}"></input>
+        <input type="hidden" name="state" value="{{state}}"></input>
+        <button>Authorize application</button>
+      </form>
+    </div>
+    <a href="/">index</a>
+    <script type="text/javascript" src="/resources/log/js/log.js"></script>
+    <script>
+      log();
+    </script>
+  </body>
+</html>

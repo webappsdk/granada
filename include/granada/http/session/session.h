@@ -151,6 +151,15 @@ namespace granada{
            */
           void SetToken(const std::string& token){ token_.assign(token); };
 
+          /**
+           * Returns the number of seconds a session is valid before
+           * it times out when not used.
+           * @return Timeout in seconds.
+           */
+          long GetSessionTimeout(){
+            return session_timeout_;
+          };
+
 
           /**
            * Returns the last modification time.

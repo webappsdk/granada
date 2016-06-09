@@ -38,6 +38,7 @@ namespace granada{
   namespace http{
     namespace parser{
 
+
       /**
        * Parse cookies of an http_request into an unordered map
        * Example:
@@ -50,6 +51,7 @@ namespace granada{
        */
       std::unordered_map<std::string, std::string> ParseCookies(web::http::http_request &request);
 
+
       /**
        * Parse Body in query form into an unordered map
        * Example:
@@ -61,6 +63,7 @@ namespace granada{
        * 			|_ quantity   => 2
        */
       std::unordered_map<std::string, std::string> ParseQueryString(const std::string& query_string);
+
 
       /*
        * Parse an http_request with multipart/form data content type into a unordered_map.
@@ -98,12 +101,14 @@ namespace granada{
        */
       std::unordered_map<std::string, std::unordered_map<std::string, std::vector<unsigned char>>> ParseMultipartFormData(web::http::http_request &request);
 
+
       /**
        * Returns the value of the boundary of the multipart/form data
        * @param  headers Headers of the HTTP Request
        * @return         Boundary of the multipart/form data. Example: WebKitFormBoundaryKS484Mi6jduf07q
        */
       std::string ExtractBoundaryMDF(web::http::http_headers &headers);
+
 
       /**
        * Fill parsed multi part form data unordered_map with fields, properties and values.
@@ -114,6 +119,7 @@ namespace granada{
        *                             Return false if this is there is no more data to parse after.
        */
       bool ParseFieldsAndPropertiesMDF(std::vector<unsigned char> &body, std::string &boundary,std::unordered_map<std::string,std::unordered_map<std::string, std::vector<unsigned char>>> &multipart_data_form);
+
 
       /**
        * Parse property with this format: name="file";
@@ -126,6 +132,7 @@ namespace granada{
        */
       bool ParsePropertyMDF(std::vector<unsigned char> &properties,std::unordered_map<std::string, std::vector<unsigned char>> &parsed_properties);
 
+
       /**
        * Search the position of first appearance of chr in body vector and returns the position iterator of the begining or the end.
        * @param  chr  Text to search.
@@ -135,6 +142,14 @@ namespace granada{
        * @return      Iterator of the begining or the end of the first appearance of chr.
        */
       std::vector<unsigned char>::iterator GetIteratorMDF(const char *chr, std::vector<unsigned char> &body, const bool end);
+
+
+      /**
+       * Returns an URI extracted from the Referer header.
+       * @param  request HTTP request containing the Referer header.
+       * @return         Parsed URI.
+       */
+      std::string ParseURIFromReferer(const web::http::http_request& request);
 
     }
   }

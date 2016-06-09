@@ -1,40 +1,44 @@
 #ifdef _OAUTH2_ERRORS
-DAT(access_denied,              "access_denied")
-DAT(error,                      "error")
-DAT(error_description,          "error_description")
-DAT(error_uri,                  "error_uri")
-DAT(invalid_client,             "invalid_client")
-DAT(invalid_grant,              "invalid_grant")
-DAT(invalid_request,            "invalid_request")
-DAT(invalid_scope,              "invalid_scope")
-DAT(server_error,               "server_error")
-DAT(temporarily_unavailable,    "temporarily_unavailable")
-DAT(unauthorized_client,        "unauthorized_client")
-DAT(unsupported_grant_type,     "unsupported_grant_type")
-DAT(unsupported_response_type,  "unsupported_response_type")
+DAT(access_denied,                "access_denied")
+DAT(error,                        "error")
+DAT(error_description,            "error_description")
+DAT(error_uri,                    "error_uri")
+DAT(invalid_client,               "invalid_client")
+DAT(invalid_grant,                "invalid_grant")
+DAT(invalid_request,              "invalid_request")
+DAT(invalid_scope,                "invalid_scope")
+DAT(server_error,                 "server_error")
+DAT(temporarily_unavailable,      "temporarily_unavailable")
+DAT(unauthorized_client,          "unauthorized_client")
+DAT(unsupported_grant_type,       "unsupported_grant_type")
+DAT(unsupported_response_type,    "unsupported_response_type")
 #endif // _OAUTH2_ERRORS
 
 #ifdef _OAUTH2_ERRORS_DESCRIPTION
-DAT(access_denied,              "The resource owner or authorization server denied the request.")
-DAT(invalid_client,             "Client authentication failed (e.g., unknown client, no client authentication included, or unsupported authentication method).")
-DAT(invalid_grant,              "The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.")
-DAT(invalid_request,            "The request is missing a required parameter, includes an unsupported parameter value (other than grant type), repeats a parameter, includes multiple credentials, utilizes more than one mechanism for authenticating the client, or is otherwise malformed.")
-DAT(invalid_scope,              "The requested scope is invalid, unknown, malformed, or exceeds the scope granted by the resource owner.")
-DAT(server_error,               "The authorization server encountered an unexpected condition that prevented it from fulfilling the request.")
-DAT(temporarily_unavailable,    "The authorization server is currently unable to handle the request due to a temporary overloading or maintenance of the server.")
-DAT(unauthorized_client,        "The authenticated client is not authorized to use this authorization grant type.")
-DAT(unsupported_grant_type,     "The authorization grant type is not supported by the authorization server.")
-DAT(unsupported_response_type,  "The authorization server does not support obtaining an access token using this method.")
+DAT(access_denied,                "The resource owner or authorization server denied the request.")
+DAT(invalid_client,               "Client authentication failed (e.g., unknown client, no client authentication included, or unsupported authentication method).")
+DAT(invalid_grant,                "The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.")
+DAT(invalid_request,              "The request is missing a required parameter, includes an unsupported parameter value (other than grant type), repeats a parameter, includes multiple credentials, utilizes more than one mechanism for authenticating the client, or is otherwise malformed.")
+DAT(invalid_scope,                "The requested scope is invalid, unknown, malformed, or exceeds the scope granted by the resource owner.")
+DAT(server_error,                 "The authorization server encountered an unexpected condition that prevented it from fulfilling the request.")
+DAT(temporarily_unavailable,      "The authorization server is currently unable to handle the request due to a temporary overloading or maintenance of the server.")
+DAT(unauthorized_client,          "The authenticated client is not authorized to use this authorization grant type.")
+DAT(unsupported_grant_type,       "The authorization grant type is not supported by the authorization server.")
+DAT(unsupported_response_type,    "The authorization server does not support obtaining an access token using this method.")
 #endif // _OAUTH2_ERRORS_DESCRIPTION
 
 #ifdef _OAUTH2_CLIENT_TYPES
-DAT(confidential,               "confidential")
-DAT(_public,                    "public")
+DAT(confidential,                 "confidential")
+DAT(_public,                      "public")
 #endif // _OAUTH2_CLIENT_TYPES
 
 
 #ifdef _OAUTH2_STRINGS_2
-DAT(authorize,                  "authorize")
-DAT(username,                   "username")
-DAT(password,                   "password")
+DAT(authorize,                    "authorize")
+DAT(username,                     "username")
+DAT(password,                     "password")
 #endif // _OAUTH2_STRINGS_2
+
+#ifdef _HEADER_NAMES_2
+DAT(access_control_allow_origin,  "Access-Control-Allow-Origin")
+#endif

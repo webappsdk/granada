@@ -137,7 +137,7 @@
       }
 
       function displayLogin(){
-        qwest.post("/client/",{"type":"public","redirect_uri":"/messenger/readwrite","application_name":"Message Editor","roles":"msg.select msg.insert msg.update msg.delete","password":"message_editor_password"},{"responseType":"json"})
+        qwest.post("/client/",{"type":"public","redirect_uri":"/messenger/readwrite","application_name":"Message_Editor_Application_Implicit_Grant","roles":"msg.select msg.insert msg.update msg.delete"},{"responseType":"json"})
          .then(function(xhr, response) {
            var loginEl = document.getElementById("login");
            var state = randomString(16);

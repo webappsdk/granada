@@ -53,9 +53,13 @@ namespace granada{
 
         private:
 
-          std::string readcode_client_id_;
+          std::shared_ptr<std::string> readcode_client_id_;
 
-          std::string readwritecode_client_id_;
+          std::shared_ptr<std::string> readcode_client_secret_;
+
+          std::shared_ptr<std::string> readwritecode_client_id_;
+
+          std::shared_ptr<std::string> readwritecode_client_secret_;
 
           /**
            * Nonce string generator, for generating unique strings tokens.
@@ -102,6 +106,10 @@ namespace granada{
           void MessageApplicationSessionCheckpoint(std::shared_ptr<granada::http::session::Session>& redis_storage_session, web::http::http_request request, web::http::http_response response);
 
           std::string GetClientId(const std::string& name);
+
+          std::string GetApplicationName(const std::string& name);
+
+          std::string GetClientSecret(const std::string& name);
 
           std::string GetAccessToken(const std::string& name, std::shared_ptr<granada::http::session::Session>& redis_storage_session);
 

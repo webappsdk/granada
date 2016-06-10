@@ -46,7 +46,7 @@ namespace granada{
         std::string redirect_uris_str;
         std::string application_name;
         std::string roles_str;
-        std::string password;
+
 
         try{
           // parse the body of the HTTP request and extract the client properties.
@@ -55,10 +55,9 @@ namespace granada{
           redirect_uris_str.assign(parsed_data["redirect_uri"]);
           application_name.assign(parsed_data["application_name"]);
           roles_str.assign(parsed_data["roles"]);
-          password.assign(parsed_data["password"]);
         }catch(const std::exception& e){}
         web::json::value json;
-        if (type.empty() || redirect_uris_str.empty() || application_name.empty() || password.empty() || roles_str.empty()){
+        if (type.empty() || redirect_uris_str.empty() || application_name.empty() || roles_str.empty()){
           json = web::json::value::parse("{\"error\":\"invalid_request\",\"error_description\":\"Error registering client, a parameter has not been filled.\"}");
         }else{
           // create client
@@ -74,8 +73,13 @@ namespace granada{
             std::vector<std::string> roles;
             granada::util::string::split(roles_str,' ',roles);
 
+            // generate client secret
+            granada::crypto::CPPRESTNonceGenerator n_generator;
+            int password_length = 12;
+            std::string password = n_generator.generate(password_length);
+
             oauth2_client->Create(type, redirect_uris, application_name, roles, password);
-            json = web::json::value::parse("{\"client_id\":\"" + oauth2_client->GetId() + "\",\"description\":\"Client created successfully.\"}");
+            json = web::json::value::parse("{\"client_id\":\"" + oauth2_client->GetId() + "\",\"client_secret\":\"" + password + "\",\"description\":\"Client created successfully.\"}");
           }catch(const std::exception& e){
             json = web::json::value::parse("{\"error\":\"server_error\",\"error_description\":\"Error creating client.\"}");
           }

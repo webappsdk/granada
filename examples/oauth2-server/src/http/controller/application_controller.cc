@@ -43,8 +43,13 @@ namespace granada{
         m_listener_->support(methods::POST, std::bind(&ApplicationController::handle_post, this, std::placeholders::_1));
         m_listener_->support(methods::DEL, std::bind(&ApplicationController::handle_delete, this, std::placeholders::_1));
 
-        readcode_client_id_ = GetClientId("readcode");
-        readwritecode_client_id_ = GetClientId("readwritecode");
+        readcode_client_id_ = std::shared_ptr<std::string>(new std::string());
+        readwritecode_client_id_ = std::shared_ptr<std::string>(new std::string());
+        readcode_client_secret_ = std::shared_ptr<std::string>(new std::string());
+        readwritecode_client_secret_ = std::shared_ptr<std::string>(new std::string());
+
+        readcode_client_id_->assign(GetClientId("readcode"));
+        readwritecode_client_id_->assign(GetClientId("readwritecode"));
 
         session_checkpoint_ = session_checkpoint;
       }
@@ -333,12 +338,12 @@ namespace granada{
 
       std::string ApplicationController::GetClientId(const std::string& name){
         if (name == "readcode"){
-          if (!readcode_client_id_.empty()){
-            return readcode_client_id_;
+          if (!readcode_client_id_->empty()){
+            return *readcode_client_id_;
           }
         }else if (name == "readwritecode"){
-          if (!readwritecode_client_id_.empty()){
-            return readwritecode_client_id_;
+          if (!readwritecode_client_id_->empty()){
+            return *readwritecode_client_id_;
           }
         }
         // register the client
@@ -346,15 +351,16 @@ namespace granada{
         // purpose,
         //
         std::shared_ptr<std::string> client_id = std::shared_ptr<std::string>(new std::string());
+        std::shared_ptr<std::string> client_secret = std::shared_ptr<std::string>(new std::string(""));
 
         web::uri uri("http://localhost:80/client");
         web::http::client::http_client client(uri);
 
         web::http::http_request request2(methods::POST);
         request2.set_request_uri(uri);
-        request2.set_body(U("type=public&redirect_uri=http://localhost/application/" + name + "&application_name=" + name + "&roles=" + GetRoles(name) + "&password=message_application_password"));
+        request2.set_body(U("type=public&redirect_uri=http://localhost/application/" + name + "&application_name=" + GetApplicationName(name) + "&roles=" + GetRoles(name)));
 
-        client.request(request2).then([client_id](web::http::http_response response2)
+        client.request(request2).then([client_id,client_secret](web::http::http_response response2)
         {
           try{
             web::json::value json = response2.extract_json().get();
@@ -364,10 +370,22 @@ namespace granada{
                 client_id->assign(client_id_json.as_string());
               }
             }
+            if (json.has_field("client_secret")){
+              web::json::value client_secret_json = json.at("client_secret");
+              if (client_secret_json.is_string()){
+                client_secret->assign(client_secret_json.as_string());
+              }
+            }
           }catch(const std::exception& e){
             client_id->assign("0");
           }
         }).wait();
+
+        if (name == "readcode"){
+          readcode_client_secret_->assign(*client_secret);
+        }else if (name == "readwritecode"){
+          readwritecode_client_secret_->assign(*client_secret);
+        }
 
         return *client_id;
       }
@@ -392,8 +410,7 @@ namespace granada{
           web::http::client::http_client client(uri);
 
           web::http::http_request request2(methods::POST);
-          //request2.set_request_uri(uri);
-          request2.set_body(U("grant_type=authorization_code&code=" + code + "&redirect_uri=http://localhost/application/" + name + "&client_id=" + GetClientId(name) + "&client_secret=message_application_password"));
+          request2.set_body(U("grant_type=authorization_code&code=" + code + "&redirect_uri=http://localhost/application/" + name + "&client_id=" + GetClientId(name) + "&client_secret=" + GetClientSecret(name)));
 
           client.request(request2).then([access_token](web::http::http_response response2){
             try{
@@ -421,6 +438,14 @@ namespace granada{
 
       std::string ApplicationController::GetRoles(const std::string& name){
         return name == "readwritecode" ? "msg.select msg.insert msg.update msg.delete" : "msg.select";
+      }
+
+      std::string ApplicationController::GetApplicationName(const std::string& name){
+        return name == "readwritecode" ? "Message_Editor_Application_Code_Grant" : "Message_Reader_Application_Code_Grant";
+      }
+
+      std::string ApplicationController::GetClientSecret(const std::string& name){
+        return name == "readwritecode" ? *readwritecode_client_secret_ : *readcode_client_secret_;
       }
 
 

@@ -272,7 +272,7 @@ namespace granada{
       void OAuth2User::LoadProperties(){
         // try to get the properties from the server configuration file first.
 
-        // get the name of the client's value namespace.
+        // get the name of the user's value namespace.
         cache_namespace_.assign(granada::util::application::GetProperty(entity_keys::oauth2_user_value_namespace));
         if (cache_namespace_.empty()){
           cache_namespace_.assign(cache_namespaces::oauth2_user_value);
@@ -353,7 +353,7 @@ namespace granada{
       void OAuth2Code::LoadProperties(){
         // try to get the properties from the server configuration file first.
 
-        // get the length of the client id.
+        // get the length of the code.
         std::string oauth2_code_length_str = granada::util::application::GetProperty(entity_keys::oauth2_code_length);
         if (oauth2_code_length_str.empty()){
           code_length_ = nonce_lengths::oauth2_code;
@@ -394,6 +394,8 @@ namespace granada{
 
 
       void OAuth2Authorization::LoadProperties(){
+        // retrieve if we have to generate refresh_token when generating access_token.
+        // If true when client request an access token a refresh token is also delivered.
         std::string oauth2_use_refresh_token_str = granada::util::application::GetProperty(entity_keys::oauth2_use_refresh_token);
         if (oauth2_use_refresh_token_str.empty()){
           oauth2_use_refresh_token_str = default_strings::oauth2_use_refresh_token;

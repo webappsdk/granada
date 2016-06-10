@@ -31,6 +31,7 @@
 #include <unordered_map>
 #include "cpprest/json.h"
 #include "granada/util/string.h"
+#include "granada/crypto/nonce_generator.h"
 #include "granada/http/parser.h"
 #include "granada/http/oauth2/oauth2.h"
 #include "granada/http/controller/controller.h"

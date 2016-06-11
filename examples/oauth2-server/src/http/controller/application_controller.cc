@@ -358,7 +358,7 @@ namespace granada{
 
         web::http::http_request request2(methods::POST);
         request2.set_request_uri(uri);
-        request2.set_body(U("type=public&redirect_uri=http://localhost/application/" + name + "&application_name=" + GetApplicationName(name) + "&roles=" + GetRoles(name)));
+        request2.set_body(U("redirect_uri=http://localhost/application/" + name + "&application_name=" + GetApplicationName(name) + "&roles=" + GetRoles(name)));
 
         client.request(request2).then([client_id,client_secret](web::http::http_response response2)
         {

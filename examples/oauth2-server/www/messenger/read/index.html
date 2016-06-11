@@ -65,7 +65,7 @@
       };
 
       function displayLogin(){
-        qwest.post("/client/",{"type":"public","redirect_uri":"/messenger/read","application_name":"Message_Reader_Application_Implicit_Grant","roles":"msg.select"},{"responseType":"json"})
+        qwest.post("/client/",{"redirect_uri":"/messenger/read","application_name":"Message_Reader_Application_Implicit_Grant","roles":"msg.select"},{"responseType":"json"})
          .then(function(xhr, response) {
            var loginEl = document.getElementById("login");
            var state = randomString(16);

@@ -28,6 +28,7 @@
 
 #include <string>
 #include <sstream>
+#include <sys/timeb.h>
 
 namespace granada{
   namespace util{
@@ -91,7 +92,33 @@ namespace granada{
        * @return               True if timedout false if not.
        */
       static inline bool is_timedout(const std::time_t& _time, const long int& timeout){
-        granada::util::time::is_timedout(_time,timeout,0);
+        return granada::util::time::is_timedout(_time,timeout,0);
+      }
+
+
+      /**
+       * Returns the current time in milliseconds.
+       * @return  Current time in milliseconds.
+       */
+      static int get_milliseconds(){
+        timeb tb;
+        ftime(&tb);
+        int count = tb.millitm + (tb.time & 0xfffff) * 1000;
+        return count;
+      }
+
+
+      /**
+       * Returns the span in milliseconds between the current time and
+       * a given time in milliseconds.
+       * @param   Time in milliseconds.
+       * @return  Span in milliseconds between current time and the given time.
+       */
+      static int get_milliseconds_span(int start){
+        int span = get_milliseconds() - start;
+        if(span < 0)
+          span += 0x100000 * 1000;
+        return span;
       }
     }
   }

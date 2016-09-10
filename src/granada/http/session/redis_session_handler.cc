@@ -116,8 +116,7 @@ namespace granada{
       }
 
       void RedisSessionHandler::CleanSessions(){
-
-        granada::cache::RedisIterator redis_iterator(granada::cache::RedisIterator::Type::SCAN, cache_namespaces::session_value + "*");
+        granada::cache::RedisIterator redis_iterator(granada::cache::RedisIterator::Type::KEYS, cache_namespaces::session_value + "*");
         while(redis_iterator.has_next()){
           std::string key = redis_iterator.next();
           std::string token = sessions_->Read(key, entity_keys::session_token);

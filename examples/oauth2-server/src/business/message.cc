@@ -37,12 +37,18 @@ namespace granada{
   }
 
   void Message::Create(const std::string username, const std::string& message){
-    cache_->Write("message:" + username + ":" + n_generator_->generate(), message);
+    std::string message_id = n_generator_->generate();
+    if (cache_->Exists("message:" + username + ":" + message_id)){
+      Create(username,message);
+    }else{
+      cache_->Write("message:" + username + ":" + message_id, "key", message_id);
+      cache_->Write("message:" + username + ":" + message_id, "text", message);
+    }
   }
 
   bool Message::Edit(const std::string username, const std::string& message_id, const std::string& message){
     if (cache_->Exists("message:" + username + ":" + message_id)){
-      cache_->Write("message:" + username + ":" + message_id, message);
+      cache_->Write("message:" + username + ":" + message_id, "text", message);
       return true;
     }
     return false;
@@ -54,21 +60,13 @@ namespace granada{
 
   std::string Message::List(const std::string username){
     std::string message_list = "";
-    std::shared_ptr<granada::cache::CacheHandlerIterator> cache_iterator = cache_->make_iterator("message:" + username + ":*");
-    std::string key;
-    std::string message;
-
-    while (cache_iterator->has_next()){
-      key = cache_iterator->next();
-      std::vector<std::string> splitted_key;
-      granada::util::string::split(key,':',splitted_key);
-      if (splitted_key.size()>2){
-        message = cache_->Read(key);
-        message_list = message_list + "{\"key\":\"" + splitted_key[2] + "\",\"text\":\"" + message + "\"},";
+    std::vector<std::string> keys;
+    cache_->Match("message:" + username + ":*", keys);
+    for (auto it = keys.begin(); it != keys.end(); ++it){
+      if (it != keys.begin()){
+        message_list += ",";
       }
-    }
-    if (message_list.length() > 0){
-      message_list = message_list.substr(0,message_list.length()-1);
+      message_list = message_list + "{\"key\":\"" + cache_->Read(*it, "key") + "\",\"text\":\"" + cache_->Read(*it, "text") + "\"}";
     }
     message_list = "[" + message_list + "]";
     return message_list;

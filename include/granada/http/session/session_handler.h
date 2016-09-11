@@ -21,7 +21,7 @@
   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   * SOFTWARE.
   *
-  * Interface, manage the session life.
+  * Interface for classes that manage sessions life.
   *
   */
 #pragma once
@@ -33,6 +33,10 @@ namespace granada{
     namespace session{
 
       class Session;
+
+      /**
+       * Interface for classes that manage sessions life.
+       */
       class SessionHandler
       {
         public:

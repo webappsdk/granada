@@ -29,16 +29,12 @@
 namespace granada{
   namespace cache{
 
-    MapIterator::MapIterator(const std::string& expression, std::shared_ptr<std::unordered_map<std::string,std::string>>& data){
+    MapIterator::MapIterator(const std::string& expression, MapCacheDriver* cache){
       expression_ = expression;
       std::unordered_map<std::string,std::string> values;
       values.insert(std::make_pair("*",".*"));
       granada::util::string::replace(expression_,values,"","");
-
-      data_ = data;
-
-      FilterKeys();
-
+      cache->Keys(expression_,keys_);
       it_ = keys_.begin();
     }
 
@@ -55,20 +51,9 @@ namespace granada{
       return std::string();
     }
 
-    void MapIterator::FilterKeys(){
-      std::string key;
-      mtx.lock();
-      for(auto it = data_->begin(); it != data_->end(); ++it) {
-        key = it->first;
-        if (std::regex_match(key, std::regex(expression_))){
-          keys_.push_back(it->first);
-        }
-      }
-      mtx.unlock();
-    }
 
     MapCacheDriver::MapCacheDriver(){
-      data_ = std::shared_ptr<std::unordered_map<std::string,std::string>>(new std::unordered_map<std::string,std::string>());
+      data_ = std::shared_ptr<std::map<std::string,std::string>>(new std::map<std::string,std::string>());
     }
 
     const bool MapCacheDriver::Exists(const std::string& key){
@@ -92,7 +77,26 @@ namespace granada{
     }
 
     void MapCacheDriver::Destroy(const std::string& key){
-      data_->erase(key);
+      std::size_t found = key.find("*");
+      if (found!=std::string::npos){
+        std::vector<std::string> keys;
+        Match(key,keys);
+        for (auto it = keys.begin(); it != keys.end(); ++it){
+          data_->erase(*it);
+        }
+      }else{
+        data_->erase(key);
+      }
+    }
+
+    void MapCacheDriver::Keys(const std::string& expression, std::vector<std::string>& keys){
+      std::string key;
+      for(auto it = data_->begin(); it != data_->end(); ++it) {
+        key = it->first;
+        if (std::regex_match(key, std::regex(expression))){
+          keys.push_back(it->first);
+        }
+      }
     }
   }
 }

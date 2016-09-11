@@ -35,6 +35,10 @@
 
 namespace granada{
   namespace util{
+
+    /**
+     * Utils for vector manipulation.
+     */
     namespace vector{
 
       /**

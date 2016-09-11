@@ -13,6 +13,10 @@
 
 namespace granada{
   namespace util{
+
+    /**
+     * Utils for application.
+     */
     namespace application{
 
       /**

@@ -17,6 +17,24 @@ DAT(oauth2_authorization,               "oauth2.authorization:")
 DAT(session_value,                      "session:value:")
 DAT(session_data,                       "session:data:")
 DAT(session_roles,                      "session:roles:")
+
+////
+// Plugin namespaces
+//
+DAT(plugin,                             "plugin:")
+DAT(plugin_store,                       "plugin:store:")
+DAT(plugin_value,                       "plugin:value:")
+DAT(plugin_handler,                     "plugin.handler:")
+DAT(plugin_handler_value,               "plugin.handler:value:")
+DAT(plugin_handler_last_use,            "plugin.handler:value:last.use")
+DAT(plugin_loader,                      "plugin.loader:")
+DAT(plugin_loader_value,                "plugin.loader:value:")
+DAT(plugin_event,                       "plugin.event:")
+DAT(plugin_event_loader,                "plugin.event.loader:")
+DAT(plugin_extended,					"plugin.extended:")
+DAT(plugin_runner_last_run,				"plugin.runner:last.run:")
+
+
 #endif // _CACHE_NAMESPACES
 
 
@@ -77,7 +95,7 @@ DAT(oauth2_authorize_uri,               "oauth2_authorize_uri")
 DAT(oauth2_logout_uri,                  "oauth2_logout_uri")
 DAT(oauth2_use_refresh_token,           "use_refresh_token")
 
-DAT(oauth2_info_uri,                     "oauth2_info_uri")
+DAT(oauth2_info_uri,                    "oauth2_info_uri")
 
 DAT(oauth2_authorization_form_action,   "action")
 
@@ -98,6 +116,45 @@ DAT(http_parser_property_name_label,    "name")
 DAT(http_parser_property_value_label,   "value")
 
 DAT(_true,                              "true")
+
+////
+// Plugin entities keys
+//
+DAT(plugin_id,                          "plugin_id")
+DAT(plugin_event,                       "event")
+DAT(plugin_handler_id,					"id")
+DAT(plugin_parameter_plugin_handler_id,	"__PLUGIN_HANDLER_ID")
+DAT(plugin_parameter_plugin_id,			"__PLUGIN_ID")
+DAT(plugin_parameter_id,				"id")
+DAT(plugin_parameter_event_name,		"event_name")
+DAT(plugin_parameter_key,				"key")
+DAT(plugin_parameter_value,				"value")
+DAT(plugin_parameter_to_ids,			"to_ids")
+DAT(plugin_parameter_from,				"from")
+DAT(plugin_parameter_data,				"data")
+DAT(plugin_header,						"header")
+DAT(plugin_header_id,					"id")
+DAT(plugin_header_active,		        "active")
+DAT(plugin_header_events,				"events")
+DAT(plugin_header_extends,				"extends")
+DAT(plugin_header_loader,				"loader")
+DAT(plugin_loader_load,					"load")
+DAT(plugin_loader_events,				"events")
+DAT(plugin_configuration,				"configuration")
+DAT(plugin_script,						"script")
+DAT(plugin_parameter_configuration,		"__PLUGIN_CONFIGURATION")
+DAT(plugin_init_ph_after_event,			"plugin_init_ph_after_event")
+DAT(plugin_bytes_limit,					"plugin_bytes_limit")
+DAT(plugin_runner_use_frequency_limit,	"plugin_runner_use_frequency_limit")
+DAT(plugin_handler_use_frequency_limit,	"plugin_handler_use_frequency_limit")
+DAT(plugin_extended_ids,				"ids")
+DAT(plugin_event_ids,					"ids")
+DAT(plugin_event_script,				"script")
+DAT(plugin_extended,					"extended")
+DAT(plugin_role_select,					"plugin.select")
+DAT(plugin_role_insert,					"plugin.insert")
+DAT(plugin_role_update,					"plugin.update")
+DAT(plugin_role_delete,					"plugin.delete")
 
 #endif // _ENTITY_KEYS
 
@@ -134,7 +191,28 @@ DAT(redis_cache_redis_address,          "127.0.0.1")
 // Port used in case "redis_cache_driver_port" property is not provided.
 DAT(redis_cache_redis_port,             "6379")
 
-#endif // _DEFAULT_NUMBERS
+////
+// Plugin
+//
+DAT(plugin_eager_load,                  "eager")
+DAT(plugin_error,						"error")
+DAT(plugin_error_description,			"error_description")
+DAT(plugin_lazy_load,                   "lazy")
+DAT(plugin_users_directory,             "plugins")
+DAT(plugin_store,						"store")
+DAT(plugin_value,						"value")
+DAT(plugin_init_ph_event,				"init-ph")
+DAT(plugin_add_event,					"plugin-add")
+DAT(plugin_extended_true,				"TRUE")
+DAT(plugin_server_directory_name,		"server")
+DAT(plugin_configuration_file_name,		"configuration")
+DAT(plugin_configuration_file_extension,"json")
+DAT(plugin_header_file_extension,		"json")
+DAT(plugin_user_directory,				"user_directory")
+
+DAT(runner_error,						"error")
+DAT(runner_error_description,			"error_description")
+#endif // _DEFAULT_STRINGS
 
 #ifdef _DEFAULT_NUMBERS
 ////
@@ -151,6 +229,39 @@ DAT(session_clean_sessions_frequency,    3600)
 // This default value is taken in case "session_clean_extra_timeout" property is not found.
 DAT(session_session_clean_extra_timeout, 0)
 
+// Default maximum bytes a Plug-in Hadler can load.
+// 10 MB.
+DAT(plugin_bytes_limit, 10000000)
 
+// The minimum time a Plug-ins have to wait
+// between running its scrip/executable
+// in milliseconds.
+// default is 50 ms;
+DAT(plugin_runner_use_frequency_limit, 	50)
+
+DAT(plugin_handler_use_frequency_limit,	20)
 
 #endif // _DEFAULT_NUMBERS
+
+
+#ifdef _DEFAULT_ERRORS
+DAT(plugin_malformed_parameters, 		"malformed_parameters")
+DAT(plugin_missing_parameter,			"missing_parameter")
+DAT(plugin_undefined_plugin,			"undefined_plugin")
+DAT(plugin_server_error,				"server_error")
+DAT(plugin_bytes_limit_exceeded,		"bytes_limit_exceeded")
+
+DAT(runner_malformed_parameters,		"malformed_parameters")
+DAT(runner_undefined_function,			"undefined_function")
+DAT(runner_script_error,				"script_error")
+#endif // _DEFAULT_ERRORS
+
+#ifdef _DEFAULT_ERROR_DESCRIPTIONS
+DAT(plugin_malformed_parameters, 		"One or more of the given parameters has the wrong type.")
+DAT(plugin_missing_parameter,			"One or more of the given parameters is missing.")
+DAT(plugin_undefined_plugin,			"Plug-in could not be found with given plug-in id.")
+DAT(plugin_server_error,				"There has been a server error.")
+DAT(plugin_bytes_limit_exceeded,		"Plug-in Handler could not preload all plug-ins, because they exceed the byte limit. This limit is set for server security reasons. Contact the administrator if you need to increase the limit.")
+
+DAT(runner_malformed_parameters, 		"One or more of the given parameters has the wrong type.")
+#endif // _DEFAULT_ERROR_DESCRIPTIONS

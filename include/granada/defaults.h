@@ -101,3 +101,31 @@ public:
 #undef _DEFAULT_NUMBERS
 #undef DAT
 };
+
+/**
+ * Default error codes of the entities.
+ */
+typedef utility::string_t default_error;
+class default_errors
+{
+public:
+#define _DEFAULT_ERRORS
+#define DAT(a_, b_) _ASYNCRTIMP static const default_error a_;
+#include "granada/defaults.dat"
+#undef _DEFAULT_ERRORS
+#undef DAT
+};
+
+/**
+ * Default error codes descriptions of the entities.
+ */
+typedef utility::string_t default_error_description;
+class default_error_descriptions
+{
+public:
+#define _DEFAULT_ERROR_DESCRIPTIONS
+#define DAT(a_, b_) _ASYNCRTIMP static const default_error_description a_;
+#include "granada/defaults.dat"
+#undef _DEFAULT_ERROR_DESCRIPTIONS
+#undef DAT
+};

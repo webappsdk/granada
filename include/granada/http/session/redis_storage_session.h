@@ -41,33 +41,94 @@ namespace granada{
         public:
 
           /**
-           * Constructors
+           * Constructor
            */
           RedisStorageSession();
+
+
+          /**
+           * Constructor.
+           * Loads session.
+           * Retrieves the token of the session from the HTTP request
+           * and loads a session using the session handler.
+           * If session does not exist or token is not found
+           * a new session is created.
+           * This constructor is recommended for sessions that store token in cookie
+           *
+           * @param  request  Http request.
+           * @param  response Http response.
+           */
           RedisStorageSession(web::http::http_request &request,web::http::http_response &response);
+
+
+          /**
+           * Constructor.
+           * Loads session.
+           * Retrieves the token of the session from the HTTP request
+           * and loads a session using the session handler.
+           * If session does not exist or token is not found
+           * a new session is created.
+           * This constructor is recommended for sessions that use get and post values.
+           * 
+           * @param  request  Http request.
+           */
           RedisStorageSession(web::http::http_request &request);
+
+
+          /**
+           * Constructor.
+           * Loads a session with the given token using the session handler.
+           * Use this loader if you have the token and you are not using cookies.
+           * 
+           * @param token Session token.
+           */
           RedisStorageSession(const std::string& token);
 
-          // override
+
+          /**
+           * Set the value of the sessions, may be overriden in case we want to
+           * make other actions.
+           * @param session
+           */
           void set(granada::http::session::Session* session){
             (*this) = (*((granada::http::session::RedisStorageSession*)session));
             roles_->SetSession(this);
           };
 
-          // override
+
+          /**
+           * Set the value of the sessions, may be overriden in case we want to
+           * make other actions.
+           * 
+           * @param token         Session token.
+           * @param update_time   Session update time.
+           */
           void set(const std::string& token,const std::time_t& update_time){
             LoadProperties();
             SetToken(token);
             SetUpdateTime(update_time);
           };
 
-          // override
+
+          /**
+           * Closes a session deleting it.
+           * And call all the close callback functions.
+           */
           void Close();
 
-          // override
+
+          /**
+           * Updates a session, updating the session update time to now and saving it.
+           * That means the session will timeout in now + timeout. It will keep
+           * the session alive.
+           */
           void Update();
 
-          // override
+
+          /**
+           * Returns the roles of a session.
+           * @return The roles of the session.
+           */
           std::shared_ptr<granada::http::session::Roles> roles(){ return roles_; };
 
 
@@ -93,24 +154,49 @@ namespace granada{
            */
           void Destroy(const std::string& key);
 
+
         private:
 
+          /**
+           * Returns the pointer of Session Handler that manages the session.
+           * @return Session Handler.
+           */
           granada::http::session::SessionHandler* session_handler(){ return session_handler_.get(); };
+
+
+          /**
+           * Returns a pointer to the collection of functions
+           * that are called when closing the session.
+           * 
+           * @return  Pointer to the collection of functions that are
+           *          called when session is closed.
+           */
+          std::shared_ptr<granada::Functions> close_callbacks(){ return close_callbacks_; };
+
 
           /**
            * Hanlder of the sessions lifetime, and where all the application sessions are stored.
            */
           static std::unique_ptr<granada::http::session::SessionHandler> session_handler_;
 
+
           /**
            * Loads the properties as session_clean_extra_timeout_.
            */
           void LoadProperties();
 
+
           /**
            * Manager of the roles of the session and its properties
            */
           std::shared_ptr<granada::http::session::Roles> roles_;
+
+
+          /**
+           * Manager of the roles of the session and its properties
+           */
+          std::shared_ptr<granada::Functions> close_callbacks_;
+
 
           /**
            * Manager of the storage, and contains

@@ -22,8 +22,9 @@
   * SOFTWARE.
   *
   * Abstract class, checks a session.
-  * Allows to have a unique point for checking and setting sessions.
-  * Can be used to create a new session if it does not exist.
+  * Session checkpoint. Allows to have a unique point for
+  * checking and setting sessions. Used to create a new
+  * session if it does not exist or if it is timed out.
   *
   */
 #pragma once
@@ -34,12 +35,19 @@
 namespace granada{
   namespace http{
     namespace session{
+
+      /**
+       * Abstract class, checks a session.
+       * Session checkpoint. Allows to have a unique point for
+       * checking and setting sessions. Used to create a new
+       * session if it does not exist or if it is timed out.
+       */
       class Checkpoint
       {
         public:
 
           /**
-           * Constructors
+           * Constructor
            */
           Checkpoint(){};
 

@@ -21,12 +21,12 @@
   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   * SOFTWARE.
   *
-  * Manages the cache storing key-value pairs in unordered maps.
-  * map
-  * 	|_ hash1 => unordered_map
+  * Manages the cache storing key-value pairs in an unordered map.
+  * unordered map
+  * 	|_ hash1 => map
   * 								|_ key1 => value1
   * 							 	|_ key2 => value2
-  * 	|_ hash2 => unordered_map
+  * 	|_ hash2 => map
   * 								|_ key1 => value3
   * 							 	|_ key2 => value4
   *
@@ -44,11 +44,17 @@
 
 namespace granada{
   namespace cache{
+
+
+    class SharedMapCacheDriver;
+
     /**
-     * Tool for iterate over keys with a given pattern.
+     * Tool for iterate over cache keys with a given pattern.
      */
     class SharedMapIterator : public CacheHandlerIterator{
+
       public:
+
         /**
          * Constructor
          */
@@ -56,9 +62,22 @@ namespace granada{
 
 
         /**
-         * Constructor
+         * Constructor.
+         * @param expression    Expression used to match keys.
+         *                    
+         *                      Example of expression:
+         *                        
+         *                        session:value:*
+         *                        => will retrieve all the keys that start with
+         *                        session:values: stored in the cache.
+         *                        
+         *                        *:value:*
+         *                        => will retrieve all the keys that contain
+         *                        ":value:"
+         *                        
+         * @param cache         Pointer to the cache where to search the keys.
          */
-        SharedMapIterator(const std::string& expression, std::shared_ptr<std::map<std::string,std::unordered_map<std::string,std::string>>>& data);
+        SharedMapIterator(const std::string& expression, SharedMapCacheDriver* cache);
 
 
         /**
@@ -79,25 +98,31 @@ namespace granada{
       protected:
 
         /**
-         * Map where all data is store.
-         */
-        std::shared_ptr<std::map<std::string,std::unordered_map<std::string,std::string>>> data_;
-
-
-        /**
-         * Map where all data is store.
+         * Vector for storing found keys.
          */
         std::vector<std::string> keys_;
 
 
+        /**
+         * Iterator.
+         */
         std::vector<std::string>::iterator it_;
-
-
-        void FilterKeys();
 
     };
 
 
+    /**
+     * Manages the cache storing key-value pairs in an unordered map.
+     * unordered map
+     *   |_ hash1 => map
+     *                 |_ key1 => value1
+     *                 |_ key2 => value2
+     *   |_ hash2 => map
+     *                 |_ key1 => value3
+     *                 |_ key2 => value4
+     *
+     * This code is multi-thread safe.
+     */
     class SharedMapCacheDriver : public CacheHandler
     {
       public:
@@ -108,7 +133,10 @@ namespace granada{
         SharedMapCacheDriver();
 
 
-        // override
+        /**
+         * Checks if a key exist in the cache.
+         * @param  key  Key to check.
+         */
         const bool Exists(const std::string& key);
 
 
@@ -131,18 +159,12 @@ namespace granada{
 
         /**
          * Returns the value of a key-value pair stored in
-         * an unordered_map with the given name.
-         * @param  hash Name of the unordered map.
+         * an map with the given name.
+         * @param  hash Name of the map.
          * @param  key  Key to identify the value.
          * @return      Value.
          */
         const std::string Read(const std::string& hash,const std::string& key);
-
-
-        /**
-         * Returns an unordered map with given name containing key-value pairs.
-         */
-        const std::unordered_map<std::string,std::string> GetProperties(const std::string& hash);
 
 
         /**
@@ -154,9 +176,9 @@ namespace granada{
 
 
         /**
-         * Inserts or rewrite a key-value pair in an unordered_map with the given name.
+         * Inserts or rewrite a key-value pair in a map with the given name.
          * If the set does not exist, it creates it.
-         * @param  hash Name of the unordered map.
+         * @param  hash Name of the map.
          * @param  key  Key to identify the value.
          * @param       Value.
          */
@@ -164,18 +186,10 @@ namespace granada{
 
 
         /**
-         * Inserts or rewrite an unordered map of key-value pairs
-         * @param  hash       Name of the unordered map.
-         * @param  properties Unordered map with key-value pairs.
-         */
-        void Write(const std::string& hash,const std::unordered_map<std::string,std::string>& properties);
-
-
-        /**
          * Destroys a set of key-value pairs with the given name.
          * @param hash Name of the unordered map containing the key-value pairs
          */
-        void Destroy(const std::string& hash);
+        void Destroy(const std::string& key);
 
 
         /**
@@ -187,11 +201,24 @@ namespace granada{
 
 
         /**
-         * Number of key-value pairs contained in the unordered map with the given name.
-         * @param  hash Name of the unordered map containing the key-value pairs.
-         * @return      Number of key-value pairs contained in the unordered-map.
+         * Fills a vector with keys of the cache that match
+         * a given expression.
+         * 
+         * @param expression  Expression used to match keys.
+         *                    
+         *                    Example of expression:
+         *                        
+         *                        session:value:*
+         *                        => will retrieve all the keys that start with
+         *                        session:values: stored in the cache.
+         *                        
+         *                        *:value:*
+         *                        => will retrieve all the keys that contain
+         *                        ":value:"
+         *                         
+         * @return            Vector of string keys.
          */
-        const int Length(const std::string& hash);
+        void Keys(const std::string& expression, std::vector<std::string>& keys);
 
 
         /**
@@ -201,7 +228,7 @@ namespace granada{
          * @return  Iterator.
          */
         std::shared_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
-          return std::shared_ptr<granada::cache::CacheHandlerIterator>(new granada::cache::SharedMapIterator(expression,data_));
+          return std::shared_ptr<granada::cache::CacheHandlerIterator>(new granada::cache::SharedMapIterator(expression,this));
         };
 
 
@@ -210,13 +237,14 @@ namespace granada{
         /**
          * Map where all data is store.
          */
-        std::shared_ptr<std::map<std::string,std::unordered_map<std::string,std::string>>> data_;
-
+        std::shared_ptr<std::unordered_map<std::string,std::map<std::string,std::string>>> data_;
 
         /**
-         * Mutex for multi-thread safety.
+         * Mutex for thread safety.
          */
         std::mutex mtx;
+
+
     };
   }
 }

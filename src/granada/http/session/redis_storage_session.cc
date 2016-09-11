@@ -34,23 +34,27 @@ namespace granada{
 
       RedisStorageSession::RedisStorageSession(){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
+        close_callbacks_ = std::shared_ptr<granada::Functions>(new granada::FunctionsMap());
         LoadProperties();
       }
 
       RedisStorageSession::RedisStorageSession(web::http::http_request &request,web::http::http_response &response){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
+        close_callbacks_ = std::shared_ptr<granada::Functions>(new granada::FunctionsMap());
         LoadProperties();
         Session::LoadSession(request,response);
       }
 
       RedisStorageSession::RedisStorageSession(web::http::http_request &request){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
+        close_callbacks_ = std::shared_ptr<granada::Functions>(new granada::FunctionsMap());
         LoadProperties();
         Session::LoadSession(request);
       }
 
       RedisStorageSession::RedisStorageSession(const std::string& token){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
+        close_callbacks_ = std::shared_ptr<granada::Functions>(new granada::FunctionsMap());
         LoadProperties();
         Session::LoadSession(token);
       }
@@ -82,6 +86,7 @@ namespace granada{
       }
 
       void RedisStorageSession::Close(){
+        close_callbacks()->CallAll();
         session_handler()->DeleteSession(this);
       }
 

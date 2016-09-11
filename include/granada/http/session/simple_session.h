@@ -34,48 +34,129 @@
 namespace granada{
   namespace http{
     namespace session{
+
+      /**
+       * Simplest session, only alow to manage user roles.
+       */
       class SimpleSession : public Session
       {
         public:
 
           /**
-           * Constructors
+           * Constructor.
            */
           SimpleSession();
+
+
+          /**
+           * Constructor.
+           * Loads session.
+           * Retrieves the token of the session from the HTTP request
+           * and loads a session using the session handler.
+           * If session does not exist or token is not found
+           * a new session is created.
+           * This constructor is recommended for sessions that store token in cookie
+           *
+           * @param  request  Http request.
+           * @param  response Http response.
+           */
           SimpleSession(web::http::http_request &request,web::http::http_response &response);
+
+
+          /**
+           * Constructor.
+           * Loads session.
+           * Retrieves the token of the session from the HTTP request
+           * and loads a session using the session handler.
+           * If session does not exist or token is not found
+           * a new session is created.
+           * This constructor is recommended for sessions that use get and post values.
+           * 
+           * @param  request  Http request.
+           */
           SimpleSession(web::http::http_request &request);
+
+
+          /**
+           * Constructor.
+           * Loads a session with the given token using the session handler.
+           * Use this loader if you have the token and you are not using cookies.
+           * 
+           * @param token Session token.
+           */
           SimpleSession(const std::string& token);
 
-          // override
+
+          /**
+           * Set the value of the sessions, may be overriden in case we want to
+           * make other actions.
+           * @param session
+           */
           void set(granada::http::session::Session* session){
             (*this) = (*((granada::http::session::SimpleSession*)session));
             roles()->SetSession(this);
           };
 
-          // override
+
+          /**
+           * Updates a session, updating the session update time to now and saving it.
+           * That means the session will timeout in now + timeout. It will keep
+           * the session alive.
+           */
           void Update();
 
-          // override
+
+          /**
+           * Returns the roles of a session.
+           * @return The roles of the session.
+           */
           std::shared_ptr<granada::http::session::Roles> roles(){ return roles_; };
+
+
+          /**
+           * Returns a pointer to the collection of functions
+           * that are called when closing the session.
+           * 
+           * @return  Pointer to the collection of functions that are
+           *          called when session is closed.
+           */
+          std::shared_ptr<granada::Functions> close_callbacks(){ return close_callbacks_; };
+
 
         protected:
 
+
+          /**
+           * Returns the pointer of Session Handler that manages the session.
+           * @return Session Handler.
+           */
           granada::http::session::SessionHandler* session_handler(){ return session_handler_.get(); };
+
 
           /**
            * Hanlder of the sessions lifetime, and where all the application sessions are stored.
            */
           static std::unique_ptr<granada::http::session::SessionHandler> session_handler_;
 
+
           /**
            * Loads the properties as session_clean_extra_timeout_.
            */
           void LoadProperties();
 
+
           /**
-           * Manager of the roles of the session and its properties
+           * Pointer to the session roles manager and its properties.
            */
           std::shared_ptr<granada::http::session::Roles> roles_;
+
+
+          /**
+           * Pointer to the collection of functions that are
+           * called when session is closed.
+           */
+          std::shared_ptr<granada::Functions> close_callbacks_;
+
 
           /**
            * Used for determining if the session is garbage.

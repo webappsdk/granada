@@ -55,3 +55,15 @@
 #include "granada/defaults.dat"
 #undef _DEFAULT_NUMBERS
 #undef DAT
+
+#define _DEFAULT_ERRORS
+#define DAT(a_, b_) const default_error default_errors::a_(_XPLATSTR(b_));
+#include "granada/defaults.dat"
+#undef _DEFAULT_ERRORS
+#undef DAT
+
+#define _DEFAULT_ERROR_DESCRIPTIONS
+#define DAT(a_, b_) const default_error_description default_error_descriptions::a_(_XPLATSTR(b_));
+#include "granada/defaults.dat"
+#undef _DEFAULT_ERROR_DESCRIPTIONS
+#undef DAT

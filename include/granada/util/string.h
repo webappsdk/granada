@@ -31,9 +31,14 @@
 #include <sstream>
 #include <vector>
 #include <unordered_map>
+#include "cpprest/json.h"
 
 namespace granada{
   namespace util{
+
+    /**
+     * Utils for string manipulation.
+     */
     namespace string{
 
       /**
@@ -119,6 +124,34 @@ namespace granada{
       static inline void replace(std::string& content,const std::unordered_map<std::string,std::string>& values){
         granada::util::string::replace(content,values,"{{","}}");
       }
+
+
+      /**
+       * Parses a string to a JSON and returns it,
+       * if conversion fails, convert it to an empty JSON object.
+       * @param  str String to parse.
+       * @return     Parsed JSON.
+       */
+      static web::json::value to_json(const std::string& str){
+        web::json::value json;
+        try{
+          json = web::json::value::parse(str);
+        }catch(const web::json::json_exception& e){
+          json = web::json::value::parse("{}");
+        }
+        return json;
+      }
+
+      /**
+       * Checks if a given string can be parsed to a json, if so it returns the same-
+       * string, if not it returns a strigified empty json object "{}".
+       * @param   str   String to check.
+       * @return        Given string or strigified empty json object "{}".
+       */
+      static inline std::string stringified_json(const std::string& str){
+        return granada::util::string::to_json(str).serialize();
+      }
+
     }
   }
 }

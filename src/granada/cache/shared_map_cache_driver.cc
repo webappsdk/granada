@@ -29,16 +29,12 @@
 namespace granada{
   namespace cache{
 
-    SharedMapIterator::SharedMapIterator(const std::string& expression, std::shared_ptr<std::map<std::string,std::unordered_map<std::string,std::string>>>& data){
+    SharedMapIterator::SharedMapIterator(const std::string& expression, SharedMapCacheDriver* cache){
       expression_ = expression;
       std::unordered_map<std::string,std::string> values;
       values.insert(std::make_pair("*",".*"));
       granada::util::string::replace(expression_,values,"","");
-
-      data_ = data;
-
-      FilterKeys();
-
+      cache->Keys(expression_,keys_);
       it_ = keys_.begin();
     }
 
@@ -55,20 +51,8 @@ namespace granada{
       return std::string();
     }
 
-    void SharedMapIterator::FilterKeys(){
-      std::string key;
-      mtx.lock();
-      for(auto it = data_->begin(); it != data_->end(); ++it) {
-        key = it->first;
-        if (std::regex_match(key, std::regex(expression_))){
-          keys_.push_back(it->first);
-        }
-      }
-      mtx.unlock();
-    }
-
     SharedMapCacheDriver::SharedMapCacheDriver(){
-      data_ = std::shared_ptr<std::map<std::string,std::unordered_map<std::string,std::string>>>(new std::map<std::string,std::unordered_map<std::string,std::string>>);
+      data_ = std::shared_ptr<std::unordered_map<std::string,std::map<std::string,std::string>>>(new std::unordered_map<std::string,std::map<std::string,std::string>>);
     }
 
     const bool SharedMapCacheDriver::Exists(const std::string& key){
@@ -86,7 +70,7 @@ namespace granada{
       mtx.lock();
       auto it = data_->find(hash);
       if (it != data_->end()){
-        std::unordered_map<std::string,std::string> properties = it->second;
+        std::map<std::string,std::string> properties = it->second;
         auto it2 = properties.find(key);
         if(it2 != properties.end()){
           mtx.unlock();
@@ -102,7 +86,7 @@ namespace granada{
       mtx.lock();
       auto it = data_->find(key);
       if (it != data_->end()){
-        std::unordered_map<std::string,std::string> properties = it->second;
+        std::map<std::string,std::string> properties = it->second;
         auto it2 = properties.find("__");
         if(it2 != properties.end()){
           mtx.unlock();
@@ -118,7 +102,7 @@ namespace granada{
       mtx.lock();
       auto it = data_->find(hash);
       if (it != data_->end()){
-        std::unordered_map<std::string,std::string> properties = it->second;
+        std::map<std::string,std::string> properties = it->second;
         auto it2 = properties.find(key);
         if(it2 != properties.end()){
           mtx.unlock();
@@ -129,26 +113,16 @@ namespace granada{
       return std::string();
     }
 
-    const std::unordered_map<std::string,std::string> SharedMapCacheDriver::GetProperties(const std::string& hash){
-      mtx.lock();
-      auto it = data_->find(hash);
-      if (it != data_->end()){
-        mtx.unlock();
-        return it->second;
-      }
-      mtx.unlock();
-      return std::unordered_map<std::string,std::string>();
-    }
 
     void SharedMapCacheDriver::Write(const std::string& key,const std::string& value){
       mtx.lock();
       auto it = data_->find(key);
       if (it == data_->end()){
-        std::unordered_map<std::string,std::string> properties;
+        std::map<std::string,std::string> properties;
         properties["__"] = value;
         (*data_)[key] = properties;
       }else{
-        std::unordered_map<std::string,std::string> properties = it->second;
+        std::map<std::string,std::string> properties = it->second;
         properties["__"] = value;
         (*data_)[key] = properties;
       }
@@ -159,42 +133,58 @@ namespace granada{
       mtx.lock();
       auto it = data_->find(hash);
       if (it == data_->end()){
-        std::unordered_map<std::string,std::string> properties;
+        std::map<std::string,std::string> properties;
         properties[key] = value;
         (*data_)[hash] = properties;
       }else{
-        std::unordered_map<std::string,std::string> properties = it->second;
+        std::map<std::string,std::string> properties = it->second;
         properties[key] = value;
         (*data_)[hash] = properties;
       }
       mtx.unlock();
     }
+    
 
-    void SharedMapCacheDriver::Write(const std::string& hash,const std::unordered_map<std::string,std::string>& properties){
-      mtx.lock();
-      (*data_)[hash] = properties;
-      mtx.unlock();
-    }
-
-    void SharedMapCacheDriver::Destroy(const std::string& hash){
-      mtx.lock();
-      data_->erase(hash);
-      mtx.unlock();
+    void SharedMapCacheDriver::Destroy(const std::string& key){
+      std::size_t found = key.find("*");
+      if (found!=std::string::npos){
+        std::vector<std::string> keys;
+        Match(key,keys);
+        mtx.lock();
+        for (auto it = keys.begin(); it != keys.end(); ++it){
+          data_->erase(*it);
+        }
+        mtx.unlock();
+      }else{
+        mtx.lock();
+        data_->erase(key);
+        mtx.unlock();
+      }
     }
 
     void SharedMapCacheDriver::Destroy(const std::string& hash,const std::string& key){
       mtx.lock();
       auto it = data_->find(hash);
       if (it != data_->end()){
-        std::unordered_map<std::string,std::string> properties = it->second;
+        std::map<std::string,std::string> properties = it->second;
         properties.erase(key);
         (*data_)[hash] = properties;
       }
       mtx.unlock();
     }
 
-    const int SharedMapCacheDriver::Length(const std::string& hash){
-      return GetProperties(hash).size();
+
+    void SharedMapCacheDriver::Keys(const std::string& expression, std::vector<std::string>& keys){
+      std::string key;
+      mtx.lock();
+      for(auto it = data_->begin(); it != data_->end(); ++it) {
+        key = it->first;
+        if (std::regex_match(key, std::regex(expression))){
+          keys.push_back(it->first);
+        }
+      }
+      mtx.unlock();
     }
+
   }
 }

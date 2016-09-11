@@ -21,7 +21,8 @@
   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   * SOFTWARE.
   *
-  * Manage the lifecycle of the sessions, store them in a map shared by all users.
+  * Manage the lifecycle of the sessions, store them in an unordered map
+  * shared by all users. It is multithread safe.
   *
   */
 
@@ -35,7 +36,7 @@ namespace granada{
         LoadProperties();
 
         n_generator_ = std::unique_ptr<granada::crypto::NonceGenerator>(new granada::crypto::CPPRESTNonceGenerator());
-        sessions_ = std::unique_ptr<std::map<std::string,std::shared_ptr<granada::http::session::Session>>>(new std::map<std::string,std::shared_ptr<granada::http::session::Session>>);
+        sessions_ = std::unique_ptr<std::unordered_map<std::string,std::shared_ptr<granada::http::session::Session>>>(new std::unordered_map<std::string,std::shared_ptr<granada::http::session::Session>>);
 
         // thread for cleaning the sessions.
         if (clean_sessions_frequency_>-1){

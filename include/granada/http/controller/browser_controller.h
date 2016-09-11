@@ -1,5 +1,5 @@
 /**
-  * Copyright (c) <2016> HTML Puzzle Team <htmlpuzzleteam@gmail.com>
+  * Copyright (c) <2016> Web App SDK granada <afernandez@cookinapps.io>
   *
   * This source code is licensed under the MIT license.
   *
@@ -21,7 +21,8 @@
   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   * SOFTWARE.
   *
-  * Browse files and responds with the requested file.
+  * Browses files in the server using web resource cache
+  * and responds with the requested file.
   *
   */
 #pragma once
@@ -34,31 +35,56 @@ namespace granada{
   namespace http{
     namespace controller{
 
+      /**
+       * Browses files in the server using web resource cache
+       * and responds with the requested file.
+       */
       class BrowserController : public Controller
       {
+
+
       public:
 
+
         /**
-         * Constructors
+         * Constructor
+         * @param   url  URI the controller listens to.
          */
         BrowserController(utility::string_t url);
+
+
+        /**
+         * Constructor
+         * @param   url                 URI the controller listens to.
+         * @param   session_checkpoint  Session checkpoint. Allows to have a unique point for
+         *                              checking and setting sessions. Used to create a new
+         *                              session if it does not exist or if it is timed out.
+         */
         BrowserController(utility::string_t url,std::shared_ptr<granada::http::session::Checkpoint>& session_checkpoint);
+
+
 
       private:
 
+
+        // override
         void handle_get(web::http::http_request request);
 
+
         /**
-         * Cache Handler
+         * Web resource cache
          * Used to cache resources.
          */
         std::unique_ptr<granada::cache::WebResourceCache> cache_handler_;
 
 
         /**
-         * Object for creating a session if it does not exist or if it is timed out.
+         * Session checkpoint. Allows to have a unique point for
+         * checking and setting sessions. Used to create a new
+         * session if it does not exist or if it is timed out.
          */
         std::shared_ptr<granada::http::session::Checkpoint> session_checkpoint_;
+        
       };
     }
   }

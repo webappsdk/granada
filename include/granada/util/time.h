@@ -21,17 +21,22 @@
   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   * SOFTWARE.
   *
-  * Utils for time manipulation and measure.
+  * Utils for measuring and manipulating time.
   */
 
 #pragma once
-
+#include <thread>
 #include <string>
 #include <sstream>
+#include <chrono>
 #include <sys/timeb.h>
 
 namespace granada{
   namespace util{
+
+    /**
+     * Utils for measuring and manipulating time.
+     */
     namespace time{
 
       /**
@@ -119,6 +124,16 @@ namespace granada{
         if(span < 0)
           span += 0x100000 * 1000;
         return span;
+      }
+
+
+      /**
+       * Stops thread n given milliseconds.
+       * 
+       * @param milliseconds Milliseconds to stop thread.
+       */
+      static inline void sleep(int milliseconds){
+        std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
       }
     }
   }

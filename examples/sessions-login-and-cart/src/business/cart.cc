@@ -1,5 +1,5 @@
 /**
-  * Copyright (c) <2016> HTML Puzzle Team <htmlpuzzleteam@gmail.com>
+  * Copyright (c) <2016> Web App SDK granada <afernandez@cookinapps.io>
   *
   * This source code is licensed under the MIT license.
   *
@@ -36,7 +36,9 @@ namespace business{
 
 
   int Cart::Count(){
-    return cache_->Length(GetHash());
+    std::vector<std::string> keys;
+    cache_->Match(GetHash() + "*",keys);
+    return keys.size();
   }
 
 
@@ -44,14 +46,15 @@ namespace business{
     std::string hash = GetHash();
 
     // first check if this product is not already added, if so sum quantities.
-    std::string stored_quantity_str = cache_->Read(hash,product_id);
+    std::string stored_quantity_str = cache_->Read(hash + product_id, "quantity");
 
     if (!stored_quantity_str.empty()){
       int stored_quantity = std::atoi(stored_quantity_str.c_str());
       quantity += stored_quantity;
     }
 
-    cache_->Write(hash,product_id,std::to_string(quantity));
+    cache_->Write(hash + product_id, "id", product_id);
+    cache_->Write(hash + product_id, "quantity", std::to_string(quantity));
 
     return Count();
   }
@@ -61,35 +64,36 @@ namespace business{
     std::string hash = GetHash();
 
     if (quantity > 0){
-      cache_->Write(hash,product_id,std::to_string(quantity));
+      cache_->Write(hash + product_id, "quantity", std::to_string(quantity));
     }else{
-      cache_->Destroy(hash,product_id);
+      cache_->Destroy(hash + product_id);
     }
     return Count();
   }
 
 
   int Cart::Remove(const std::string product_id){
-    cache_->Destroy(GetHash(),product_id);
+    cache_->Destroy(GetHash() + product_id);
     return 0;
   }
 
 
   void Cart::Destroy(){
-    cache_->Destroy(GetHash());
+    cache_->Destroy(GetHash() + "*");
   }
 
 
   std::string Cart::List(){
-    std::unordered_map<std::string,std::string> products = cache_->GetProperties(GetHash());
+    std::vector<std::string> keys;
+    cache_->Match(GetHash() + "*",keys);
     std::string list_str = "[";
 
     // loop throw all sessions.
-    for ( auto it = products.begin(); it != products.end(); ++it ){
-      if (it != products.begin()){
+    for ( auto it = keys.begin(); it != keys.end(); ++it ){
+      if (it != keys.begin()){
         list_str += ",";
       }
-      list_str += "{\"id\":\"" + it->first + "\",\"quantity\":\"" + it->second + "\"}";
+      list_str += "{\"id\":\"" + cache_->Read(*it,"id") + "\",\"quantity\":\"" + cache_->Read(*it,"quantity") + "\"}";
     }
 
     list_str += "]";
@@ -98,20 +102,29 @@ namespace business{
 
 
   void Cart::SwitchToUser(){
-    std::string old_hash = "cart:" + session_->GetToken();
-    if (cache_->Length(old_hash) > 0){
-      std::unordered_map<std::string,std::string> products = cache_->GetProperties(old_hash);
-      cache_->Write(GetHash(),products);
+    std::string old_hash = "cart:product:" + session_->GetToken() + ":";
+    std::vector<std::string> keys;
+    cache_->Match(old_hash + "*",keys);
+
+    if (keys.size() > 0){
+      std::string new_hash = GetHash();
+      cache_->Destroy(new_hash + "*");
+      std::string plugin_id;
+      for ( auto it = keys.begin(); it != keys.end(); ++it ){
+        plugin_id = cache_->Read(*it,"id");
+        cache_->Write(new_hash + plugin_id,"id",plugin_id);
+        cache_->Write(new_hash + plugin_id,"quantity",cache_->Read(*it,"quantity"));
+      }
+      cache_->Destroy(old_hash + "*");
     }
-    cache_->Destroy(old_hash);
   }
 
 
   std::string Cart::GetHash(){
     if (session_->roles()->Is("USER")){
-      return "cart:" + session_->roles()->GetProperty("USER", "username");
+      return "cart:product:" + session_->roles()->GetProperty("USER", "username") + ":";
     }else{
-      return "cart:"+session_->GetToken();
+      return "cart:product:"+session_->GetToken() + ":";
     }
   }
 }

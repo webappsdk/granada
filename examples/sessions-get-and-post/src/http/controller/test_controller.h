@@ -1,5 +1,5 @@
 /**
-  * Copyright (c) <2016> HTML Puzzle Team <htmlpuzzleteam@gmail.com>
+  * Copyright (c) <2016> Web App SDK granada <afernandez@cookinapps.io>
   *
   * This source code is licensed under the MIT license.
   *

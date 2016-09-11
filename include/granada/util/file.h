@@ -36,6 +36,10 @@
 
 namespace granada{
   namespace util{
+
+    /**
+     * Collection of functions and classes related to file information or manipulation.
+     */
     namespace file{
 
       /**
@@ -54,6 +58,28 @@ namespace granada{
           }
         }
         return std::string();
+      }
+
+      /**
+       * Returns the content of the file with given path in form of string.
+       * @param   file_path   Path of the file.
+       * @return              Content of the file (string).
+       */
+      static inline std::string ContentAsString(const std::string& file_path){
+        std::ifstream ifs(file_path);
+        std::string content((std::istreambuf_iterator<char>(ifs)),(std::istreambuf_iterator<char>()));
+        return content;
+      }
+
+      /**
+       * Returns the content of the file with given path in form of JSON value.
+       * @param   file_path   Path of the file.
+       * @return              Content of the file (JSON object or JSON array).
+       */
+      static inline web::json::value ContentAsJSON(const std::string& file_path){
+        std::ifstream ifs(file_path);
+        std::string content((std::istreambuf_iterator<char>(ifs)),(std::istreambuf_iterator<char>()));
+        return granada::util::string::to_json(content);
       }
 
 

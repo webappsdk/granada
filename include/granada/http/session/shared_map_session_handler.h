@@ -21,8 +21,9 @@
   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   * SOFTWARE.
   *
-  * Stores all sessions in an unordered map.
-  * Is multi-thread safe.
+  * Manage the lifecycle of the sessions, store them in an unordered map
+  * shared by all users. It is multithread safe.
+  * 
   */
 #pragma once
 #include <thread>
@@ -41,6 +42,10 @@ namespace granada{
   namespace http{
     namespace session{
 
+      /**
+       * Manage the lifecycle of the sessions, store them in an unordered map
+       * shared by all users. It is multithread safe.
+       */
       class SharedMapSessionHandler : public SessionHandler
       {
         public:
@@ -89,9 +94,9 @@ namespace granada{
         private:
 
           /**
-           * Map where all sessions are stored.
+           * Unordered map where all sessions are stored.
            */
-          std::unique_ptr<std::map<std::string,std::shared_ptr<granada::http::session::Session>>> sessions_;
+          std::unique_ptr<std::unordered_map<std::string,std::shared_ptr<granada::http::session::Session>>> sessions_;
 
 
           /**

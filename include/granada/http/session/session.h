@@ -22,7 +22,7 @@
   * SOFTWARE.
   *
   * Abstract Session class that allows to manage session roles.
-  * Store session token in cookies or GET or POST json objects.
+  * Stores session token in cookies or GET or POST json objects.
   *
   */
 #pragma once
@@ -34,26 +34,73 @@
 #include "granada/util/string.h"
 #include "granada/http/parser.h"
 #include "roles.h"
+#include "granada/functions.h"
 #include "session_handler.h"
 
 namespace granada{
   namespace http{
+
+    /**
+     * Namespace for Sessions, Sessions Handlers, Session Roles and Session checkpoints (factories).
+     */
     namespace session{
 
       class SessionHandler;
       class Roles;
+
+      /**
+       * Abstract Session class that allows to manage session roles.
+       * Stores session token in cookies or GET or POST json objects.
+       */
       class Session
       {
         public:
 
 
           /**
-           * Constructors
+           * Constructor.
            */
           Session(){};
+
+
+          /**
+           * Constructor.
+           * Loads session.
+           * Retrieves the token of the session from the HTTP request
+           * and loads a session using the session handler.
+           * If session does not exist or token is not found
+           * a new session is created.
+           * This constructor is recommended for sessions that store token in cookie
+           *
+           * @param  request  Http request.
+           * @param  response Http response.
+           */
           Session(web::http::http_request &request,web::http::http_response &response){};
+
+
+          /**
+           * Constructor.
+           * Loads session.
+           * Retrieves the token of the session from the HTTP request
+           * and loads a session using the session handler.
+           * If session does not exist or token is not found
+           * a new session is created.
+           * This constructor is recommended for sessions that use get and post values.
+           * 
+           * @param  request  Http request.
+           */
           Session(web::http::http_request &request){};
+
+
+          /**
+           * Constructor.
+           * Loads a session with the given token using the session handler.
+           * Use this loader if you have the token and you are not using cookies.
+           * 
+           * @param token Session token.
+           */
           Session(const std::string& token){};
+
 
           /**
            * Set the value of the sessions, may be overriden in case we want to
@@ -68,7 +115,9 @@ namespace granada{
           /**
            * Set the value of the sessions, may be overriden in case we want to
            * make other actions.
-           * @param session
+           * 
+           * @param token         Session token.
+           * @param update_time   Session update time.
            */
           virtual void set(const std::string& token,const std::time_t& update_time){
             SetToken(token);
@@ -98,6 +147,7 @@ namespace granada{
 
           /**
            * Closes a session deleting it.
+           * And call all the close callback functions.
            */
           virtual void Close();
 
@@ -140,6 +190,16 @@ namespace granada{
 
 
           /**
+           * Returns a pointer to the collection of functions
+           * that are called when closing the session.
+           * 
+           * @return  Pointer to the collection of functions that are
+           *          called when session is closed.
+           */
+          virtual std::shared_ptr<granada::Functions> close_callbacks(){ return std::shared_ptr<granada::Functions>(nullptr); };
+
+
+          /**
            * Returns the session unique token.
            * @return token
            */
@@ -173,8 +233,8 @@ namespace granada{
            */
           void SetUpdateTime(const std::time_t& update_time){ update_time_ = update_time; };
 
-        protected:
 
+        protected:
 
           /**
            * Default token support, cookie || query || json.
@@ -215,31 +275,50 @@ namespace granada{
            */
           long session_timeout_;
 
+
           /**
-           * Returns the pointer of the hanlder of the sessions lifetime,
-           * and where all the application sessions are stored.
+           * Returns the pointer of Session Handler that manages the session.
+           * @return Session Handler.
            */
           virtual granada::http::session::SessionHandler* session_handler(){ return nullptr; };
 
 
           /**
-           * Load session.
-           * Retrieves the token of the session and loads a session
-           * using the session handler. If session does not exist or
-           * token is not found a new session is created.
-           *
-           * Use the first loader for sessions that store token in cookie
-           * Use second loader for sessions that use get and post values.
-           * Use third if you have the token and you are not using cookies.
-           *
-           *
+           * Loads session.
+           * Retrieves the token of the session from the HTTP request
+           * and loads a session using the session handler.
+           * If session does not exist or token is not found
+           * a new session is created.
+           * This loader is recommended for sessions that store token in cookie
            *
            * @param  request  Http request.
            * @param  response Http response.
            * @return          True if session has been retrieved or created successfuly.
            */
           virtual const bool LoadSession(web::http::http_request &request,web::http::http_response &response);
+
+
+          /**
+           * Loads session.
+           * Retrieves the token of the session from the HTTP request
+           * and loads a session using the session handler.
+           * If session does not exist or token is not found
+           * a new session is created.
+           * This loader is recommended for sessions that use get and post values.
+           * 
+           * @param  request  Http request.
+           * @return          True if session has been retrieved or created successfuly.
+           */
           virtual const bool LoadSession(web::http::http_request &request);
+
+
+          /**
+           * Loads a session with the given token using the session handler.
+           * Use this loader if you have the token and you are not using cookies.
+           * 
+           * @param token Session token.
+           * @return      True if session has been retrieved successfuly.
+           */
           virtual const bool LoadSession(const std::string& token);
 
 

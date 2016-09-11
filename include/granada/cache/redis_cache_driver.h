@@ -28,17 +28,24 @@
   *
   */
 #pragma once
+#include <string>
 #include "granada/defaults.h"
 #include "granada/util/application.h"
 #include "cache_handler.h"
-#include <string>
 #include "redisclient/redissyncclient.h"
 
 
 namespace granada{
   namespace cache{
 
+    class RedisCacheDriver;
+
+    /**
+     * Redis Sync client wrapper to ensure multithread safety by
+     * having only one Redis client per application.
+     */
     class RedisSyncClientWrapper{
+
       public:
 
         /**
@@ -62,6 +69,7 @@ namespace granada{
         RedisSyncClient* get(){
           return redis_;
         };
+
 
       private:
 
@@ -103,10 +111,13 @@ namespace granada{
     };
 
 
+
     /**
+     * Iterates over cache keys.
      * Tool for SCAN or KEYS search in a Redis database, with a given pattern.
      */
     class RedisIterator : public CacheHandlerIterator{
+
       public:
 
         /**
@@ -114,20 +125,37 @@ namespace granada{
          */
         enum Type {KEYS = 0, SCAN = 1};
 
+
         /**
-         * Constructor
+         * Constructor.
          */
         RedisIterator(){};
 
 
         /**
-         * Constructor
+         * Constructor.
+         * @param expression    Expression used to match keys.
+         *                    
+         *                      Example of expression:
+         *                        
+         *                        session:value:*
+         *                        => will retrieve all the keys that start with
+         *                        session:values: stored in the cache.
+         *                        
+         *                        *:value:*
+         *                        => will retrieve all the keys that contain
+         *                        ":value:"
          */
         RedisIterator(const std::string& expression);
 
 
         /**
          * Constructor
+         * 
+         * @param type          Type of search KEYS or SCAN
+         * @param expression    Filter pattern/expression.
+         *                      Example:
+         *                              session:*TOKEN46464* => will SCAN or KEYS keys that match the given expression.
          */
         RedisIterator(RedisIterator::Type type, const std::string& expression);
 
@@ -143,7 +171,7 @@ namespace granada{
 
 
         /**
-         * Return true if there is another value with same pattern, false
+         * Returns true if there is another value with same pattern, false
          * if there is not.
          * @return True | False
          */
@@ -151,15 +179,19 @@ namespace granada{
 
 
         /**
-         * Return the next key found with the given pattern.
-         * @return [description]
+         * Returns the next key found with the given pattern.
+         * @return next key in the keys_ vector.
          */
         const std::string next();
 
 
       protected:
 
-        static std::unique_ptr<RedisSyncClientWrapper> redis_;
+        /**
+         * Manager of the storage, and contains
+         * the data stored.
+         */
+        static std::unique_ptr<granada::cache::RedisCacheDriver> cache_;
 
         /**
          * Results of the SCAN or KEYS search.
@@ -198,6 +230,12 @@ namespace granada{
     };
 
 
+    /**
+     * Manages the cache storing key-value pairs or sets of key-value pairs using redis
+     * data structure server (http://redis.io/).
+     * It uses redisclient by Alex Nekipelov https://github.com/nekipelov/redisclient
+     * This code is multi-thread safe.
+     */
     class RedisCacheDriver : public CacheHandler
     {
       public:
@@ -208,7 +246,10 @@ namespace granada{
         RedisCacheDriver(){};
 
 
-        // override
+        /**
+         * Checks if a key exist in the cache.
+         * @param  key  Key to check.
+         */
         const bool Exists(const std::string& key);
 
 
@@ -272,6 +313,49 @@ namespace granada{
 
 
         /**
+         * Returns a RedisValue containing a group of keys of the
+         * cache that match a given expression for a given cursor,
+         * returns also a new cursor to obtain a new group of keys.
+         * 
+         * @param expression  Expression used to match keys.
+         *                    
+         *                    Example of expression:
+         *                        
+         *                        session:value:*
+         *                        => will retrieve all the keys that start with
+         *                        session:values: stored in the cache.
+         *                        
+         *                        *:value:*
+         *                        => will retrieve all the keys that contain
+         *                        ":value:"
+         *                         
+         * @return            RedisValue containing a group keys and a new cursor.
+         */
+        RedisValue Scan(const std::string& cursor, const std::string& expression_);
+
+
+        /**
+         * Returns a RedisValue containing all the keys of the
+         * cache that match a given expression.
+         * 
+         * @param expression  Expression used to match keys.
+         *                    
+         *                    Example of expression:
+         *                        
+         *                        session:value:*
+         *                        => will retrieve all the keys that start with
+         *                        session:values: stored in the cache.
+         *                        
+         *                        *:value:*
+         *                        => will retrieve all the keys that contain
+         *                        ":value:"
+         *                         
+         * @return            RedisValue containing all the keys.
+         */
+        RedisValue Keys(const std::string& expression_);
+
+
+        /**
          * Returns an iterator to iterate over keys with an expression.
          * @param   Expression to be use to iterate over keys that match this expression.
          *          Example: "user*" => we will iterate over all the keys that start with "user"
@@ -288,11 +372,10 @@ namespace granada{
          */
         static std::unique_ptr<RedisSyncClientWrapper> redis_;
 
-
         /**
-         * Mutex. For multi-thread safety.
+         * Mutex for thread safety.
          */
-        std::mutex mtx;
+        static std::mutex mtx_;
 
     };
   }

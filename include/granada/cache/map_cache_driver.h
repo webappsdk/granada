@@ -21,7 +21,7 @@
   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   * SOFTWARE.
   *
-  * Manages the cache storing key-value pairs in an unordered map.
+  * Manages the cache storing key-value pairs in a map.
   * This code is not multi-thread safe, If you want to use a shared map
   * between all the users cache, We recommend to use
   * shared_map_cache_driver instead.
@@ -31,17 +31,22 @@
 #include "cache_handler.h"
 #include <regex>
 #include <string>
+#include <map>
 #include <unordered_map>
 #include "granada/util/string.h"
 
 namespace granada{
   namespace cache{
 
+    class MapCacheDriver;
+
     /**
      * Tool for iterate over keys with a given pattern.
      */
     class MapIterator : public CacheHandlerIterator{
+
       public:
+
         /**
          * Constructor
          */
@@ -49,9 +54,22 @@ namespace granada{
 
 
         /**
-         * Constructor
+         * Constructor.
+         * @param expression    Expression used to match keys.
+         *                    
+         *                      Example of expression:
+         *                        
+         *                        session:value:*
+         *                        => will retrieve all the keys that start with
+         *                        session:values: stored in the cache.
+         *                        
+         *                        *:value:*
+         *                        => will retrieve all the keys that contain
+         *                        ":value:"
+         *                        
+         * @param cache         Pointer to the cache where to search the keys.
          */
-        MapIterator(const std::string& expression, std::shared_ptr<std::unordered_map<std::string,std::string>>& data);
+        MapIterator(const std::string& expression, MapCacheDriver* cache);
 
 
         /**
@@ -72,21 +90,15 @@ namespace granada{
       protected:
 
         /**
-         * Map where all data is store.
-         */
-        std::shared_ptr<std::unordered_map<std::string,std::string>> data_;
-
-
-        /**
-         * Map where all data is store.
+         * Vector for storing found keys.
          */
         std::vector<std::string> keys_;
 
 
+        /**
+         * Iterator.
+         */
         std::vector<std::string>::iterator it_;
-
-
-        void FilterKeys();
 
     };
 
@@ -100,20 +112,58 @@ namespace granada{
         MapCacheDriver();
 
 
-        // override
+        /**
+         * Checks if a key exist in the cache.
+         * @param  key  Key to check.
+         */
         const bool Exists(const std::string& key);
 
 
-        // override
+        /**
+         * Returns value from the cache.
+         * @param  key Key of the value.
+         * @return     Value
+         */
         const std::string Read(const std::string& key);
 
 
-        // override
+        /**
+         * Set a value in the cache associated with a given key.
+         * @param key   Key of the value.
+         * @param value Value.
+         */
         void Write(const std::string& key,const std::string& value);
 
 
-        // override
+        /**
+         * Inserts or rewrite a key-value pair in a set with the given name.
+         * If the set does not exist, it creates it.
+         * @param hash  Name of the set.
+         * @param key   Key to identify the value inside the set.
+         * @param value Value
+         */
         void Destroy(const std::string& key);
+
+
+        /**
+         * Fills a vector with keys of the cache that match
+         * a given expression.
+         * 
+         * @param expression  Expression used to match keys.
+         *                    
+         *                    Example of expression:
+         *                        
+         *                        session:value:*
+         *                        => will retrieve all the keys that start with
+         *                        session:values: stored in the cache.
+         *                        
+         *                        *:value:*
+         *                        => will retrieve all the keys that contain
+         *                        ":value:"
+         *                         
+         * @return            Vector of string keys.
+         */
+        void Keys(const std::string& expression, std::vector<std::string>& keys);
 
 
         /**
@@ -123,7 +173,7 @@ namespace granada{
          * @return  Iterator.
          */
         std::shared_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
-          return std::shared_ptr<granada::cache::CacheHandlerIterator>(new granada::cache::MapIterator(expression,data_));
+          return std::shared_ptr<granada::cache::CacheHandlerIterator>(new granada::cache::MapIterator(expression,this));
         };
 
       protected:
@@ -131,7 +181,7 @@ namespace granada{
         /**
          * Unordered map where key-value pairs are stored.
          */
-        std::shared_ptr<std::unordered_map<std::string,std::string>> data_;
+        std::shared_ptr<std::map<std::string,std::string>> data_;
 
     };
   }

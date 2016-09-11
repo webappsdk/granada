@@ -21,28 +21,46 @@
   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   * SOFTWARE.
   *
-  * Interface. Manages cache, data stored used during runtime.
-  * Usually stored as key-value pair or sets of key-value pairs.
+  * Classes to manage cache, data stored as key-value pairs, data can be persistant
+  * or not.
   *
   */
 #pragma once
-#include <string>
 #include <memory>
 #include <mutex>
+#include <string>
+#include <vector>
 
 namespace granada{
   namespace cache{
 
+    /**
+     * Interface. Iterates over cache keys.
+     */
     class CacheHandlerIterator{
+
       public:
+
 
         /**
          * Constructor
          */
         CacheHandlerIterator(){};
 
+
         /**
          * Constructor
+         * @param   expression  Expression to search keys.
+         *                      
+         *                      Example:
+         *                      
+         *                          session:value:*
+         *                          => can be used to search all the keys
+         *                          starting with "session:value"
+         *                          
+         *                          *:value:*
+         *                          => can be used to  search all keys
+         *                          containing ":value:"
          */
         CacheHandlerIterator(const std::string& expression){
           set(expression);
@@ -80,19 +98,31 @@ namespace granada{
         /**
          * Filter pattern/expression.
          * SCAN or KEYS keys that match the given expression.
+         * 
+         * Example:
+         *                      
+         *                          session:value:*
+         *                          => can be used to search all the keys
+         *                          starting with "session:value"
+         *                          
+         *                          *:value:*
+         *                          => can be used to  search all keys
+         *                          containing ":value:"
          */
         std::string expression_;
 
-        /**
-         * Mutex for thread safety.
-         */
-        std::mutex mtx;
     };
 
 
+    /**
+     * Manages cache, data stored as key-value pairs, data can be persistant
+     * or not.
+     */
     class CacheHandler
     {
+
       public:
+
 
         /**
          * Contructor
@@ -141,6 +171,28 @@ namespace granada{
 
 
         /**
+         * Fills a vector of strings with the the keys that match an expression.
+         * 
+         * @param expression  Expression.
+         *                      Example:
+         *                          *:GHs98Ev4GLkqw32g8
+         *                          
+         * @param keys        Vector of strings that should be filled with the keys matching
+         *                    the given expression/pattern.
+         *                      Example:
+         *                          plugin:value:GHs98Ev4GLkqw32g8
+         *                          plugin.handler:value:GHs98Ev4GLkqw32g8
+         *                          plugin:store:GHs98Ev4GLkqw32g8
+         */
+        virtual const void Match(const std::string& expression, std::vector<std::string>& keys){
+          std::shared_ptr<granada::cache::CacheHandlerIterator> cache_iterator = this->make_iterator(expression);
+          while (cache_iterator->has_next()){
+            keys.push_back(cache_iterator->next());
+          }
+        };
+
+
+        /**
          * Set a value in the cache associated with a given key.
          * @param key   Key of the value.
          * @param value Value.
@@ -179,7 +231,7 @@ namespace granada{
         virtual std::shared_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
           return std::shared_ptr<granada::cache::CacheHandlerIterator>(new granada::cache::CacheHandlerIterator(expression));
         };
-
+        
     };
   }
 }

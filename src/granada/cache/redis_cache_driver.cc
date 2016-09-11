@@ -74,86 +74,7 @@ namespace granada{
     }
 
 
-    std::unique_ptr<RedisSyncClientWrapper> RedisCacheDriver::redis_ = std::unique_ptr<RedisSyncClientWrapper>(new RedisSyncClientWrapper());
-
-
-    const bool RedisCacheDriver::Exists(const std::string& key){
-      mtx.lock();
-      RedisValue result = redis_->get()->command("EXISTS", key);
-      mtx.unlock();
-      if( result.isOk() )
-      {
-        return result.toInt();
-      }
-      return false;
-    }
-
-    const bool RedisCacheDriver::Exists(const std::string& hash,const std::string& key){
-      mtx.lock();
-      RedisValue result = redis_->get()->command("EXISTS", hash);
-      mtx.unlock();
-      if( result.isOk() )
-      {
-        if (result.toInt()){
-          return !Read(key).empty();
-        }
-      }
-      return false;
-    }
-
-
-    const std::string RedisCacheDriver::Read(const std::string& key){
-      mtx.lock();
-      RedisValue result = redis_->get()->command("GET", key);
-      mtx.unlock();
-      if( result.isOk() )
-      {
-        return result.toString();
-      }
-      return std::string();
-    }
-
-
-    const std::string RedisCacheDriver::Read(const std::string& hash,const std::string& key){
-      mtx.lock();
-      RedisValue result = redis_->get()->command("HGET", hash, key);
-      mtx.unlock();
-      if( result.isOk() )
-      {
-        return result.toString();
-      }
-      return std::string();
-    }
-
-
-    void RedisCacheDriver::Write(const std::string& key,const std::string& value){
-      mtx.lock();
-      redis_->get()->command("SET", key, value);
-      mtx.unlock();
-    }
-
-
-    void RedisCacheDriver::Write(const std::string& hash,const std::string& key,const std::string& value){
-      mtx.lock();
-      redis_->get()->command("HSET", hash, key, value);
-      mtx.unlock();
-    }
-
-
-    void RedisCacheDriver::Destroy(const std::string& key){
-      mtx.lock();
-      redis_->get()->command("DEL", key);
-      mtx.unlock();
-    }
-
-
-    void RedisCacheDriver::Destroy(const std::string& hash,const std::string& key){
-      mtx.lock();
-      redis_->get()->command("HDEL", hash, key);
-      mtx.unlock();
-    }
-
-    std::unique_ptr<RedisSyncClientWrapper> RedisIterator::redis_ = std::unique_ptr<RedisSyncClientWrapper>(new RedisSyncClientWrapper());
+    std::unique_ptr<granada::cache::RedisCacheDriver> RedisIterator::cache_ = std::unique_ptr<granada::cache::RedisCacheDriver>(new granada::cache::RedisCacheDriver());
 
     RedisIterator::RedisIterator(const std::string& expression){
       set(RedisIterator::Type::KEYS, expression);
@@ -214,10 +135,7 @@ namespace granada{
           cursor_ = "0";
         }
         if (type_ == 0){
-          // KEYS search.
-          mtx.lock();
-          RedisValue result = redis_->get()->command("KEYS", expression_);
-          mtx.unlock();
+          RedisValue result = cache_->Keys(expression_);
           if( result.isOk() ){
             keys_ = result.toArray();
             if (keys_.empty()){
@@ -228,9 +146,7 @@ namespace granada{
           }
         }else if (type_ == 1){
           // SCAN search.
-          mtx.lock();
-          RedisValue result = redis_->get()->command("SCAN", cursor_, "MATCH", expression_);
-          mtx.unlock();
+          RedisValue result = cache_->Scan(cursor_,expression_);
           if( result.isOk() ){
             std::vector<RedisValue> result_v = result.toArray();
             if (result_v.size() == 2){
@@ -249,6 +165,119 @@ namespace granada{
           }
         }
       }
+    }
+
+
+    std::mutex RedisCacheDriver::mtx_;
+
+    std::unique_ptr<RedisSyncClientWrapper> RedisCacheDriver::redis_ = std::unique_ptr<RedisSyncClientWrapper>(new RedisSyncClientWrapper());
+
+
+    const bool RedisCacheDriver::Exists(const std::string& key){
+      bool exists = false;
+      mtx_.lock();
+      RedisValue result = redis_->get()->command("EXISTS", key);
+      mtx_.unlock();
+      if( result.isOk() )
+      {
+        if (result.toInt() == 1){
+          exists = true;
+        }
+      }
+      return exists;
+    }
+
+    const bool RedisCacheDriver::Exists(const std::string& hash,const std::string& key){
+      bool exists = false;
+      mtx_.lock();
+      RedisValue result = redis_->get()->command("EXISTS", hash);
+      mtx_.unlock();
+      if( result.isOk() )
+      {
+        if (result.toInt() == 1){
+          std::string value = Read(hash,key);
+          exists = !value.empty();
+        }
+      }
+      return exists;
+    }
+
+    const std::string RedisCacheDriver::Read(const std::string& key){
+      mtx_.lock();
+      RedisValue result = redis_->get()->command("GET", key);
+      mtx_.unlock();
+      if( result.isOk() )
+      {
+        return result.toString();
+      }
+      return std::string();
+    }
+
+
+    const std::string RedisCacheDriver::Read(const std::string& hash,const std::string& key){
+      mtx_.lock();
+      RedisValue result = redis_->get()->command("HGET", hash, key);
+      mtx_.unlock();
+      if( result.isOk() )
+      {
+        return result.toString();
+      }
+      return std::string();
+    }
+
+
+    void RedisCacheDriver::Write(const std::string& key,const std::string& value){
+      mtx_.lock();
+      redis_->get()->command("SET", key, value);
+      mtx_.unlock();
+    }
+
+
+    void RedisCacheDriver::Write(const std::string& hash,const std::string& key,const std::string& value){
+      mtx_.lock();
+      redis_->get()->command("HSET", hash, key, value);
+      mtx_.unlock();
+    }
+
+
+    void RedisCacheDriver::Destroy(const std::string& key){
+      std::size_t found = key.find("*");
+      if (found!=std::string::npos){
+        std::vector<std::string> keys;
+        Match(key,keys);
+        mtx_.lock();
+        for (auto it = keys.begin(); it != keys.end(); ++it){
+          redis_->get()->command("DEL", *it);
+        }
+        mtx_.unlock();
+      }else{
+        mtx_.lock();
+        redis_->get()->command("DEL", key);
+        mtx_.unlock();
+      }
+    }
+
+
+    void RedisCacheDriver::Destroy(const std::string& hash,const std::string& key){
+      mtx_.lock();
+      redis_->get()->command("HDEL", hash, key);
+      mtx_.unlock();
+    }
+
+
+    RedisValue RedisCacheDriver::Scan(const std::string& cursor, const std::string& expression_){
+      mtx_.lock();
+      RedisValue result = redis_->get()->command("SCAN", cursor, "MATCH", expression_);
+      mtx_.unlock();
+      return result;
+    }
+
+
+    RedisValue RedisCacheDriver::Keys(const std::string& expression_){
+      mtx_.lock();
+      RedisValue result = redis_->get()->command("KEYS", expression_);
+      mtx_.unlock();
+      return result;
     }
 
   }

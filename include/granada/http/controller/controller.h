@@ -37,6 +37,11 @@ using namespace web::http::experimental::listener;
 namespace granada{
   namespace http{
     namespace controller{
+
+      /**
+       * Abstract class for controllers.
+       * Controllers process the HTTP requests.
+       */
       class Controller{
         public:
 

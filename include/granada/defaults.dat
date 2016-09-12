@@ -254,6 +254,7 @@ DAT(plugin_bytes_limit_exceeded,		"bytes_limit_exceeded")
 DAT(runner_malformed_parameters,		"malformed_parameters")
 DAT(runner_undefined_function,			"undefined_function")
 DAT(runner_script_error,				"script_error")
+DAT(runner_initialization_error,		"runner_initialization_error")
 #endif // _DEFAULT_ERRORS
 
 #ifdef _DEFAULT_ERROR_DESCRIPTIONS

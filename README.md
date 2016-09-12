@@ -1,5 +1,5 @@
 # granada
-Granada is built on top of C++ REST SDK, it proposes a typed structure for C++ REST SDK server applications. Implements Sessions, C++ OAuth 2.0 server, Server browsing, Data storage access utils...
+Structured layer on top of C++ REST SDK for building server applications in C++. Granada implements sessions, C++ OAuth 2.0 server, data storage access, server script running, server browsing.
 
 [Read Wiki](https://github.com/webappsdk/granada/wiki)
 

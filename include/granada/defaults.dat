@@ -21,7 +21,7 @@ DAT(session_roles,                      "session:roles:")
 ////
 // Plugin namespaces
 //
-DAT(plugin_loader_value,				"plugin.loader:value")
+DAT(plugin_loader_value,				"plugin.loader:value:")
 DAT(plugin_store,                       "plugin:store:")
 DAT(plugin_value,                       "plugin:value:")
 DAT(plugin_handler_value,               "plugin.handler:value:")

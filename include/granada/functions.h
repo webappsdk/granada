@@ -145,7 +145,7 @@ namespace granada{
        * @param name  Name of the function.
        * @param fn    Function.
        */
-      virtual void Add(const std::string& name, function_json_json fn){std::cout << "[++] Add function (MotherClass) : " << name << "\n\n";};
+      virtual void Add(const std::string& name, function_json_json fn){};
 
 
       /**

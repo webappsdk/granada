@@ -75,7 +75,6 @@ namespace granada{
 
 
   void FunctionsMap::Add(const std::string& name, function_json_json fn){
-    std::cout << "[++] Add function : " << name << "\n\n";
     if (!name.empty()){
       mtx_.lock();
       (*functions_)[name] = fn;

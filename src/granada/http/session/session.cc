@@ -166,7 +166,8 @@ namespace granada{
 
       void Session::Close(){
         // removes a session from wherever sessions are stored.
-        close_callbacks()->CallAll();
+        web::json::value session_json = to_json();
+        close_callbacks()->CallAll(session_json);
         roles()->RemoveAll();
         session_handler()->DeleteSession(this);
       }

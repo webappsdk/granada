@@ -28,33 +28,31 @@ namespace granada{
   namespace http{
     namespace session{
 
+
       // we use a session handler that use a map shared by all user to store the sessions.
       std::unique_ptr<granada::http::session::SessionHandler> RedisStorageSession::session_handler_ = std::unique_ptr<granada::http::session::SessionHandler>(new granada::http::session::RedisSessionHandler(std::shared_ptr<granada::http::session::RedisStorageSession>(new granada::http::session::RedisStorageSession())));
       std::unique_ptr<granada::cache::CacheHandler> RedisStorageSession::cache_ = std::unique_ptr<granada::cache::CacheHandler>(new granada::cache::RedisCacheDriver());
+      std::unique_ptr<granada::Functions> RedisStorageSession::close_callbacks_(new granada::FunctionsMap());
 
       RedisStorageSession::RedisStorageSession(){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
-        close_callbacks_ = std::shared_ptr<granada::Functions>(new granada::FunctionsMap());
         LoadProperties();
       }
 
       RedisStorageSession::RedisStorageSession(web::http::http_request &request,web::http::http_response &response){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
-        close_callbacks_ = std::shared_ptr<granada::Functions>(new granada::FunctionsMap());
         LoadProperties();
         Session::LoadSession(request,response);
       }
 
       RedisStorageSession::RedisStorageSession(web::http::http_request &request){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
-        close_callbacks_ = std::shared_ptr<granada::Functions>(new granada::FunctionsMap());
         LoadProperties();
         Session::LoadSession(request);
       }
 
       RedisStorageSession::RedisStorageSession(const std::string& token){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
-        close_callbacks_ = std::shared_ptr<granada::Functions>(new granada::FunctionsMap());
         LoadProperties();
         Session::LoadSession(token);
       }
@@ -86,7 +84,8 @@ namespace granada{
       }
 
       void RedisStorageSession::Close(){
-        close_callbacks()->CallAll();
+        web::json::value session_json = to_json();
+        close_callbacks()->CallAll(session_json);
         session_handler()->DeleteSession(this);
       }
 

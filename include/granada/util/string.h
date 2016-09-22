@@ -27,6 +27,7 @@
 #pragma once
 
 #include <algorithm>
+#include "ctype.h"
 #include <string>
 #include <sstream>
 #include <vector>
@@ -150,6 +151,29 @@ namespace granada{
        */
       static inline std::string stringified_json(const std::string& str){
         return granada::util::string::to_json(str).serialize();
+      }
+
+
+      /**
+       * Convert a string to UPPERCASE.
+       * 
+       * @param str String to uppercase.
+       */
+      static inline void to_upper(std::string& str){
+        for (auto & c: str){
+          c = toupper(c);
+        }
+      }
+
+      /**
+       * Convert a string to lowercase.
+       * 
+       * @param str String to lowercase.
+       */
+      static inline void to_lower(std::string& str){
+        for (auto & c: str){
+          c = tolower(c);
+        }
       }
 
     }

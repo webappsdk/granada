@@ -21,18 +21,12 @@ DAT(session_roles,                      "session:roles:")
 ////
 // Plugin namespaces
 //
-DAT(plugin,                             "plugin:")
+DAT(plugin_loader_value,				"plugin.loader:value")
 DAT(plugin_store,                       "plugin:store:")
 DAT(plugin_value,                       "plugin:value:")
-DAT(plugin_handler,                     "plugin.handler:")
 DAT(plugin_handler_value,               "plugin.handler:value:")
-DAT(plugin_handler_last_use,            "plugin.handler:value:last.use")
-DAT(plugin_loader,                      "plugin.loader:")
-DAT(plugin_loader_value,                "plugin.loader:value:")
-DAT(plugin_event,                       "plugin.event:")
-DAT(plugin_event_loader,                "plugin.event.loader:")
+DAT(plugin_event_value,                 "plugin.event:value:")
 DAT(plugin_extended,					"plugin.extended:")
-DAT(plugin_runner_last_run,				"plugin.runner:last.run:")
 
 
 #endif // _CACHE_NAMESPACES
@@ -123,6 +117,9 @@ DAT(_true,                              "true")
 DAT(plugin_id,                          "plugin_id")
 DAT(plugin_event,                       "event")
 DAT(plugin_handler_id,					"id")
+DAT(plugin_handler_last_use,			"last.use")
+DAT(plugin_handler_runner_last_use,		"runner.last.use")
+DAT(plugin_handler_repositories,		"repositories")
 DAT(plugin_parameter_plugin_handler_id,	"__PLUGIN_HANDLER_ID")
 DAT(plugin_parameter_plugin_id,			"__PLUGIN_ID")
 DAT(plugin_parameter_id,				"id")
@@ -147,14 +144,22 @@ DAT(plugin_init_ph_after_event,			"plugin_init_ph_after_event")
 DAT(plugin_bytes_limit,					"plugin_bytes_limit")
 DAT(plugin_runner_use_frequency_limit,	"plugin_runner_use_frequency_limit")
 DAT(plugin_handler_use_frequency_limit,	"plugin_handler_use_frequency_limit")
-DAT(plugin_extended_ids,				"ids")
-DAT(plugin_event_ids,					"ids")
-DAT(plugin_event_script,				"script")
+DAT(plugin_extended_ids,				"extended.ids")
 DAT(plugin_extended,					"extended")
+DAT(plugin_event_ids,					"ids")
+DAT(plugin_event_loader,				"loader")
+DAT(plugin_event_script,				"script")
 DAT(plugin_role_select,					"plugin.select")
 DAT(plugin_role_insert,					"plugin.insert")
 DAT(plugin_role_update,					"plugin.update")
 DAT(plugin_role_delete,					"plugin.delete")
+DAT(plugin_allow_client_to_send_messages,"allow_client_to_send_messages")
+DAT(plugin_allow_client_to_fire_events,	"allow_client_to_fire_events")
+DAT(plugin_allow_client_to_run_plugins,	"allow_client_to_run_plugins")
+DAT(plugin_allow_client_to_run_commands,"allow_client_to_run_commands")
+DAT(plugin_userfiles_directory,			"plugin_userfiles_directory")
+DAT(plugin_directory,		            "plugin_directory")
+DAT(plugin_publicfiles_directory,		"plugin_publicfiles_directory")
 
 #endif // _ENTITY_KEYS
 
@@ -198,17 +203,30 @@ DAT(plugin_eager_load,                  "eager")
 DAT(plugin_error,						"error")
 DAT(plugin_error_description,			"error_description")
 DAT(plugin_lazy_load,                   "lazy")
-DAT(plugin_users_directory,             "plugins")
 DAT(plugin_store,						"store")
 DAT(plugin_value,						"value")
 DAT(plugin_init_ph_event,				"init-ph")
 DAT(plugin_add_event,					"plugin-add")
+DAT(plugin_configuration_load_event,	"plugin-configuration-load")
+DAT(plugin_run_failure_event,			"plugin-run-failure")
 DAT(plugin_extended_true,				"TRUE")
 DAT(plugin_server_directory_name,		"server")
 DAT(plugin_configuration_file_name,		"configuration")
 DAT(plugin_configuration_file_extension,"json")
 DAT(plugin_header_file_extension,		"json")
 DAT(plugin_user_directory,				"user_directory")
+DAT(plugin_userfiles_directory,			"userfiles")
+DAT(plugin_directory,		            "plugins")
+DAT(plugin_publicfiles_directory,		"publicfiles")
+DAT(plugin_before,						"before")
+DAT(plugin_in_process,					"in-process")
+DAT(plugin_after,						"after")
+DAT(plugin_command,						"command")
+DAT(plugin_command_reset,				"RESET")
+DAT(plugin_command_stop,				"STOP")
+DAT(plugin_properties_true,				"TRUE")
+DAT(plugin_properties_false,			"FALSE")
+DAT(plugin_function_stop_plugin_handler,"StopPluginHandler")
 
 DAT(runner_error,						"error")
 DAT(runner_error_description,			"error_description")
@@ -236,10 +254,10 @@ DAT(plugin_bytes_limit, 10000000)
 // The minimum time a Plug-ins have to wait
 // between running its scrip/executable
 // in milliseconds.
-// default is 50 ms;
-DAT(plugin_runner_use_frequency_limit, 	50)
+// default is 20 ms;
+DAT(plugin_runner_use_frequency_limit, 	20)
 
-DAT(plugin_handler_use_frequency_limit,	20)
+DAT(plugin_handler_use_frequency_limit,	0)
 
 #endif // _DEFAULT_NUMBERS
 
@@ -247,9 +265,12 @@ DAT(plugin_handler_use_frequency_limit,	20)
 #ifdef _DEFAULT_ERRORS
 DAT(plugin_malformed_parameters, 		"malformed_parameters")
 DAT(plugin_missing_parameter,			"missing_parameter")
+DAT(plugin_unknown_command, 			"unknown_command")
+DAT(plugin_forbidden_command,			"forbidden_command")
 DAT(plugin_undefined_plugin,			"undefined_plugin")
 DAT(plugin_server_error,				"server_error")
 DAT(plugin_bytes_limit_exceeded,		"bytes_limit_exceeded")
+DAT(plugin_undefined_plugin_hanler,		"undefined_plugin_hanler")
 
 DAT(runner_malformed_parameters,		"malformed_parameters")
 DAT(runner_undefined_function,			"undefined_function")
@@ -263,6 +284,7 @@ DAT(plugin_missing_parameter,			"One or more of the given parameters is missing.
 DAT(plugin_undefined_plugin,			"Plug-in could not be found with given plug-in id.")
 DAT(plugin_server_error,				"There has been a server error.")
 DAT(plugin_bytes_limit_exceeded,		"Plug-in Handler could not preload all plug-ins, because they exceed the byte limit. This limit is set for server security reasons. Contact the administrator if you need to increase the limit.")
+DAT(plugin_undefined_plugin_hanler,		"Plug-in Handler could not be found with given id.")
 
 DAT(runner_malformed_parameters, 		"One or more of the given parameters has the wrong type.")
 #endif // _DEFAULT_ERROR_DESCRIPTIONS

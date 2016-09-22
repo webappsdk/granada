@@ -5,6 +5,7 @@ endif()
 add_executable(oauth2-server
   oauth2-server.cc
   ../../src/granada/defaults.cc
+  ../../src/granada/functions.cc
   ../../src/granada/util/file.cc
   ../../src/granada/util/application.cc
   ../../src/granada/http/parser.cc
@@ -31,6 +32,7 @@ add_executable(oauth2-server
 add_executable(redis-oauth2-server
   redis-oauth2-server.cc
   ../../src/granada/defaults.cc
+  ../../src/granada/functions.cc
   ../../src/granada/util/file.cc
   ../../src/granada/util/application.cc
   ../../src/granada/http/parser.cc

@@ -27,6 +27,7 @@
   */
 
 #pragma once
+#include <unordered_map>
 #include "session.h"
 #include "redis_roles.h"
 #include "redis_session_handler.h"
@@ -133,6 +134,18 @@ namespace granada{
 
 
           /**
+           * Returns a pointer to the collection of functions
+           * that are called when closing the session.
+           * 
+           * @return  Pointer to the collection of functions that are
+           *          called when session is closed.
+           */
+          granada::Functions* close_callbacks(){
+            return close_callbacks_.get();
+          };
+
+
+          /**
            * Write session data.
            * @param key   Key or name of the data.
            * @param value Data as string.
@@ -161,17 +174,9 @@ namespace granada{
            * Returns the pointer of Session Handler that manages the session.
            * @return Session Handler.
            */
-          granada::http::session::SessionHandler* session_handler(){ return session_handler_.get(); };
-
-
-          /**
-           * Returns a pointer to the collection of functions
-           * that are called when closing the session.
-           * 
-           * @return  Pointer to the collection of functions that are
-           *          called when session is closed.
-           */
-          std::shared_ptr<granada::Functions> close_callbacks(){ return close_callbacks_; };
+          granada::http::session::SessionHandler* session_handler(){
+            return session_handler_.get();
+          };
 
 
           /**
@@ -195,7 +200,7 @@ namespace granada{
           /**
            * Manager of the roles of the session and its properties
            */
-          std::shared_ptr<granada::Functions> close_callbacks_;
+          static std::unique_ptr<granada::Functions> close_callbacks_;
 
 
           /**
@@ -212,6 +217,7 @@ namespace granada{
            * If no property indicated, it will take entity_keys::session_clean_extra_timeout.
            */
           long session_clean_extra_timeout_;
+
 
       };
     }

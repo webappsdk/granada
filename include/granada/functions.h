@@ -58,6 +58,8 @@ namespace granada{
   };
 
 
+  class Functions;
+
   /**
    * Interface for functions iterators.
    * Iterates over the functions of a collection of functions.
@@ -70,6 +72,12 @@ namespace granada{
        * Constructor
        */
       FunctionsIterator(){};
+
+
+      /**
+       * Constructor
+       */
+      FunctionsIterator(granada::Functions* functions){};
 
 
       /**
@@ -121,12 +129,23 @@ namespace granada{
 
 
       /**
+       * Return true if function with given name is in the collection
+       * and false if it is not.
+       * 
+       * @param name  Name of the function.
+       * @return      True if function with given name is in the collection
+       *              and false if it is not.
+       */
+      virtual bool Has(const std::string& name){ return false; };
+
+
+      /**
        * Adds a function to the collection.
        * 
        * @param name  Name of the function.
        * @param fn    Function.
        */
-      virtual void Add(const std::string& name, function_json_json fn){};
+      virtual void Add(const std::string& name, function_json_json fn){std::cout << "[++] Add function (MotherClass) : " << name << "\n\n";};
 
 
       /**
@@ -291,52 +310,31 @@ namespace granada{
       }
   };
 
+  class FunctionsMap;
 
   class FunctionsMapIterator : public FunctionsIterator{
 
     public:
 
-      /**
-       * Constructor
-       * 
-       * @param functions Pointer to an unordered map of functions.
-       */
-      FunctionsMapIterator(std::shared_ptr<std::map<std::string,function_json_json>> functions){
-        functions_ = functions;
-        reset();
-      };
-
+      FunctionsMapIterator(granada::FunctionsMap* functions_map);
 
       /**
        * Reset the iterator.
        */
-      virtual void reset(){
-        it_ = functions_->begin();
-      };
+      virtual void reset();
 
 
       /**
        * Returns true if iterator is not equal to end.
        * @return  True if the iterator is not equal to end, false if it is.
        */
-      virtual bool has_next(){
-        if (it_ != functions_->end()){
-          return true;
-        }
-        return false;
-      };
+      virtual bool has_next();
 
 
       /**
        * Returns the next function in the collection.
        */
-      virtual Function next(){
-        Function function;
-        function.name = it_->first;
-        function.function = it_->second;
-        it_++;
-        return function;
-      };
+      virtual Function next();
 
 
     private:
@@ -346,10 +344,14 @@ namespace granada{
        */
       std::map<std::string,function_json_json>::iterator it_;
       
+
       /**
        * Pointer to map containing the functions and their identifying name.
        */
       std::shared_ptr<std::map<std::string,function_json_json>> functions_;
+
+
+      std::mutex* mtx_;
   };
 
 
@@ -375,6 +377,17 @@ namespace granada{
 
 
       /**
+       * Return true if function with given name is in the collection
+       * and false if it is not.
+       * 
+       * @param name  Name of the function.
+       * @return      True if function with given name is in the collection
+       *              and false if it is not.
+       */
+      virtual bool Has(const std::string& name);
+
+
+      /**
        * Adds a function to the collection of functions, and identify it with
        * a name so it can be called or removed by the given name.
        * The name of a function is unique, if you add two functions with the
@@ -382,23 +395,14 @@ namespace granada{
        * @param   name  Name of the function
        * @param   fn    Function.
        */
-      virtual void Add(const std::string& name, function_json_json fn){
-        if (!name.empty()){
-          (*functions_)[name] = fn;
-        }
-      };
+      virtual void Add(const std::string& name, function_json_json fn);
       
 
       /**
        * Removes function from the collection with given name.
        * @param   name  Name of the function.
        */
-      virtual void Remove(const std::string& name){
-        auto it = functions_->find(name);
-        if (it!=functions_->end()){
-          functions_->erase(it);
-        }
-      };
+      virtual void Remove(const std::string& name);
 
 
       /**
@@ -408,9 +412,7 @@ namespace granada{
        * @param   name      Name of the function
        * @return  function  Function.
        */
-      virtual function_json_json Get(const std::string& name){
-        return (*this)[name];
-      }
+      virtual function_json_json Get(const std::string& name);
 
 
       /**
@@ -420,13 +422,7 @@ namespace granada{
        * @param   name      Name of the function
        * @return  function  Function.
        */
-      virtual function_json_json operator [](const std::string& name){
-        auto it = functions_->find(name);
-        if (it!=functions_->end()){
-          return it->second;
-        }
-        return &Functions::UndefinedErrorFunction;
-      }
+      virtual function_json_json operator [](const std::string& name);
 
 
       /**
@@ -436,10 +432,7 @@ namespace granada{
        * @param   parameters  JSON to pass to the function to call.
        * @param   callback    Callback function.
        */
-      virtual void Call(const std::string& name, web::json::value& parameters, function_void_json callback){
-        web::json::value response = (*this)[name](parameters);
-        callback(response);
-      };
+      virtual void Call(const std::string& name, web::json::value& parameters, function_void_json callback);
       
 
       /**
@@ -447,9 +440,7 @@ namespace granada{
        * @param   name        Name identifying the function.
        * @param   parameters  JSON to pass to the function to call.
        */
-      virtual void Call(const std::string& name, web::json::value& parameters){
-        (*this)[name](parameters);
-      };
+      virtual void Call(const std::string& name, web::json::value& parameters);
 
 
       /**
@@ -458,20 +449,14 @@ namespace granada{
        * @param   name        Name identifying the function.
        * @param   callback    Callback function.
        */
-      virtual void Call(const std::string& name, function_void_json callback){
-        web::json::value parameters = Functions::DefaultParameters();
-        Call(name,parameters,callback);
-      };
+      virtual void Call(const std::string& name, function_void_json callback);
 
 
       /**
        * Calls a function from the collection with the given name identifier.
        * @param   name        Name identifying the function.
        */
-      virtual void Call(const std::string& name){
-        web::json::value parameters = Functions::DefaultParameters();
-        Call(name,parameters);
-      };
+      virtual void Call(const std::string& name);
 
 
       /**
@@ -491,20 +476,7 @@ namespace granada{
        * @param   parameters  JSON to pass to the functions.
        * @param   callback    Callback function with a JSON array containing the returns of the functions.
        */
-      virtual void CallAll(web::json::value& parameters,function_void_json callback){
-        web::json::value response = web::json::value::object();
-        web::json::value data = web::json::value::object();
-        int i = 0;
-        for (auto it = functions_->begin(); it != functions_->end(); ++it){
-          web::json::value partial_response = it->second(parameters);
-          web::json::value partial_response_wrapper = web::json::value::object();
-          partial_response_wrapper["data"] = partial_response;
-          data[it->first] = partial_response_wrapper;
-          i++;
-        }
-        response["data"] = data;
-        callback(response);
-      };
+      virtual void CallAll(web::json::value& parameters,function_void_json callback);
       
 
       /**
@@ -523,53 +495,51 @@ namespace granada{
        *                                 }
        * @param   callback    Callback function with a JSON array containing the returns of the functions.
        */
-      virtual void CallAll(function_void_json callback){
-        web::json::value parameters = Functions::DefaultParameters();
-        CallAll(parameters,callback);
-      };
+      virtual void CallAll(function_void_json callback);
 
 
       /**
        * Calls all functions from the collection with given parameters.
        * @param   parameters  JSON to pass to the functions.
        */
-      virtual void CallAll(web::json::value& parameters){
-        for (auto it = functions_->begin(); it != functions_->end(); ++it){
-          it->second(parameters);
-        }
-      };
+      virtual void CallAll(web::json::value& parameters);
 
 
       /**
        * Calls all functions from the collection.
        */
-      virtual void CallAll(){
-        web::json::value parameters;
-        CallAll(parameters);
-      }
+      virtual void CallAll();
 
-
-      /**
-       * Returns a function iterator to iterate over all the functions of the collection.
-       */
-      virtual std::shared_ptr<FunctionsIterator> make_iterator(){
-        return std::shared_ptr<FunctionsIterator>(new FunctionsMapIterator(GetAll()));
-      }
-
-
-
-    protected:
-
+      
       /**
        * Returns a pointer to the map containing all the functions.
        */
       virtual std::shared_ptr<std::map<std::string,function_json_json>>& GetAll(){
         return functions_;
-      }
+      };
 
 
+      /**
+       * Returns a pointer to the mutex.
+       */
+      virtual std::mutex* GetMtx(){
+        return &mtx_;
+      };
 
-    private:
+
+      /**
+       * Returns a function iterator to iterate over all the functions of the collection.
+       */
+      virtual std::shared_ptr<FunctionsIterator> make_iterator();
+
+
+    protected:
+
+      /**
+       * Mutex for preventing multithread problems
+       * when accessign to the functions.
+       */
+      std::mutex mtx_;
 
       /**
        * Map containing the functions and its identifying name.

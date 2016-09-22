@@ -5,6 +5,7 @@ endif()
 add_executable(sessions-login-and-cart
   sessions-login-and-cart.cc
   ../../src/granada/defaults.cc
+  ../../src/granada/functions.cc
   ../../src/granada/util/file.cc
   ../../src/granada/util/application.cc
   ../../src/granada/http/parser.cc

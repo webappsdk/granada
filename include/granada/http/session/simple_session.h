@@ -120,7 +120,7 @@ namespace granada{
            * @return  Pointer to the collection of functions that are
            *          called when session is closed.
            */
-          std::shared_ptr<granada::Functions> close_callbacks(){ return close_callbacks_; };
+          granada::Functions* close_callbacks(){ return close_callbacks_.get(); };
 
 
         protected:
@@ -155,7 +155,7 @@ namespace granada{
            * Pointer to the collection of functions that are
            * called when session is closed.
            */
-          std::shared_ptr<granada::Functions> close_callbacks_;
+          static std::unique_ptr<granada::Functions> close_callbacks_;
 
 
           /**

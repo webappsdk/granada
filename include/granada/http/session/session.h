@@ -182,6 +182,14 @@ namespace granada{
           virtual const bool IsGarbage();
 
 
+          virtual web::json::value to_json(){
+            web::json::value json = web::json::value::object();
+            json[entity_keys::session_token] = web::json::value::string(token_);
+            json[entity_keys::session_timeout] = web::json::value::string(granada::util::time::stringify(session_timeout_));
+            return json;
+          };
+
+
           /**
            * Returns the roles of a session.
            * @return The roles of the session.
@@ -196,7 +204,7 @@ namespace granada{
            * @return  Pointer to the collection of functions that are
            *          called when session is closed.
            */
-          virtual std::shared_ptr<granada::Functions> close_callbacks(){ return std::shared_ptr<granada::Functions>(nullptr); };
+          virtual granada::Functions* close_callbacks(){ return nullptr; };
 
 
           /**
@@ -232,6 +240,8 @@ namespace granada{
            * Sets the last modification time.
            */
           void SetUpdateTime(const std::time_t& update_time){ update_time_ = update_time; };
+
+
 
 
         protected:

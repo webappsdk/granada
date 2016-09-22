@@ -30,30 +30,27 @@ namespace granada{
 
       // we use a session handler that use a map shared by all user to store the sessions.
       std::unique_ptr<granada::http::session::SessionHandler> SimpleSession::session_handler_(new granada::http::session::SharedMapSessionHandler());
+      std::unique_ptr<granada::Functions> SimpleSession::close_callbacks_(new granada::FunctionsMap());
 
       SimpleSession::SimpleSession(){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
-        close_callbacks_ = std::shared_ptr<granada::Functions>(new granada::FunctionsMap());
         LoadProperties();
       }
 
       SimpleSession::SimpleSession(web::http::http_request &request,web::http::http_response &response){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
-        close_callbacks_ = std::shared_ptr<granada::Functions>(new granada::FunctionsMap());
         LoadProperties();
         Session::LoadSession(request,response);
       }
 
       SimpleSession::SimpleSession(web::http::http_request &request){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
-        close_callbacks_ = std::shared_ptr<granada::Functions>(new granada::FunctionsMap());
         LoadProperties();
         Session::LoadSession(request);
       }
 
       SimpleSession::SimpleSession(const std::string& token){
         roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
-        close_callbacks_ = std::shared_ptr<granada::Functions>(new granada::FunctionsMap());
         LoadProperties();
         Session::LoadSession(token);
       }

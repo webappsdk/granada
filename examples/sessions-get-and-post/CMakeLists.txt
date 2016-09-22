@@ -5,6 +5,7 @@ endif()
 add_executable(sessions-get-and-post
   sessions-get-and-post.cc
   ../../src/granada/defaults.cc
+  ../../src/granada/functions.cc
   ../../src/granada/util/file.cc
   ../../src/granada/util/application.cc
   ../../src/granada/http/parser.cc

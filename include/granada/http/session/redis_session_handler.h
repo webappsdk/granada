@@ -132,12 +132,6 @@ namespace granada{
 
 
           /**
-           * Mutex.
-           */
-          std::mutex mtx;
-
-
-          /**
            * Loads properties needed, like clean session frequency.
            */
           void LoadProperties();

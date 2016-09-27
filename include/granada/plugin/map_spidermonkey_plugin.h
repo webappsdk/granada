@@ -39,8 +39,6 @@ namespace granada{
     /**
      * Plugin Handler: Handles the lifecycle and communication of server side plugins.
      * Manages plug-ins lifecycle: Loads and adds plug-ins, runs plug-ins and removes them.
-     * This is an abstract class that can't work on its own. Cache and Plug-in Factory
-     * need to be overridden.
      * 
      * Use example:@code
      * // creating a plug-in that multiplies a number by a pre-configured factor.

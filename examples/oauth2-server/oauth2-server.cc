@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 #endif
 {
 
-  std::cout << "------------------- SERVER -------------------" << std::endl;
+  std::cout << "------------------- OAUTH 2.0 SERVER -------------------" << std::endl;
 
   std::string port_str = granada::util::application::GetProperty("port");
   if (port_str.empty()){

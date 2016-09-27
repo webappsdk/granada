@@ -126,13 +126,22 @@ namespace granada{
         return span;
       }
 
+      /**
+       * Stops thread n given seconds.
+       * 
+       * @param seconds Seconds to stop thread.
+       */
+      static inline void sleep_seconds(int seconds){
+        std::this_thread::sleep_for(std::chrono::seconds(seconds));
+      }
+
 
       /**
        * Stops thread n given milliseconds.
        * 
        * @param milliseconds Milliseconds to stop thread.
        */
-      static inline void sleep(int milliseconds){
+      static inline void sleep_milliseconds(int milliseconds){
         std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
       }
     }

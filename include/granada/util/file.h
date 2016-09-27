@@ -66,9 +66,14 @@ namespace granada{
        * @return              Content of the file (string).
        */
       static inline std::string ContentAsString(const std::string& file_path){
-        std::ifstream ifs(file_path);
-        std::string content((std::istreambuf_iterator<char>(ifs)),(std::istreambuf_iterator<char>()));
-        return content;
+        if (!file_path.empty()){
+          std::ifstream ifs(file_path);
+          if (ifs.good()){
+            std::string content((std::istreambuf_iterator<char>(ifs)),(std::istreambuf_iterator<char>()));
+            return content;
+          }
+        }
+        return std::string();
       }
 
       /**
@@ -77,9 +82,14 @@ namespace granada{
        * @return              Content of the file (JSON object or JSON array).
        */
       static inline web::json::value ContentAsJSON(const std::string& file_path){
-        std::ifstream ifs(file_path);
-        std::string content((std::istreambuf_iterator<char>(ifs)),(std::istreambuf_iterator<char>()));
-        return granada::util::string::to_json(content);
+        if (!file_path.empty()){
+          std::ifstream ifs(file_path);
+          if (ifs.good()){
+            std::string content((std::istreambuf_iterator<char>(ifs)),(std::istreambuf_iterator<char>()));
+            return granada::util::string::to_json(content);
+          }
+        }
+        return web::json::value::object();
       }
 
 
@@ -103,13 +113,17 @@ namespace granada{
        * @return           Content of the file with values replaced.
        */
       static const std::string Replace(const std::string& file_path,const std::unordered_map<std::string,std::string>& values, const std::string& open, const std::string& close){
-        // get file content.
-        std::ifstream ifs(file_path.c_str());
-        std::string content( (std::istreambuf_iterator<char>(ifs) ),
-                           (std::istreambuf_iterator<char>()));
-        // replace tags in content by values in map.
-        granada::util::string::replace(content,values,open,close);
-        return content;
+        if (!file_path.empty()){
+          std::ifstream ifs(file_path);
+          if(ifs.good()){
+            std::string content( (std::istreambuf_iterator<char>(ifs) ),
+                               (std::istreambuf_iterator<char>()));
+            // replace tags in content by values in map.
+            granada::util::string::replace(content,values,open,close);
+            return content;
+          }
+        }
+        return std::string();
       }
 
 

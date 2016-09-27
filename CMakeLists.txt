@@ -194,6 +194,7 @@ function(add_casablanca_test NAME SOURCES_VAR)
 endfunction()
 
 add_subdirectory(src)
-add_subdirectory(examples/sessions-login-and-cart)
 add_subdirectory(examples/sessions-get-and-post)
+add_subdirectory(examples/sessions-login-and-cart)
 add_subdirectory(examples/oauth2-server)
+add_subdirectory(examples/plugin-server)

@@ -129,13 +129,14 @@ namespace granada{
       }
 
       void RedisSessionHandler::CleanSessions(bool recursive){
-        CleanSessions();
-
         if (clean_sessions_frequency_>-1){
-          // wait for x seconds...
-          std::this_thread::sleep_for (std::chrono::duration<double>(clean_sessions_frequency_));
+          granada::util::time::sleep_seconds(clean_sessions_frequency_);
+          CleanSessions();
+          
           // ... and clean sessions again.
           CleanSessions(true);
+        }else{
+          CleanSessions();
         }
       }
 

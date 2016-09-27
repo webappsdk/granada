@@ -45,16 +45,20 @@ namespace granada{
       std::unordered_map<std::string,std::string> PropertyFile::ParseConfigurationFile(const std::string &configuration_file_path){
         std::unordered_map<std::string,std::string> properties;
 
-        // get configuration file data.
-        std::ifstream ifs(configuration_file_path.c_str());
-        std::string configuration( (std::istreambuf_iterator<char>(ifs) ),
-                           (std::istreambuf_iterator<char>()) );
+        if (!configuration_file_path.empty()){
+          // get configuration file data.
+          std::ifstream ifs(configuration_file_path);
+          if (ifs.good()){
+            std::string configuration( (std::istreambuf_iterator<char>(ifs) ),
+                               (std::istreambuf_iterator<char>()) );
 
-        // read configuration string line by line and parse properties.
-        std::istringstream f(configuration);
-        std::string line;
-        while (std::getline(f, line)) {
-           ParseProperty(line,properties);
+            // read configuration string line by line and parse properties.
+            std::istringstream f(configuration);
+            std::string line;
+            while (std::getline(f, line)) {
+               ParseProperty(line,properties);
+            }
+          }
         }
        return properties;
       }

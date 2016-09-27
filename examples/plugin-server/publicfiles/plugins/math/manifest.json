@@ -1,0 +1,13 @@
+{
+  "name": "Math",
+  "version": "1.0.0",
+  "default_locale": "en",
+  "description": "Maths functions.",
+  "icon": "",
+  "author": "cookinapps.io",
+  "homepage_url": "https://cookinapps.io/",
+  "store_url": "https://cookinapps.io/store/plugins/math",
+  "repository": "https://cookinapps.io/repository/plugins/math",
+  "requires":[{"name":"qwest","repository":"https://github.com/pyrsmk/qwest.git"}],
+  "requires_other_plugin": [],
+}

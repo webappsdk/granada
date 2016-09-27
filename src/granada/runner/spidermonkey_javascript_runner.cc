@@ -31,11 +31,12 @@
 namespace granada{
   namespace runner{
 
+    std::shared_ptr<granada::Functions> SpiderMonkeyJavascriptRunner::functions_ = std::shared_ptr<granada::Functions>(new granada::FunctionsMap());
+
     // the files containing scripts used in this runner may have the js extensions.
     std::string SpiderMonkeyJavascriptRunner::extensions_arr_[1] = {"js"};
     std::vector<std::string> SpiderMonkeyJavascriptRunner::extensions_(extensions_arr_, extensions_arr_ + sizeof(extensions_arr_)/sizeof(*extensions_arr_));
 
-    std::shared_ptr<granada::Functions> SpiderMonkeyJavascriptRunner::functions_ = std::shared_ptr<granada::Functions>(new granada::FunctionsMap());
 
     JSClass SpiderMonkeyJavascriptRunner::global_class_ = {
         "global",
@@ -101,7 +102,7 @@ namespace granada{
           opts.setFileAndLine(filename, lineno);
 
           std::shared_ptr<granada::FunctionsIterator> it = functions_->make_iterator();
-          int i = 0;
+
           while(it->has_next()){
             granada::Function function = it->next();
             JS_DefineFunction(cx, global, function.name.c_str(), FunctionWrapper, 1, 0);

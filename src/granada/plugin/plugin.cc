@@ -352,7 +352,7 @@ namespace granada{
 
         // instanciate a plug-in with the header, the configuration and the script, and
         // add it so it can be run.
-        return Add(plugin_factory()->Plugin(header,configuration,this,script));
+        return Add(plugin_factory()->Plugin(this,header,configuration,script));
       }      
     }
 
@@ -753,7 +753,7 @@ namespace granada{
           const web::json::value& configuration = granada::util::string::to_json(configuration_str);
 
           // instanciate a plug-in and return its pointer
-          return plugin_factory()->Plugin(header,configuration,this,script);
+          return plugin_factory()->Plugin(this,header,configuration,script);
         }
       }
 

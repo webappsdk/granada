@@ -1334,6 +1334,7 @@ namespace granada{
          * Constructor.
          * Loads Plug-in properties from server configuration file.
          * 
+         * @param plugin_handler      Plug-in Handler that manages the plug-in.
          * @param header              Plug-in header is a JSON object that contains information as plug-in id, events, inheritance.
          * @param configuration       JSON object containing the configuration of a plugin.
          *                            Example:@code
@@ -1341,10 +1342,9 @@ namespace granada{
          *                                       "factor":5,
          *                                        "url_to_check":"https://cookinapps.io"
          *                                      }@endcode
-         * @param plugin_handler      Plug-in Handler that manages the plug-in.
          * @param script              Script/Executable or Path of the file containing the script or the executable.
          */
-        Plugin(const web::json::value header, const web::json::value configuration,granada::plugin::PluginHandler* plugin_handler, const std::string script){};
+        Plugin(granada::plugin::PluginHandler* plugin_handler, const web::json::value header, const web::json::value configuration, const std::string script){};
 
 
         /**
@@ -1597,12 +1597,12 @@ namespace granada{
           return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::Plugin());
         };
 
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin(const web::json::value& header, const web::json::value& configuration,granada::plugin::PluginHandler* plugin_handler, const std::string& script){
-          return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::Plugin(header,configuration,plugin_handler,script));
-        };
-
         virtual std::shared_ptr<granada::plugin::Plugin>Plugin(granada::plugin::PluginHandler* plugin_handler,const std::string& id){
           return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::Plugin(plugin_handler,id));
+        };
+
+        virtual std::shared_ptr<granada::plugin::Plugin>Plugin(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script){
+          return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::Plugin(plugin_handler,header,configuration,script));
         };
 
         virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler(){

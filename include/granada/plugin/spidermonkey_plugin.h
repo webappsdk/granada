@@ -457,7 +457,7 @@ namespace granada{
          * @param plugin_handler      Plug-in Handler.
          * @param script              Script or path to script/executable.
          */
-        SpidermonkeyPlugin(const web::json::value header, const web::json::value configuration,granada::plugin::PluginHandler* plugin_handler, const std::string script){};
+        SpidermonkeyPlugin(granada::plugin::PluginHandler* plugin_handler, const web::json::value header, const web::json::value configuration, const std::string script){};
 
     };
 
@@ -476,8 +476,8 @@ namespace granada{
           return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::SpidermonkeyPlugin(plugin_handler,id));
         };
 
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin(const web::json::value& header, const web::json::value& configuration,granada::plugin::PluginHandler* plugin_handler, const std::string& script){
-          return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::SpidermonkeyPlugin(header,configuration,plugin_handler,script));
+        virtual std::shared_ptr<granada::plugin::Plugin>Plugin(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script){
+          return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::SpidermonkeyPlugin(plugin_handler,header,configuration,script));
         };
 
         virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler(){

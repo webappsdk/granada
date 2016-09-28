@@ -484,6 +484,40 @@ namespace granada{
     }
 
 
+    void PluginHandler::Extend(const std::shared_ptr<granada::plugin::Plugin>& plugin){
+
+      if (plugin.get()!=nullptr){
+        const web::json::value& extends = granada::util::json::as_array(plugin->GetHeader(),entity_keys::plugin_header_extends);
+
+        std::vector<std::shared_ptr<granada::plugin::Plugin>> extended_plugins;
+        for(auto it = extends.as_array().cbegin(); it != extends.as_array().cend(); ++it){
+          if (it->is_string()){
+            const std::shared_ptr<granada::plugin::Plugin>& extended_plugin = GetPluginById(it->as_string());
+            if (extended_plugin.get()==nullptr){
+              // the plug-in that has to be extended has not been added yet.
+              // its extension will be applied when it will be added.
+              AddExtension(it->as_string(),plugin->GetId());
+            }else{
+              extended_plugins.push_back(extended_plugin);
+            }
+          }
+        }
+
+        Extend(extended_plugins,plugin);
+      }
+
+    }
+
+
+    void PluginHandler::Extend(const std::shared_ptr<granada::plugin::Plugin>& extended_plugin, const std::shared_ptr<granada::plugin::Plugin>& plugin){
+      if (extended_plugin.get()!=nullptr && plugin.get()!=nullptr){
+        std::vector<std::shared_ptr<granada::plugin::Plugin>> extended_plugins;
+        extended_plugins.push_back(extended_plugin);
+        Extend(extended_plugins,plugin);
+      }
+    }
+
+
     void PluginHandler::AddExtension(const std::string& extended_plugin_id,const std::string& plugin_id){
 
       const bool& malformed_parameters = extended_plugin_id.empty() || plugin_id.empty();
@@ -533,7 +567,7 @@ namespace granada{
           if (extension_plugin.get()!=nullptr){
 
             // extend plug-in
-            Extend(extension_plugin);
+            Extend(plugin,extension_plugin);
             is_extended = true;
           }
         }

@@ -132,36 +132,6 @@ namespace granada{
         virtual ~SpidermonkeyPluginHandler(){};
 
 
-        /**
-         * Extends other plug-ins indicated in the "extends" field
-         * contained in the plug-in header.
-         * Example of header extends field:@code
-         *                    "extends":["math.calculus"]@endcode
-         * If this method is called, the plug-in will extend "math.calculus"
-         * plug-in, this means that plug-in will integrate the extended plug-in
-         * members that it does not override.
-         * Both plug-in "extends" members are concatenated.
-         * 
-         * @param plugin    Pointer to the plug-in that is going to extend
-         *                  other plug-ins.
-         */
-        virtual void Extend(const std::shared_ptr<granada::plugin::Plugin>& plugin);
-
-
-        /**
-         * Extends only one plug-in.
-         * If this method is called, the "plugin" will extend "extended_plugin",
-         * this means that "plugin" will integrate the "extended_plugin"
-         * members that it does not override.
-         * Both plug-in "extends" members are concatenated.
-         * 
-         * @param extended_plugin   Pointer to the plug-in that is going to be
-         *                          extended.
-         * @param plugin            Pointer to the plug-in that is going to extend
-         *                          other plug-ins.
-         */
-        virtual void Extend(const std::shared_ptr<granada::plugin::Plugin>& extended_plugin, const std::shared_ptr<granada::plugin::Plugin>& plugin);
-
 
         /**
          * Cross Extends plug-ins.
@@ -305,6 +275,18 @@ namespace granada{
         const std::string javascript_plugin_extension_ =
           #include "javascript-plugin-extension.min.js"
         ;
+
+
+        /**
+         * Adds the extended plug-in extends to the plug-in extends.
+         * If an extend already exist it does not add it.
+         * 
+         * @param extended_plugin_extends   JSON Array with the extended plug-in extends.
+         * @param plugin_extends            JSON Array with the plug-in extends.
+         * @param plugin_id                 Id of the plug-in.
+         * @return                          Extends added.
+         */
+        virtual web::json::value ExtendsAddition(const web::json::value& extended_plugin_extends, const web::json::value& plugin_extends, const std::string& plugin_id);
 
 
         /**

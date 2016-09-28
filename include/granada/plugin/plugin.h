@@ -395,7 +395,7 @@ namespace granada{
          * @param plugin    Pointer to the plug-in that is going to extend
          *                  other plug-ins.
          */
-        virtual void Extend(const std::shared_ptr<granada::plugin::Plugin>& plugin){};
+        virtual void Extend(const std::shared_ptr<granada::plugin::Plugin>& plugin);
 
 
         /**
@@ -410,7 +410,7 @@ namespace granada{
          * @param plugin            Pointer to the plug-in that is going to extend
          *                          other plug-ins.
          */
-        virtual void Extend(const std::shared_ptr<granada::plugin::Plugin>& extended_plugin, const std::shared_ptr<granada::plugin::Plugin>& plugin){};
+        virtual void Extend(const std::shared_ptr<granada::plugin::Plugin>& extended_plugin, const std::shared_ptr<granada::plugin::Plugin>& plugin);
 
 
         /**
@@ -425,7 +425,9 @@ namespace granada{
          * @param plugin            Pointer to the plug-in that is going to extend
          *                          other plug-ins.
          */
-        virtual void Extend(const std::vector<std::shared_ptr<granada::plugin::Plugin>>& extended_plugins, const std::shared_ptr<granada::plugin::Plugin>& plugin){};
+        virtual void Extend(const std::vector<std::shared_ptr<granada::plugin::Plugin>>& extended_plugins, const std::shared_ptr<granada::plugin::Plugin>& plugin){
+            // override
+        };
 
 
         /**

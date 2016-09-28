@@ -133,25 +133,6 @@ namespace granada{
 
 
         /**
-         * Loads a plug-in, and returns true if plug-in loaded successfully,
-         * false if not. This function is normally called by the Plug-in
-         * Handler when the event loader of the plug-in is fired. Can be also
-         * called to force the plug-in load
-         * 
-         * @param plugin    Pointer to the plug-in to load.
-         * @param loader    Plug-in loader. JSON object containing the information
-         *                  about how to load a plug-in.
-         *                  Example:@code
-         *                      {
-         *                          "events"    :   ["init-ph-after"]
-         *                      }@endcode
-         *
-         * @return             True if plug-in loaded successfully, false if not.
-         */
-        virtual bool Load(const std::shared_ptr<granada::plugin::Plugin>& plugin, const web::json::value& loader);
-
-
-        /**
          * Extends other plug-ins indicated in the "extends" field
          * contained in the plug-in header.
          * Example of header extends field:@code
@@ -324,6 +305,25 @@ namespace granada{
         const std::string javascript_plugin_extension_ =
           #include "javascript-plugin-extension.min.js"
         ;
+
+
+        /**
+         * Loads a plug-in, and returns true if plug-in loaded successfully,
+         * false if not. This function is normally called by the Plug-in
+         * Handler when the event loader of the plug-in is fired. Can be also
+         * called to force the plug-in load
+         * 
+         * @param plugin    Pointer to the plug-in to load.
+         * @param loader    Plug-in loader. JSON object containing the information
+         *                  about how to load a plug-in.
+         *                  Example:@code
+         *                      {
+         *                          "events"    :   ["init-ph-after"]
+         *                      }@endcode
+         *
+         * @return             True if plug-in loaded successfully, false if not.
+         */
+        virtual bool Load(const std::shared_ptr<granada::plugin::Plugin>& plugin, const web::json::value& loader);
 
 
         /**

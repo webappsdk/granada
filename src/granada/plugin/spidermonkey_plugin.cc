@@ -29,55 +29,6 @@ namespace granada{
 
   namespace plugin{
 
-    bool SpidermonkeyPluginHandler::Load(const std::shared_ptr<granada::plugin::Plugin>& plugin, const web::json::value& loader){
-
-      const std::string& plugin_loader_hash = plugin_loader_value_hash(plugin->GetId());
-      const std::string& header_str = cache()->Read(plugin_loader_hash,entity_keys::plugin_header);
-
-      if (!header_str.empty()){
-
-        // set the plugin header.
-        plugin->SetHeader(granada::util::string::to_json(header_str));
-
-        // retrieve and set the plug-in configuration
-        const std::string& configuration_path = cache()->Read(plugin_loader_hash,entity_keys::plugin_configuration);
-        web::json::value configuration = granada::util::file::ContentAsJSON(configuration_path);
-        
-        // Fire an event before plug-in configuration is loaded.
-        // this event can be used to transform the plug-in configuration.
-        web::json::value parameters = web::json::value::object();
-        parameters[entity_keys::plugin_id] = web::json::value::string(id_);
-        parameters[entity_keys::plugin_configuration] = configuration;
-        
-        const std::string& configuration_load_before_event = default_strings::plugin_configuration_load_event + "-" + default_strings::plugin_before;
-        PluginHandler::Fire(configuration_load_before_event,parameters,[&configuration](const web::json::value& data){
-          const web::json::value& new_configuration = granada::util::json::first(granada::util::json::as_object(data,entity_keys::plugin_parameter_data));
-          if (!new_configuration.is_null()){
-            configuration = granada::util::json::as_object(new_configuration,entity_keys::plugin_parameter_data);
-          }
-        },[&configuration](const web::json::value& data){});
-
-        // set the plug-in configuration.
-        plugin->SetConfiguration(configuration);
-
-        // fire a plug-in configuration load after event.
-        parameters[entity_keys::plugin_configuration] = configuration;
-        const std::string& configuration_load_after_event = default_strings::plugin_configuration_load_event + "-" + default_strings::plugin_after;
-        PluginHandler::Fire(configuration_load_after_event,parameters);
-        
-        // retrieve and set the plug-in script.
-        const std::string& script_path = cache()->Read(plugin_loader_hash,entity_keys::plugin_script);
-        plugin->SetScript(granada::util::file::ContentAsString(script_path));
-
-        // plug-in successfully loaded.
-        return true;
-      }
-
-      // error loading plug-in.
-      return false;
-
-    }
-
 
     void SpidermonkeyPluginHandler::Extend(const std::shared_ptr<granada::plugin::Plugin>& plugin){
       const web::json::value& extends = granada::util::json::as_array(plugin->GetHeader(),entity_keys::plugin_header_extends);
@@ -199,9 +150,11 @@ namespace granada{
           // fire plug-in run failure event and remove plug-in
           // so it cannot be called again.
 
-          response_data[entity_keys::plugin_id] = web::json::value::string(id_);
+          response_data[entity_keys::plugin_id] = web::json::value::string(plugin->GetId());
           failure(response_data);
-          PluginHandler::Fire(default_strings::plugin_run_failure_event + "-" + default_strings::plugin_after,response_data);
+          const std::string& plugin_run_failure_after_event = default_strings::plugin_run_failure_event + "-" + default_strings::plugin_after;
+          PluginHandler::Fire(plugin_run_failure_after_event,response_data);
+          PluginHandler::Fire(plugin->GetId() + "-" + plugin_run_failure_after_event,response_data);
           
           // Managing plug-in execution failure
           // if it is a script_error remove the plug-in so it won't be able to be executed again.
@@ -252,7 +205,7 @@ namespace granada{
         failure(response);
       }else{
 
-        FireLoaderEvent(event_name);
+        FireLoadEvent(event_name);
 
         web::json::value response_data = web::json::value::object();
         
@@ -312,6 +265,64 @@ namespace granada{
       }
 
       return response_data;
+    }
+
+
+    bool SpidermonkeyPluginHandler::Load(const std::shared_ptr<granada::plugin::Plugin>& plugin, const web::json::value& loader){
+
+      const std::string& plugin_loader_hash = plugin_loader_value_hash(plugin->GetId());
+      const std::string& header_str = cache()->Read(plugin_loader_hash,entity_keys::plugin_header);
+
+      if (!header_str.empty()){
+
+        // set the plugin header.
+        plugin->SetHeader(granada::util::string::to_json(header_str));
+
+        // retrieve and set the plug-in configuration
+        const std::string& configuration_path = cache()->Read(plugin_loader_hash,entity_keys::plugin_configuration);
+        web::json::value configuration = granada::util::file::ContentAsJSON(configuration_path);
+        
+        // Fire an event before plug-in configuration is loaded.
+        // this event can be used to transform the plug-in configuration.
+        web::json::value parameters = web::json::value::object();
+        parameters[entity_keys::plugin_id] = web::json::value::string(plugin->GetId());
+        parameters[entity_keys::plugin_configuration] = configuration;
+        
+        const std::string& configuration_load_before_event = default_strings::plugin_configuration_load_event + "-" + default_strings::plugin_before;
+        PluginHandler::Fire(configuration_load_before_event,parameters,[&configuration](const web::json::value& data){
+          const web::json::value& new_configuration = granada::util::json::first(granada::util::json::as_object(data,entity_keys::plugin_parameter_data));
+          if (!new_configuration.is_null()){
+            configuration = granada::util::json::as_object(new_configuration,entity_keys::plugin_parameter_data);
+          }
+        },[&configuration](const web::json::value& data){});
+
+        PluginHandler::Fire(plugin->GetId() + "-" + configuration_load_before_event,parameters,[&configuration](const web::json::value& data){
+          const web::json::value& new_configuration = granada::util::json::first(granada::util::json::as_object(data,entity_keys::plugin_parameter_data));
+          if (!new_configuration.is_null()){
+            configuration = granada::util::json::as_object(new_configuration,entity_keys::plugin_parameter_data);
+          }
+        },[&configuration](const web::json::value& data){});
+
+        // set the plug-in configuration.
+        plugin->SetConfiguration(configuration);
+
+        // fire a plug-in configuration load after event.
+        parameters[entity_keys::plugin_configuration] = configuration;
+        const std::string& configuration_load_after_event = default_strings::plugin_configuration_load_event + "-" + default_strings::plugin_after;
+        PluginHandler::Fire(configuration_load_after_event,parameters);
+        PluginHandler::Fire(plugin->GetId() + "-" + configuration_load_after_event,parameters);
+        
+        // retrieve and set the plug-in script.
+        const std::string& script_path = cache()->Read(plugin_loader_hash,entity_keys::plugin_script);
+        plugin->SetScript(granada::util::file::ContentAsString(script_path));
+
+        // plug-in successfully loaded.
+        return true;
+      }
+
+      // error loading plug-in.
+      return false;
+
     }
 
 

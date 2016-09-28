@@ -273,7 +273,7 @@ namespace granada{
          *                                =>  plug-in will be loaded the first time "calculate-square"
          *                                    or "calculate" event is fired.@endcode
          */
-        virtual void AddLoaderEvent(const std::string& event_name,const std::string& plugin_id,const web::json::value& plugin_loader);
+        virtual void AddLoadEvent(const std::string& event_name,const std::string& plugin_id,const web::json::value& plugin_loader);
 
 
         /**
@@ -300,7 +300,7 @@ namespace granada{
          *                                      =>  plug-in will be loaded the first time "calculate-square"
          *                                          or "calculate" event is fired.@endcode
          */
-        virtual void AddLoaderEvent(const std::string& plugin_id,const web::json::value& header);
+        virtual void AddLoadEvent(const std::string& plugin_id,const web::json::value& header);
 
 
         /**
@@ -308,28 +308,7 @@ namespace granada{
          * 
          * @param event_name Name of the event.
          */
-        virtual void RemoveLoaderEvent(const std::string& event_name);
-
-
-        /**
-         * Loads a plug-in, and returns true if plug-in loaded successfully,
-         * false if not. This function is normally called by the Plug-in
-         * Handler when the event loader of the plug-in is fired. Can be also
-         * called to force the plug-in load
-         * 
-         * @param plugin    Pointer to the plug-in to load.
-         * @param loader    Plug-in loader. JSON object containing the information
-         *                  about how to load a plug-in.
-         *                  Example:@code
-         *                      {
-         *                          "events"    :   ["init-ph-after"]
-         *                      }@endcode
-         *
-         * @return             True if plug-in loaded successfully, false if not.
-         */
-        virtual bool Load(const std::shared_ptr<granada::plugin::Plugin>& plugin, const web::json::value& loader){
-          return false;
-        };
+        virtual void RemoveLoadEvent(const std::string& event_name);
 
 
         /**
@@ -1255,6 +1234,36 @@ namespace granada{
 
 
         /**
+         * Executes all plug-in loaders listening to an event if there are, loading
+         * the plug-ins.
+         * 
+         * @param event_name      Name of the event.
+         */
+        virtual void FireLoadEvent(const std::string& event_name);
+
+
+        /**
+         * Loads a plug-in, and returns true if plug-in loaded successfully,
+         * false if not. This function is normally called by the Plug-in
+         * Handler when the event loader of the plug-in is fired. Can be also
+         * called to force the plug-in load
+         * 
+         * @param plugin    Pointer to the plug-in to load.
+         * @param loader    Plug-in loader. JSON object containing the information
+         *                  about how to load a plug-in.
+         *                  Example:@code
+         *                      {
+         *                          "events"    :   ["init-ph-after"]
+         *                      }@endcode
+         *
+         * @return             True if plug-in loaded successfully, false if not.
+         */
+        virtual bool Load(const std::shared_ptr<granada::plugin::Plugin>& plugin, const web::json::value& loader){
+          return false;
+        };
+
+
+        /**
          * Transformation function, used to transform a script file path or
          * not. This function is called when preloading a plug-in, by default
          * it returns the same file path that is given,
@@ -1283,15 +1292,6 @@ namespace granada{
          * @return                      Path of the plug-in configuration, configuration JSON, or a tranformed path.
          */
         virtual std::string TransformPluginConfigurationPath(const std::string& plugin_configuration_path);
-
-
-        /**
-         * Executes all plug-in loaders listening to an event if there are, loading
-         * the plug-ins.
-         * 
-         * @param event_name      Name of the event.
-         */
-        virtual void FireLoaderEvent(const std::string& event_name);
 
 
         /**

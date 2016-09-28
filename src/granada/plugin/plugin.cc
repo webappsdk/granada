@@ -150,7 +150,7 @@ namespace granada{
         // add event loaders so the plug-in
         // is loaded when the first time one of
         // the events is fired.
-        AddLoaderEvent(plugin_id,header);
+        AddLoadEvent(plugin_id,header);
 
         // plug-in successfully preloaded, it is ready to be loaded and added.
         return true;
@@ -163,7 +163,7 @@ namespace granada{
     }
 
 
-    void PluginHandler::AddLoaderEvent(const std::string& event_name,const std::string& plugin_id,const web::json::value& plugin_loader){
+    void PluginHandler::AddLoadEvent(const std::string& event_name,const std::string& plugin_id,const web::json::value& plugin_loader){
 
       const bool& malformed_parameters = event_name.empty() || plugin_id.empty() || plugin_loader.is_null() || !plugin_loader.is_object();
 
@@ -182,7 +182,7 @@ namespace granada{
     }
 
 
-    void PluginHandler::AddLoaderEvent(const std::string& plugin_id,const web::json::value& header){
+    void PluginHandler::AddLoadEvent(const std::string& plugin_id,const web::json::value& header){
       
       const bool& malformed_parameters = plugin_id.empty() || header.is_null() || !header.is_object();
 
@@ -213,7 +213,7 @@ namespace granada{
 
               // load plug-in the first time one of the explicited events is fired.
 
-              bool one_loader_event_added = false;
+              bool one_load_event_added = false;
               
               // check if the events are of type string.              
               for (auto it = events.as_array().cbegin(); it != events.as_array().cend(); ++it){
@@ -221,12 +221,12 @@ namespace granada{
 
                   // add loader event so when the event is fired
                   // the plug-in is loaded.
-                  AddLoaderEvent(it->as_string(),plugin_id,loader);
-                  one_loader_event_added = true;
+                  AddLoadEvent(it->as_string(),plugin_id,loader);
+                  one_load_event_added = true;
                 }
               }
 
-              if (!one_loader_event_added){
+              if (!one_load_event_added){
 
                 // data is malformed or not understandable in
                 // this function, events where expected to be strings, maybe
@@ -270,7 +270,7 @@ namespace granada{
 
             // load plug-in the first time one of the events is fired.
 
-            bool one_loader_event_added = false;
+            bool one_load_event_added = false;
 
             // check if the events are of type string.
             for (auto it = events.as_array().cbegin(); it != events.as_array().cend(); ++it){
@@ -278,12 +278,12 @@ namespace granada{
 
                 // add loader event so when the event is fired
                 // the plug-in is loaded.
-                AddLoaderEvent(it->as_string(),plugin_id,loader);
-                one_loader_event_added = true;
+                AddLoadEvent(it->as_string(),plugin_id,loader);
+                one_load_event_added = true;
               }
             }
 
-            if (!one_loader_event_added){
+            if (!one_load_event_added){
 
                 // data is malformed or not understandable in
                 // this function, events where expected to be strings, maybe
@@ -291,14 +291,14 @@ namespace granada{
                 // type of data or correct the plug-in loader,
                 // otherwise plug-in will be loaded after plug-in handler
                 // initialization.
-                AddLoaderEvent(default_strings::plugin_init_ph_event + "-" + default_strings::plugin_after,plugin_id,loader);
+                AddLoadEvent(default_strings::plugin_init_ph_event + "-" + default_strings::plugin_after,plugin_id,loader);
             }
 
           }else{
 
             // as there are no events in the header
             // load the plug-in after plug-in handler initialization.
-            AddLoaderEvent(default_strings::plugin_init_ph_event + "-" + default_strings::plugin_after,plugin_id,loader);
+            AddLoadEvent(default_strings::plugin_init_ph_event + "-" + default_strings::plugin_after,plugin_id,loader);
           }
         }else{
 
@@ -319,7 +319,7 @@ namespace granada{
     }
 
 
-    void PluginHandler::RemoveLoaderEvent(const std::string& event_name){
+    void PluginHandler::RemoveLoadEvent(const std::string& event_name){
       cache()->Destroy(plugin_event_value_hash(event_name),entity_keys::plugin_event_loader);
     }
 
@@ -414,13 +414,16 @@ namespace granada{
         event_parameters[entity_keys::plugin_parameter_id] = web::json::value::string(plugin_id);
         event_parameters[entity_keys::plugin_parameter_data] = parameters;
 
+        const std::string& plugin_add_after_event = default_strings::plugin_add_event + "-" + default_strings::plugin_after;
+
         if (extended){
 
           // do not manipulate an event that has been extended,
           // it has became an inactive plugin, its extensions
           // will do the job.
           // fire plug-in add after event.
-          Fire(default_strings::plugin_add_event + "-" + default_strings::plugin_after,event_parameters);
+          Fire(plugin_add_after_event,event_parameters);
+          Fire(plugin_id + "-" + plugin_add_after_event,event_parameters);
         }else{
 
           // plug-in has not been extended, it is active and it can be run.
@@ -469,7 +472,8 @@ namespace granada{
           }
 
           // fire plug-in add after event.
-          Fire(default_strings::plugin_add_event + "-" + default_strings::plugin_after,event_parameters);
+          Fire(plugin_add_after_event,event_parameters);
+          Fire(plugin_id + "-" + plugin_add_after_event,event_parameters);
 
           if (run_plugin){
             // if no events specified, run plug-in when added.
@@ -891,21 +895,36 @@ namespace granada{
 
 
     void PluginHandler::Remove(const std::string& plugin_id){
-      
-      // remove no possibility of loading again.
-      RemovePluginLoader(plugin_id);
 
-      // no more listen to events.
-      RemoveEventListeners(plugin_id);
+      if (!plugin_id.empty()){
 
-      // remove extensions.
-      RemoveExtensions(plugin_id);
+        web::json::value parameters = web::json::value::object();
+        parameters[entity_keys::plugin_id] = web::json::value::string(plugin_id);
 
-      // remove plug-in values
-      cache()->Destroy(plugin_store_hash(id_,plugin_id));
+        const std::string& plugin_remove_before_event = default_strings::plugin_remove_event + "-" + default_strings::plugin_before;
+        Fire(plugin_remove_before_event,parameters);
+        Fire(plugin_id + "-" + plugin_remove_before_event,parameters);
+        
+        // remove no possibility of loading again.
+        RemovePluginLoader(plugin_id);
 
-      // remove plug-in values from the cache.
-      cache()->Destroy(plugin_value_hash(plugin_id));
+        // no more listen to events.
+        RemoveEventListeners(plugin_id);
+
+        // remove extensions.
+        RemoveExtensions(plugin_id);
+
+        // remove plug-in values
+        cache()->Destroy(plugin_store_hash(id_,plugin_id));
+
+        // remove plug-in values from the cache.
+        cache()->Destroy(plugin_value_hash(plugin_id));
+
+        const std::string& plugin_remove_after_event = default_strings::plugin_remove_event + "-" + default_strings::plugin_after;
+        Fire(plugin_remove_after_event,parameters);
+        Fire(plugin_id + "-" + plugin_remove_after_event,parameters);
+      }
+
     }
 
 
@@ -987,7 +1006,7 @@ namespace granada{
 
       if (!event_name.empty()){
         // lazy load plug-ins
-        FireLoaderEvent(event_name);
+        FireLoadEvent(event_name);
 
         web::json::value response_data = web::json::value::object();
 
@@ -1793,7 +1812,7 @@ namespace granada{
     }
 
 
-    void PluginHandler::FireLoaderEvent(const std::string& event_name){
+    void PluginHandler::FireLoadEvent(const std::string& event_name){
 
       // retrieve the plug-in loaders that have to be processed for
       // the given event.
@@ -1814,7 +1833,7 @@ namespace granada{
           RemovePluginLoader(plugin_id);
         }
       }
-      RemoveLoaderEvent(event_name);
+      RemoveLoadEvent(event_name);
     }
 
 

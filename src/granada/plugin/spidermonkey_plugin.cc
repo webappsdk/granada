@@ -30,8 +30,8 @@ namespace granada{
   namespace plugin{
 
 
-    void SpidermonkeyPluginHandler::Extend(const std::vector<std::shared_ptr<granada::plugin::Plugin>>& extended_plugins, const std::shared_ptr<granada::plugin::Plugin>& plugin){
-      if (plugin.get()!=nullptr){
+    void SpidermonkeyPluginHandler::Extend(const web::json::array& extended_plugins_ids, const std::shared_ptr<granada::plugin::Plugin>& plugin){
+      if (plugin.get()!=nullptr && extended_plugins_ids.size()>0){
         std::string extended_plugins_scripts = "";
         std::string extended_configurations = "";
 
@@ -48,40 +48,47 @@ namespace granada{
         }
 
         int i=0;
-        for (auto it = extended_plugins.begin(); it != extended_plugins.end(); ++it){
-          const std::shared_ptr<granada::plugin::Plugin>& extended_plugin = *it;
+        for (auto it = extended_plugins_ids.cbegin(); it != extended_plugins_ids.cend(); ++it){
+
           // check that plug-in has been added yet.
-          if (extended_plugin.get()!=nullptr){
+          if (it->is_string()){
+            const std::string& extended_plugin_id = it->as_string();
+            const std::shared_ptr<granada::plugin::Plugin>& extended_plugin = GetPluginById(extended_plugin_id);
+            if (extended_plugin.get()==nullptr){
 
-            if (i>0){
-              extended_plugins_scripts += ",";
-              extended_configurations += ",";
+              // the plug-in that has to be extended has not been added yet.
+              // its extension will be applied when it will be added.
+              AddExtension(extended_plugin_id,plugin->GetId());
             }else{
-              i++;
-            }
-
-            extended_plugins_scripts += "\"" + extended_plugin->GetId() + "\":" + extended_plugin->GetScript();
-            extended_configurations += "\"" + extended_plugin->GetId() + "\":" + extended_plugin->GetConfiguration().serialize();
-
-            // add the extends to the plug-in extends
-            const web::json::value& extended_plugin_header = extended_plugin->GetHeader();
-            if (extended_plugin_header.has_field(entity_keys::plugin_header_extends)){
-              const web::json::value extended_plugin_extends = extended_plugin_header.at(entity_keys::plugin_header_extends);
-              if (!plugin_extends.is_null() && plugin_extends.is_array()){
-                if (extended_plugin_extends.is_array()){
-                  plugin_extends = ExtendsAddition(plugin_extends,extended_plugin_extends,plugin->GetId());
-                }
+              if (i>0){
+                extended_plugins_scripts += ",";
+                extended_configurations += ",";
               }else{
-                plugin_extends = std::move(extended_plugin_extends);
+                i=1;
               }
-            }
-          
-            // tag plug-in as extended so it is no more runnable.
-            extended_plugin->IsExtended(true);
+
+              extended_plugins_scripts += "\"" + extended_plugin->GetId() + "\":" + extended_plugin->GetScript();
+              extended_configurations += "\"" + extended_plugin->GetId() + "\":" + extended_plugin->GetConfiguration().serialize();
+
+              // add the extends to the plug-in extends
+              web::json::value extended_plugin_header = extended_plugin->GetHeader();
+              if (extended_plugin_header.has_field(entity_keys::plugin_header_extends)){
+                const web::json::value extended_plugin_extends = extended_plugin_header.at(entity_keys::plugin_header_extends);
+                if (!plugin_extends.is_null() && plugin_extends.is_array()){
+                  if (extended_plugin_extends.is_array()){
+                    plugin_extends = ExtendsAddition(extended_plugin_extends,plugin_extends,plugin->GetId());
+                  }
+                }else{
+                  plugin_extends = std::move(extended_plugin_extends);
+                }
+              }
             
+              // tag plug-in as extended so it is no more runnable.
+              extended_plugin->IsExtended(true);
+              
+            }
           }
         }
-
 
         std::string script = plugin->GetScript();
         if (!extended_plugins_scripts.empty() && !script.empty()){
@@ -111,6 +118,7 @@ namespace granada{
           // store the new plug-in script value in the cache.
           cache()->Write(plugin_value_hash(plugin->GetId()),entity_keys::plugin_script,response);
         }
+
       }
 
     }
@@ -189,6 +197,9 @@ namespace granada{
         return response;
       }else{
 
+        const std::shared_ptr<granada::plugin::Plugin>& plugin = plugin_factory()->Plugin(this,"none");
+        script = "var __PLUGIN; " + GetJavaScriptPluginCore(plugin) + script;
+
         // cache script so it can be reused
         cache()->Write(plugin_event_value_hash(event_name),entity_keys::plugin_event_script,script);  
         return Run(script,event_name,parameters);
@@ -211,7 +222,7 @@ namespace granada{
 
         FireLoadEvent(event_name);
 
-        web::json::value response_data = web::json::value::object();
+        web::json::value response_data;
         
         const std::string& event_value_hash = plugin_event_value_hash(event_name);
 
@@ -227,7 +238,9 @@ namespace granada{
 
           const std::string& event_plugins_ids_str = cache()->Read(event_value_hash,entity_keys::plugin_event_ids);
 
-          if (!event_plugins_ids_str.empty()){
+          if (event_plugins_ids_str.empty()){
+            response_data = web::json::value::object();
+          }else{
 
             std::vector<std::string> plugin_ids;
             granada::util::string::split(event_plugins_ids_str,',',plugin_ids);
@@ -245,6 +258,7 @@ namespace granada{
         success(response);
 
       }
+
     }
 
 
@@ -256,7 +270,8 @@ namespace granada{
       
       if (!script.empty()){
 
-        script =  script + " __multiOnMessage(" + granada::util::string::stringified_json(message.serialize()) + ",\"" + from + "\");";
+        const std::shared_ptr<granada::plugin::Plugin>& plugin = plugin_factory()->Plugin(this,"none");
+        script = "var __PLUGIN; " + GetJavaScriptPluginCore(plugin) + script + " __multiOnMessage(" + granada::util::string::stringified_json(message.serialize()) + ",\"" + from + "\");";
 
         // wait until runner is usable, it is recommended to 
         // limit the use of the runner so it does not harm
@@ -292,7 +307,7 @@ namespace granada{
       std::vector<std::string> not_present_extends;
       for(auto it = extended_plugin_extends.as_array().cbegin(); it != extended_plugin_extends.as_array().cend(); ++it){
         if (it->is_string()){
-          std::string extended_plugin_extend = it->as_string();
+          const std::string& extended_plugin_extend = it->as_string();
           bool not_present = true;
 
           // check if the extend is present in the plug-in exteds, if it is not, add it
@@ -361,14 +376,14 @@ namespace granada{
         parameters[entity_keys::plugin_configuration] = configuration;
         
         const std::string& configuration_load_before_event = default_strings::plugin_configuration_load_event + "-" + default_strings::plugin_before;
-        PluginHandler::Fire(configuration_load_before_event,parameters,[&configuration](const web::json::value& data){
+        Fire(configuration_load_before_event,parameters,[&configuration](const web::json::value& data){
           const web::json::value& new_configuration = granada::util::json::first(granada::util::json::as_object(data,entity_keys::plugin_parameter_data));
           if (!new_configuration.is_null()){
             configuration = granada::util::json::as_object(new_configuration,entity_keys::plugin_parameter_data);
           }
         },[&configuration](const web::json::value& data){});
 
-        PluginHandler::Fire(plugin->GetId() + "-" + configuration_load_before_event,parameters,[&configuration](const web::json::value& data){
+        Fire(plugin->GetId() + "-" + configuration_load_before_event,parameters,[&configuration](const web::json::value& data){
           const web::json::value& new_configuration = granada::util::json::first(granada::util::json::as_object(data,entity_keys::plugin_parameter_data));
           if (!new_configuration.is_null()){
             configuration = granada::util::json::as_object(new_configuration,entity_keys::plugin_parameter_data);
@@ -404,21 +419,21 @@ namespace granada{
       
       std::string script = "";
       std::string configurations = "";
-      std::shared_ptr<granada::plugin::Plugin> plugin;
       for (auto it = plugin_ids.begin(); it != plugin_ids.end(); ++it){
 
-        plugin = GetPluginById(*it);
+        const std::shared_ptr<granada::plugin::Plugin>& plugin = GetPluginById(*it);
 
         if (plugin.get() != nullptr){
 
-          if (i > 0){
-            script += ",\"" + *it + "\":" + plugin->GetScript();
-            configurations += ",\"" + *it + "\":" + plugin->GetConfiguration().serialize();
+          if (i>0){
+            script += ",";
+            configurations += ",";
           }else{
-            script += "\"" + *it + "\":" + plugin->GetScript();
-            configurations += "\"" + *it + "\":" + plugin->GetConfiguration().serialize();
-            i++;
+            i=1;
           }
+
+          script += "\"" + *it + "\":" + plugin->GetScript();
+          configurations += "\"" + *it + "\":" + plugin->GetConfiguration().serialize();
 
         }
       }
@@ -428,7 +443,7 @@ namespace granada{
         script = " var __PLUGINS = {" + script + "}; ";
         configurations = " var __PLUGINS_CONFIGURATIONS = {" + configurations + "}; ";
         
-        script = "var __PLUGIN; " + GetJavaScriptPluginCore(plugin) + script + configurations;
+        script = script + configurations;
 
       }
       

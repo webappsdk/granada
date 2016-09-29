@@ -485,25 +485,9 @@ namespace granada{
 
 
     void PluginHandler::Extend(const std::shared_ptr<granada::plugin::Plugin>& plugin){
-
       if (plugin.get()!=nullptr){
         const web::json::value& extends = granada::util::json::as_array(plugin->GetHeader(),entity_keys::plugin_header_extends);
-
-        std::vector<std::shared_ptr<granada::plugin::Plugin>> extended_plugins;
-        for(auto it = extends.as_array().cbegin(); it != extends.as_array().cend(); ++it){
-          if (it->is_string()){
-            const std::shared_ptr<granada::plugin::Plugin>& extended_plugin = GetPluginById(it->as_string());
-            if (extended_plugin.get()==nullptr){
-              // the plug-in that has to be extended has not been added yet.
-              // its extension will be applied when it will be added.
-              AddExtension(it->as_string(),plugin->GetId());
-            }else{
-              extended_plugins.push_back(extended_plugin);
-            }
-          }
-        }
-
-        Extend(extended_plugins,plugin);
+        Extend(extends.as_array(),plugin);
       }
 
     }
@@ -511,9 +495,9 @@ namespace granada{
 
     void PluginHandler::Extend(const std::shared_ptr<granada::plugin::Plugin>& extended_plugin, const std::shared_ptr<granada::plugin::Plugin>& plugin){
       if (extended_plugin.get()!=nullptr && plugin.get()!=nullptr){
-        std::vector<std::shared_ptr<granada::plugin::Plugin>> extended_plugins;
-        extended_plugins.push_back(extended_plugin);
-        Extend(extended_plugins,plugin);
+        web::json::value extends = web::json::value::array(1);
+        extends[0] = web::json::value::string(extended_plugin->GetId());
+        Extend(extends.as_array(),plugin);
       }
     }
 
@@ -528,10 +512,10 @@ namespace granada{
         
         // retrieve the cached extensions of the given plug-in.
         std::string cached_plugin_extended_str = cache()->Read(plugin_value_hash_str,entity_keys::plugin_extension_ids);
-        
+       
         if (cached_plugin_extended_str.empty()){
           // add extension to the plug-in.
-          cached_plugin_extended_str += plugin_id;
+          cached_plugin_extended_str = plugin_id;
         }else{
 
           // only add plug-in id if it has not already been added, to prevent the plug-in
@@ -599,7 +583,7 @@ namespace granada{
           for (auto it = plugin_ids.begin(); it != plugin_ids.end(); ++it){
             if (*it != plugin_id){
               if (i==0){
-                i++;
+                i=1;
               }else{
                 new_plugin_ids_str += ",";
               }
@@ -675,7 +659,7 @@ namespace granada{
           for (auto it = plugin_ids.begin(); it != plugin_ids.end(); ++it){
             if (*it != plugin_id){
               if (i==0){
-                i++;
+                i=1;
               }else{
                 new_event_plugins_ids += ",";
               }
@@ -1035,20 +1019,26 @@ namespace granada{
 
 
     void PluginHandler::Fire(const std::string& event_name, web::json::value& parameters, function_void_json success, function_void_json failure){
-      
+
       web::json::value response = web::json::value::object();
 
-      if (!event_name.empty()){
+      if (event_name.empty()){
+        response[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_malformed_parameters);
+        response[default_strings::plugin_error_description] = web::json::value::string(default_error_descriptions::plugin_malformed_parameters);
+        failure(response);
+      }else{
         // lazy load plug-ins
         FireLoadEvent(event_name);
 
-        web::json::value response_data = web::json::value::object();
+        web::json::value response_data;
 
         // retrieve all the ids of the plug-ins listening to
         // the fired event.
         const std::string& plugin_ids_str = cache()->Read(plugin_event_value_hash(event_name),entity_keys::plugin_event_ids);
 
-        if (!plugin_ids_str.empty()){
+        if (plugin_ids_str.empty()){
+          response_data = web::json::value::object();
+        }else{
 
           std::vector<std::string> plugin_ids;
           granada::util::string::split(plugin_ids_str,',',plugin_ids);
@@ -1061,10 +1051,6 @@ namespace granada{
         response[entity_keys::plugin_parameter_data] = response_data;
         success(response);
         
-      }else{
-        response[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_malformed_parameters);
-        response[default_strings::plugin_error_description] = web::json::value::string(default_error_descriptions::plugin_malformed_parameters);
-        failure(response);
       }
     }
 

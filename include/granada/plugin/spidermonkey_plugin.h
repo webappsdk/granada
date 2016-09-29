@@ -140,12 +140,12 @@ namespace granada{
          * members that it does not override.
          * Both plug-in "extends" members are concatenated.
          * 
-         * @param extended_plugins  Vector of Pointers to the plug-ins that are going to be
-         *                          extended.
-         * @param plugin            Pointer to the plug-in that is going to extend
-         *                          other plug-ins.
+         * @param extended_plugins_ids  JSON array with the ids of the plug-ins that
+         *                              are going to be extended.
+         * @param plugin                Pointer to the plug-in that is going to extend
+         *                              other plug-ins.
          */
-        virtual void Extend(const std::vector<std::shared_ptr<granada::plugin::Plugin>>& extended_plugins, const std::shared_ptr<granada::plugin::Plugin>& plugin);
+        virtual void Extend(const web::json::array& extended_plugins_ids, const std::shared_ptr<granada::plugin::Plugin>& plugin);
 
 
         /**

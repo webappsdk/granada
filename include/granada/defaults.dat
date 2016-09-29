@@ -228,7 +228,7 @@ DAT(plugin_configuration_file_name,		"configuration")
 DAT(plugin_configuration_file_extension,"json")
 DAT(plugin_header_file_extension,		"json")
 DAT(plugin_publicfiles_directory,		"publicfiles/plugins")
-DAT(plugin_userfiles_directory,			"{{user.directory}}/plugins")
+DAT(plugin_userfiles_directory,			"userfiles/{{user.directory}}/plugins")
 DAT(plugin_user_directory,				"user.directory")
 DAT(plugin_before,						"before")
 DAT(plugin_in_process,					"in-process")
@@ -263,9 +263,9 @@ DAT(session_session_clean_extra_timeout, 0)
 // 10 MB.
 DAT(plugin_bytes_limit, 10000000)
 
-// The minimum time a Plug-ins have to wait
-// between running its scrip/executable
-// in milliseconds.
+// The minimum time the plug-in handler
+// has to wait between two script/executable
+// runs in milliseconds.
 // default is 20 ms;
 DAT(plugin_runner_use_frequency_limit, 	20)
 

@@ -2,8 +2,8 @@ if (UNIX)
   add_definitions(-Wno-sign-compare -Wno-enum-compare)
 endif()
 
-include_directories(/opt/mozjs-38.0.0/js/src/build_OPT.OBJ/dist/include)
-link_directories(/opt/mozjs-38.0.0/js/src/build_OPT.OBJ/dist/lib)
+include_directories({PATH_TO_MOZJS}/mozjs-38.0.0/js/src/build_OPT.OBJ/dist/include)
+link_directories({PATH_TO_MOZJS}/mozjs-38.0.0/js/src/build_OPT.OBJ/dist/lib)
 
 add_executable(plugin-server
   plugin-server.cc
@@ -27,6 +27,8 @@ add_executable(plugin-server
   ../../src/granada/http/controller/plugin_controller.cc
 )
 
+target_link_libraries(plugin-server ${Casablanca_LIBRARIES} -ljs_static -lz -lpthread -ldl)
+
 add_executable(plugin-server-redis
   plugin-server-redis.cc
   ../../src/granada/defaults.cc
@@ -49,5 +51,4 @@ add_executable(plugin-server-redis
   ../../src/granada/http/controller/plugin_controller.cc
 )
 
-target_link_libraries(plugin-server ${Casablanca_LIBRARIES} -ljs_static -lz -lpthread -ldl)
 target_link_libraries(plugin-server-redis ${Casablanca_LIBRARIES} -ljs_static -lz -lpthread -ldl)

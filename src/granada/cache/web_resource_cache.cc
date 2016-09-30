@@ -197,12 +197,12 @@ namespace granada{
           web::json::value obj = web::json::value::parse(content_types_str); //content_types_str.c_str()
           std::string content_type;
           std::string extension;
-          // loop throw the keys of the json. The keys are the content types.
+          // loop through the keys of the json. The keys are the content types.
           for(auto it = obj.as_object().cbegin(); it != obj.as_object().cend(); ++it){
               const std::string& content_type = it->first;
               const web::json::value& extensions_json = it->second;
 
-              // loop throw the extensions related to the extracted content type.
+              // loop through the extensions related to the extracted content type.
               for(auto it2 = extensions_json.as_array().cbegin(); it2 != extensions_json.as_array().cend(); ++it2){
                 extension = it2->as_string();
                 // insert pair of content type and extension in the unordered_map.

@@ -127,7 +127,7 @@ namespace granada{
         std::vector<granada::http::session::Session*> sessions_to_erase;
         mtx.lock();
 
-        // loop throw all sessions.
+        // loop through all sessions.
         for ( auto it = sessions_->begin(); it != sessions_->end(); ++it ){
           token = it->first;
           granada::http::session::Session* session = it->second.get();

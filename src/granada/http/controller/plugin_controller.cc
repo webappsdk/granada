@@ -271,7 +271,7 @@ namespace granada{
         const std::shared_ptr<granada::http::session::Session>& session = session_checkpoint_->check(request,response);
         session->Update();
 
-        // create a plug-in handler, linked to the session throw the session token.
+        // create a plug-in handler, linked to the session through the session token.
         const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory_->PluginHandler(session->GetToken());
 
         // initialize Plug-in Handler only if it is not

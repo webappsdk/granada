@@ -61,7 +61,7 @@ namespace granada{
       int files_size = PreloadRepositories();
       if (files_size > PluginHandler::PLUGIN_BYTES_LIMIT_){
 
-        // Byte limit exceeded, inform throw the parameters of the
+        // Byte limit exceeded, inform through the parameters of the
         // "ph-init-after" event that will be fired after.
         response[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_bytes_limit_exceeded);
         response[default_strings::plugin_error_description] = web::json::value::string(default_error_descriptions::plugin_bytes_limit_exceeded);
@@ -1620,7 +1620,7 @@ namespace granada{
       // size in bytes.
       int total_size = 0;
 
-      // loop throw all given packaged plugins "repositories"
+      // loop through all given packaged plugins "repositories"
       std::string repository_path;
       for (auto it = paths_.begin(); it != paths_.end(); ++it){
 
@@ -1663,7 +1663,7 @@ namespace granada{
       boost::filesystem::directory_iterator end_it;
       boost::filesystem::path package_directory_path;
 
-      // loop throw all the plug-ins in a package and cache them.
+      // loop through all the plug-ins in a package and cache them.
       for ( boost::filesystem::directory_iterator it2(repository_path); it2 != end_it; ++it2 ){
 
         package_directory_path = it2->path();
@@ -1735,7 +1735,7 @@ namespace granada{
 
           boost::filesystem::directory_iterator end_it;
 
-          // loop throw the server files of the package, containing the plug-ins scripts/executables and
+          // loop through the server files of the package, containing the plug-ins scripts/executables and
           // the headers of the plug-ins (id,events,inheritance)
           // Both header and script/executable files have the same name with different extensions:
           // - the header is a .json file
@@ -1838,7 +1838,7 @@ namespace granada{
       // the given event.
       const web::json::value& event_loaders = granada::util::string::to_json(cache()->Read(plugin_event_value_hash(event_name),entity_keys::plugin_event_loader));
 
-      // loop throw the plug-in loaders and add the plug-ins if they are
+      // loop through the plug-in loaders and add the plug-ins if they are
       // not already added.
       for(auto it = event_loaders.as_object().cbegin(); it != event_loaders.as_object().cend(); ++it){
         const std::string& plugin_id = it->first;

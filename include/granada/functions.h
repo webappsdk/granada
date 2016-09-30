@@ -222,7 +222,7 @@ namespace granada{
        * Calls all functions of the collection passing a json value as parameters
        * to the called functions, accepts a callback to get the values
        * returned by the called functions. The values returned by the
-       * functions will be structured in a json object and passed throw the
+       * functions will be structured in a json object and passed through the
        * callback parameters like this: {
        *                                    "data":
        *                                            {
@@ -247,7 +247,7 @@ namespace granada{
       /**
        * Calls all functions of the collection accepts a callback to get the values
        * returned by the called functions. The values returned by the
-       * functions will be structured in a json object and passed throw the
+       * functions will be structured in a json object and passed through the
        * callback parameters like this: {
        *                                    "data":
        *                                            {

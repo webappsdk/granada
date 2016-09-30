@@ -88,7 +88,7 @@ namespace business{
     cache_->Match(GetHash() + "*",keys);
     std::string list_str = "[";
 
-    // loop throw all sessions.
+    // loop through all sessions.
     for ( auto it = keys.begin(); it != keys.end(); ++it ){
       if (it != keys.begin()){
         list_str += ",";

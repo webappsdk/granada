@@ -185,6 +185,7 @@ namespace granada{
          *                          plugin:store:GHs98Ev4GLkqw32g8
          */
         virtual const void Match(const std::string& expression, std::vector<std::string>& keys){
+          keys.clear();
           std::shared_ptr<granada::cache::CacheHandlerIterator> cache_iterator = this->make_iterator(expression);
           while (cache_iterator->has_next()){
             keys.push_back(cache_iterator->next());

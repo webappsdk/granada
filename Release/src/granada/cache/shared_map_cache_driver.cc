@@ -175,6 +175,7 @@ namespace granada{
 
 
     void SharedMapCacheDriver::Keys(const std::string& expression, std::vector<std::string>& keys){
+      keys.clear();
       std::string key;
       mtx.lock();
       for(auto it = data_->begin(); it != data_->end(); ++it) {

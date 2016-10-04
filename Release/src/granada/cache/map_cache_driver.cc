@@ -90,6 +90,7 @@ namespace granada{
     }
 
     void MapCacheDriver::Keys(const std::string& expression, std::vector<std::string>& keys){
+      keys.clear();
       std::string key;
       for(auto it = data_->begin(); it != data_->end(); ++it) {
         key = it->first;

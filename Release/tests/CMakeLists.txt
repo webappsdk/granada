@@ -7,4 +7,5 @@ add_subdirectory(common)
 add_subdirectory(functional)
 
 # Add granada tests
+set(GRANADA_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/granada")
 add_subdirectory(granada)

@@ -28,6 +28,7 @@
 
 #pragma once
 #include <vector>
+#include <deque>
 #include <unordered_map>
 #include "cpprest/json.h"
 #include "granada/util/string.h"

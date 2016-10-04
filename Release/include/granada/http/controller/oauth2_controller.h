@@ -26,6 +26,7 @@
   */
 
 #pragma once
+#include <deque>
 #include <unordered_map>
 #include <fstream>
 #include "cpprest/json.h"

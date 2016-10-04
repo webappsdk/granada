@@ -459,8 +459,8 @@ namespace granada{
               // URL encode can encode spaces as %20 or as +
               // so standarize it to +.
               if (!oauth2_parameters_.scope.empty()){
-                std::unordered_map<std::string,std::string> values;
-                values.insert(std::make_pair(" ","+"));
+                std::deque<std::pair<std::string,std::string>> values;
+                values.push_back(std::make_pair(" ","+"));
                 granada::util::string::replace(oauth2_parameters_.scope,values,"","");
               }
 

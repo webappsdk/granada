@@ -38,6 +38,7 @@
 #include "cache_handler.h"
 #include <regex>
 #include <string>
+#include <deque>
 #include <unordered_map>
 #include <map>
 #include "granada/util/string.h"

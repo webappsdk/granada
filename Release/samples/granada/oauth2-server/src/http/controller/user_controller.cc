@@ -65,8 +65,8 @@ namespace granada{
               std::shared_ptr<granada::http::oauth2::OAuth2User> oauth2_user = oauth2_factory_->OAuth2User();
               web::json::value roles;
               std::string roles_str = "{\"msg.select\":{\"username\":\"{{username}}\"},\"msg.insert\":{\"username\":\"{{username}}\"},\"msg.update\":{\"username\":\"{{username}}\"},\"msg.delete\":{\"username\":\"{{username}}\"}}";
-              std::unordered_map<std::string,std::string> values;
-              values.insert(std::make_pair("username",username));
+              std::deque<std::pair<std::string,std::string>> values;
+              values.push_back(std::make_pair("username",username));
               granada::util::string::replace(roles_str,values);
               try{
                 roles = web::json::value::parse(roles_str);

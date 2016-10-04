@@ -31,8 +31,8 @@ namespace granada{
 
     MapIterator::MapIterator(const std::string& expression, MapCacheDriver* cache){
       expression_ = expression;
-      std::unordered_map<std::string,std::string> values;
-      values.insert(std::make_pair("*",".*"));
+      std::deque<std::pair<std::string,std::string>> values;
+      values.push_back(std::make_pair("*",".*"));
       granada::util::string::replace(expression_,values,"","");
       cache->Keys(expression_,keys_);
       it_ = keys_.begin();

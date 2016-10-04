@@ -138,9 +138,9 @@ namespace granada{
         }
 
         if (status_code == status_codes::Forbidden){
-          std::unordered_map<std::string, std::string> values;
-          values.insert(std::make_pair(oauth2_errors::error,"403"));
-          values.insert(std::make_pair(oauth2_errors::error_description,"Forbidden"));
+          std::deque<std::pair<std::string, std::string>> values;
+          values.push_back(std::make_pair(oauth2_errors::error,"403"));
+          values.push_back(std::make_pair(oauth2_errors::error_description,"Forbidden"));
           std::string authorizing_error_template = *oauth2_authorizing_error_template_;
           granada::util::string::replace(authorizing_error_template,values);
           response.set_body(authorizing_error_template);

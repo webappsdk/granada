@@ -123,8 +123,8 @@ namespace granada{
           std::string user_directory = session->roles()->GetProperty(entity_keys::plugin_role_select,default_strings::plugin_user_directory);
           if (!user_directory.empty()){
             std::string userfiles_directory = PluginController::USERFILES_DIRECTORY_;
-            std::unordered_map<std::string,std::string> values;
-            values.insert(std::make_pair(default_strings::plugin_user_directory,user_directory));
+            std::deque<std::pair<std::string,std::string>> values;
+            values.push_back(std::make_pair(default_strings::plugin_user_directory,user_directory));
             granada::util::string::replace(userfiles_directory,values);
             paths.push_back(userfiles_directory);
           }

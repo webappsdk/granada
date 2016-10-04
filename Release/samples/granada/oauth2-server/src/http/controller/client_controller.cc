@@ -61,8 +61,8 @@ namespace granada{
           // create client
           std::shared_ptr<granada::http::oauth2::OAuth2Client> oauth2_client = oauth2_factory_->OAuth2Client();
           try{
-            std::unordered_map<std::string,std::string> values;
-            values.insert(std::make_pair("+", " "));
+            std::deque<std::pair<std::string,std::string>> values;
+            values.push_back(std::make_pair("+", " "));
             granada::util::string::replace(redirect_uris_str,values,"","");
             granada::util::string::replace(roles_str,values,"","");
 

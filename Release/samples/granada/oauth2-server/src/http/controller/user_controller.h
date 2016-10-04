@@ -27,6 +27,7 @@
   */
 
 #pragma once
+#include <deque>
 #include <unordered_map>
 #include "cpprest/json.h"
 #include "granada/util/string.h"

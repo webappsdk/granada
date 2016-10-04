@@ -483,10 +483,10 @@ namespace granada{
 
     std::string SpidermonkeyPluginHandler::GetJavaScriptPluginCore(const std::shared_ptr<granada::plugin::Plugin>& plugin){
       std::string script_extension = javascript_plugin_core_;
-      std::unordered_map<std::string,std::string> values;
-      values.insert(std::make_pair(entity_keys::plugin_parameter_plugin_id,plugin->GetId()));
-      values.insert(std::make_pair(entity_keys::plugin_parameter_plugin_handler_id,id_));
-      values.insert(std::make_pair(entity_keys::plugin_parameter_configuration,plugin->GetConfiguration().serialize()));
+      std::deque<std::pair<std::string,std::string>> values;
+      values.push_back(std::make_pair(entity_keys::plugin_parameter_plugin_id,plugin->GetId()));
+      values.push_back(std::make_pair(entity_keys::plugin_parameter_plugin_handler_id,id_));
+      values.push_back(std::make_pair(entity_keys::plugin_parameter_configuration,plugin->GetConfiguration().serialize()));
       granada::util::string::replace(script_extension,values);
       return script_extension;
     }
@@ -494,8 +494,8 @@ namespace granada{
 
     std::string SpidermonkeyPluginHandler::GetJavaScriptPluginExtension(const std::shared_ptr<granada::plugin::Plugin>& plugin){
       std::string script_inheritance = javascript_plugin_extension_;
-      std::unordered_map<std::string,std::string> values;
-      values.insert(std::make_pair(entity_keys::plugin_parameter_configuration,plugin->GetConfiguration().serialize()));
+      std::deque<std::pair<std::string,std::string>> values;
+      values.push_back(std::make_pair(entity_keys::plugin_parameter_configuration,plugin->GetConfiguration().serialize()));
       granada::util::string::replace(script_inheritance,values);
       return script_inheritance;
     }

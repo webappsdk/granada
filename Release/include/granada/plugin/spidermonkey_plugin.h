@@ -27,6 +27,7 @@
   */
 
 #pragma once
+#include <deque>
 #include "granada/plugin/plugin.h"
 #include "granada/cache/cache_handler.h"
 #include "granada/runner/spidermonkey_javascript_runner.h"

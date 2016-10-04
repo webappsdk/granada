@@ -32,7 +32,7 @@
 #include <regex>
 #include <string>
 #include <map>
-#include <unordered_map>
+#include <deque>
 #include "granada/util/string.h"
 
 namespace granada{

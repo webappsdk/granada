@@ -31,6 +31,7 @@
 #pragma once
 
 #include <string>
+#include <deque>
 #include <unordered_map>
 #include "cpprest/json.h"
 #include "cpprest/http_msg.h"

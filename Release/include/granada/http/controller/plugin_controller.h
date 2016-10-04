@@ -28,6 +28,7 @@
   */
 
 #pragma once
+#include <deque>
 #include <vector>
 #include "cpprest/json.h"
 #include "cpprest/details/http_helpers.h"

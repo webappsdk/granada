@@ -49,7 +49,7 @@ namespace granada{
        * 			|_ cookie1    => content1
        * 			|_ cookie2    => content2
        */
-      std::unordered_map<std::string, std::string> ParseCookies(web::http::http_request &request);
+      std::unordered_map<std::string, std::string> ParseCookies(const web::http::http_request &request);
 
 
       /**
@@ -99,7 +99,7 @@ namespace granada{
        * @param request HTTP request containing multipart/form data.
        * @return        Parsed multipart/form data content.
        */
-      std::unordered_map<std::string, std::unordered_map<std::string, std::vector<unsigned char>>> ParseMultipartFormData(web::http::http_request &request);
+      std::unordered_map<std::string, std::unordered_map<std::string, std::vector<unsigned char>>> ParseMultipartFormData(const web::http::http_request &request);
 
 
       /**
@@ -107,7 +107,7 @@ namespace granada{
        * @param  headers Headers of the HTTP Request
        * @return         Boundary of the multipart/form data. Example: WebKitFormBoundaryKS484Mi6jduf07q
        */
-      std::string ExtractBoundaryMDF(web::http::http_headers &headers);
+      std::string ExtractBoundaryMDF(const web::http::http_headers &headers);
 
 
       /**
@@ -118,7 +118,7 @@ namespace granada{
        * @return                     Return true if there are more fields, properties and values after this one.
        *                             Return false if this is there is no more data to parse after.
        */
-      bool ParseFieldsAndPropertiesMDF(std::vector<unsigned char> &body, std::string &boundary,std::unordered_map<std::string,std::unordered_map<std::string, std::vector<unsigned char>>> &multipart_data_form);
+      bool ParseFieldsAndPropertiesMDF(std::vector<unsigned char>& body, const std::string& boundary, std::unordered_map<std::string,std::unordered_map<std::string, std::vector<unsigned char>>>& multipart_data_form);
 
 
       /**

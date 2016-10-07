@@ -28,7 +28,7 @@ namespace granada{
   namespace http{
     namespace parser{
 
-      std::unordered_map<std::string, std::string> ParseCookies(web::http::http_request &request){
+      std::unordered_map<std::string, std::string> ParseCookies(const web::http::http_request &request){
         std::unordered_map<std::string, std::string> cookies;
         web::http::http_headers headers = request.headers();
         if( headers.has(entity_keys::http_parser_cookie) ){
@@ -56,21 +56,23 @@ namespace granada{
 
       std::unordered_map<std::string, std::string> ParseQueryString(const std::string& query_string){
         std::unordered_map<std::string, std::string> parsed_query;
-        std::vector<std::string> keys_and_values;
-        granada::util::string::split(query_string,'&',keys_and_values);
-        int len = keys_and_values.size();
-        while (len--) {
-          std::vector<std::string> key_and_value;
-          granada::util::string::split(keys_and_values[len],'=',key_and_value);
-          if (key_and_value.size() > 1){
-            parsed_query.insert(std::make_pair(key_and_value[0],web::uri::decode(key_and_value[1])));
+        if (!query_string.empty()){
+          std::vector<std::string> keys_and_values;
+          granada::util::string::split(query_string,'&',keys_and_values);
+          int len = keys_and_values.size();
+          while (len--) {
+            std::vector<std::string> key_and_value;
+            granada::util::string::split(keys_and_values[len],'=',key_and_value);
+            if (key_and_value.size() > 1){
+              parsed_query.insert(std::make_pair(key_and_value[0],web::uri::decode(key_and_value[1])));
+            }
           }
         }
         return parsed_query;
       }
 
 
-      std::unordered_map<std::string, std::unordered_map<std::string, std::vector<unsigned char>>> ParseMultipartFormData(web::http::http_request &request){
+      std::unordered_map<std::string, std::unordered_map<std::string, std::vector<unsigned char>>> ParseMultipartFormData(const web::http::http_request &request){
 
         std::unordered_map<std::string, std::unordered_map<std::string, std::vector<unsigned char>>> multipart_form_data;
 
@@ -100,7 +102,7 @@ namespace granada{
       }
 
 
-      std::string ExtractBoundaryMDF(web::http::http_headers &headers){
+      std::string ExtractBoundaryMDF(const web::http::http_headers &headers){
         std::string content_type = headers.content_type();
         if (!content_type.empty()){
           std::string delimiter(entity_keys::http_parser_boundary_delimiter);
@@ -113,7 +115,7 @@ namespace granada{
       }
 
 
-      bool ParseFieldsAndPropertiesMDF(std::vector<unsigned char> &body, std::string &boundary, std::unordered_map<std::string,std::unordered_map<std::string, std::vector<unsigned char>>> &multipart_form_data){
+      bool ParseFieldsAndPropertiesMDF(std::vector<unsigned char> &body, const std::string &boundary, std::unordered_map<std::string,std::unordered_map<std::string, std::vector<unsigned char>>> &multipart_form_data){
         std::unordered_map<std::string, std::vector<unsigned char>> parsed_properties;
 
         // get block between boundaries.

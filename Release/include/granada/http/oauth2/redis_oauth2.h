@@ -232,7 +232,7 @@ namespace granada{
 
 
           RedisOAuth2Authorization(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
-                                   std::shared_ptr<granada::http::session::Checkpoint>& session_checkpoint,
+                                   std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint,
                                    std::shared_ptr<granada::http::oauth2::OAuth2Factory>& oauth2_factory){
             oauth2_parameters_ = oauth2_parameters;
             session_checkpoint_ = session_checkpoint;
@@ -296,7 +296,7 @@ namespace granada{
 
           // override
           std::shared_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
-                                                                                         std::shared_ptr<granada::http::session::Checkpoint>& session_checkpoint,
+                                                                                         std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint,
                                                                                          std::shared_ptr<granada::http::oauth2::OAuth2Factory>& oauth2_factory){
             return std::shared_ptr<granada::http::oauth2::OAuth2Authorization>(new granada::http::oauth2::RedisOAuth2Authorization(oauth2_parameters,session_checkpoint,oauth2_factory));
           };

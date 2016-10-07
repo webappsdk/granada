@@ -29,7 +29,7 @@
 
 #include "granada/cache/web_resource_cache.h"
 #include "granada/http/controller/controller.h"
-#include "granada/http/session/checkpoint.h"
+#include "granada/http/session/session.h"
 
 namespace granada{
   namespace http{
@@ -60,7 +60,7 @@ namespace granada{
          *                              checking and setting sessions. Used to create a new
          *                              session if it does not exist or if it is timed out.
          */
-        BrowserController(utility::string_t url,std::shared_ptr<granada::http::session::Checkpoint>& session_checkpoint);
+        BrowserController(utility::string_t url,std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint);
 
 
 
@@ -83,7 +83,7 @@ namespace granada{
          * checking and setting sessions. Used to create a new
          * session if it does not exist or if it is timed out.
          */
-        std::shared_ptr<granada::http::session::Checkpoint> session_checkpoint_;
+        std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint_;
         
       };
     }

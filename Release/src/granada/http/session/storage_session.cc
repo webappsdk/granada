@@ -28,68 +28,28 @@ namespace granada{
   namespace http{
     namespace session{
 
-      // we use a session handler that use a map shared by all user to store the sessions.
-      std::unique_ptr<granada::http::session::SessionHandler> StorageSession::session_handler_(new granada::http::session::SharedMapSessionHandler());
-      std::unique_ptr<granada::Functions> StorageSession::close_callbacks_(new granada::FunctionsMap());
-
-      StorageSession::StorageSession(){
-        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
-        LoadProperties();
-      }
-
-      StorageSession::StorageSession(web::http::http_request &request,web::http::http_response &response){
-        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
-        LoadProperties();
-        Session::LoadSession(request,response);
-      }
-
-      StorageSession::StorageSession(web::http::http_request &request){
-        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
-        LoadProperties();
-        Session::LoadSession(request);
-      }
-
-      StorageSession::StorageSession(const std::string& token){
-        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::MapRoles(this));
-        LoadProperties();
-        Session::LoadSession(token);
-      }
-
-
-      void StorageSession::LoadProperties(){
-        Session::LoadProperties();
-        std::string session_clean_extra_timeout_str(session_handler()->GetProperty(entity_keys::session_clean_extra_timeout));
-        if (session_clean_extra_timeout_str.empty()){
-          session_clean_extra_timeout_ = default_numbers::session_session_clean_extra_timeout;
-        }else{
-          try{
-            session_clean_extra_timeout_ = std::stol(session_clean_extra_timeout_str);
-          }catch(const std::logic_error& e){
-            session_clean_extra_timeout_ = default_numbers::session_session_clean_extra_timeout;
-          }
-        }
-      }
-
-      void StorageSession::Update(){
-        update_time_ = std::time(nullptr);
-        granada::http::session::StorageSession* storage_session_ptr = new granada::http::session::StorageSession();
-        *storage_session_ptr = *this;
-        std::shared_ptr<granada::http::session::StorageSession> storage_session_shared_ptr(storage_session_ptr);
-        // save the session wherever all the sessions are stored.
-        session_handler()->SaveSession(storage_session_shared_ptr);
-      }
-
       const std::string StorageSession::Read(const std::string& key){
-        return cache_.Read(key);
+        if (!key.empty() && !token_.empty()){
+          Update();
+          return cache()->Read(session_data_hash(),key);
+        }
+        return std::string();
       }
 
       void StorageSession::Write(const std::string& key, const std::string& value){
-        cache_.Write(key, value);
+        if (!key.empty() && !token_.empty()){
+          cache()->Write(session_data_hash(),key, value);
+          Update();
+        }
       }
 
       void StorageSession::Destroy(const std::string& key){
-        cache_.Destroy(key);
+        if (!key.empty() && !token_.empty()){
+          cache()->Destroy(session_data_hash(),key);
+          Update();
+        }
       }
+
     }
   }
 }

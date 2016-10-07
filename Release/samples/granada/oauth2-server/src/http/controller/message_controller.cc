@@ -34,7 +34,7 @@ using namespace web::http::oauth2::details;
 namespace granada{
   namespace http{
     namespace controller{
-      MessageController::MessageController(utility::string_t url, std::shared_ptr<granada::http::session::Checkpoint>& session_checkpoint, std::shared_ptr<granada::cache::CacheHandler>& cache)
+      MessageController::MessageController(utility::string_t url, std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint, std::shared_ptr<granada::cache::CacheHandler>& cache)
       {
         n_generator_ = std::unique_ptr<utility::nonce_generator>(new utility::nonce_generator(32));
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));

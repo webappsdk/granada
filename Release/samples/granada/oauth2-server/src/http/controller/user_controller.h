@@ -34,7 +34,6 @@
 #include "granada/http/oauth2/oauth2.h"
 #include "granada/http/parser.h"
 #include "granada/http/controller/controller.h"
-#include "granada/http/session/redis_storage_session.h"
 
 namespace granada{
   namespace http{

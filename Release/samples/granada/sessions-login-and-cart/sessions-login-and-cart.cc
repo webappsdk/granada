@@ -26,7 +26,7 @@
 
 #include <stdio.h>
 #include <string>
-#include "granada/http/session/simple_session_checkpoint.h"
+#include "granada/http/session/map_session.h"
 #include "granada/http/controller/browser_controller.h"
 #include "src/http/controller/cart_controller.h"
 #include "src/http/controller/auth_controller.h"
@@ -47,11 +47,11 @@ void on_initialize(const string_t& address)
   std::string browser_module = granada::util::application::GetProperty("browser_controller");
   if(!browser_module.empty() && browser_module=="on"){
 
-    std::shared_ptr<granada::http::session::Checkpoint> simple_session_checkpoint(new granada::http::session::SimpleSessionCheckpoint());
+    std::shared_ptr<granada::http::session::SessionCheckpoint> map_simple_session_checkpoint(new granada::http::session::MapSessionCheckpoint());
 
     uri_builder uri(address);
     auto addr = uri.to_uri().to_string();
-    std::unique_ptr<granada::http::controller::Controller> browser_controller(new granada::http::controller::BrowserController(addr,simple_session_checkpoint));
+    std::unique_ptr<granada::http::controller::Controller> browser_controller(new granada::http::controller::BrowserController(addr,map_simple_session_checkpoint));
     browser_controller->open().wait();
     g_controllers.push_back(std::move(browser_controller));
     ucout << "Browser Controller: Initialized... Listening for requests at: " << addr << std::endl;

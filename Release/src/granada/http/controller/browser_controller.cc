@@ -35,10 +35,10 @@ namespace granada{
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));
         m_listener_->support(methods::GET, std::bind(&BrowserController::handle_get, this, std::placeholders::_1));
         cache_handler_ = std::unique_ptr<granada::cache::WebResourceCache>(new granada::cache::WebResourceCache());
-        session_checkpoint_ = std::shared_ptr<granada::http::session::Checkpoint>(new granada::http::session::Checkpoint());
+        session_checkpoint_ = std::shared_ptr<granada::http::session::SessionCheckpoint>(new granada::http::session::SessionCheckpoint());
       }
 
-      BrowserController::BrowserController(utility::string_t url,std::shared_ptr<granada::http::session::Checkpoint>& session_checkpoint){
+      BrowserController::BrowserController(utility::string_t url,std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint){
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));
         m_listener_->support(methods::GET, std::bind(&BrowserController::handle_get, this, std::placeholders::_1));
         cache_handler_ = std::unique_ptr<granada::cache::WebResourceCache>(new granada::cache::WebResourceCache());

@@ -34,7 +34,7 @@
 #include "cpprest/http_client.h"
 #include "granada/http/parser.h"
 #include "granada/http/oauth2/oauth2.h"
-#include "granada/http/session/checkpoint.h"
+#include "granada/http/session/session.h"
 #include "granada/http/controller/controller.h"
 #include "../../business/message.h"
 
@@ -47,7 +47,7 @@ namespace granada{
           /**
            * Constructor
            */
-          MessageController(utility::string_t url, std::shared_ptr<granada::http::session::Checkpoint>& session_checkpoint, std::shared_ptr<granada::cache::CacheHandler>& cache);
+          MessageController(utility::string_t url, std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint, std::shared_ptr<granada::cache::CacheHandler>& cache);
 
         private:
 
@@ -63,7 +63,7 @@ namespace granada{
            * Allows to have a unique point for checking and setting sessions.
            * Can be used to create a new session if it does not exist.
            */
-          std::shared_ptr<granada::http::session::Checkpoint> session_checkpoint_;
+          std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint_;
 
 
           /**

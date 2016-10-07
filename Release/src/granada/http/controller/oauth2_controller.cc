@@ -36,7 +36,7 @@ namespace granada{
 
       OAuth2Controller::OAuth2Controller(
         utility::string_t url,
-        std::shared_ptr<granada::http::session::Checkpoint>& session_checkpoint,
+        std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint,
         std::shared_ptr<granada::http::oauth2::OAuth2Factory>& oauth2_factory)
       {
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));

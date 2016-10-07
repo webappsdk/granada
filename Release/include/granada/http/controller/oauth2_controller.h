@@ -33,9 +33,9 @@
 #include "granada/util/string.h"
 #include "granada/http/parser.h"
 #include "granada/http/http_msg.h"
+#include "granada/http/session/session.h"
 #include "granada/http/oauth2/oauth2.h"
 #include "granada/http/controller/controller.h"
-#include "granada/http/session/checkpoint.h"
 
 namespace granada{
   namespace http{
@@ -52,7 +52,7 @@ namespace granada{
            */
           OAuth2Controller(
             utility::string_t url,
-            std::shared_ptr<granada::http::session::Checkpoint>& session_checkpoint,
+            std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint,
             std::shared_ptr<granada::http::oauth2::OAuth2Factory>& oauth2_factory);
 
 
@@ -68,7 +68,7 @@ namespace granada{
            * Allows to have a unique point for checking and setting sessions.
            * Can be used to create a new session if it does not exist.
            */
-          std::shared_ptr<granada::http::session::Checkpoint> session_checkpoint_;
+          std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint_;
 
 
           /**

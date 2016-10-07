@@ -27,7 +27,7 @@
 #include <unordered_map>
 #include "granada/http/parser.h"
 #include "granada/http/controller/controller.h"
-#include "granada/http/session/storage_session.h"
+#include "granada/http/session/map_storage_session.h"
 
 namespace granada{
   namespace http{

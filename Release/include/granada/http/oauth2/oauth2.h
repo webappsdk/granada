@@ -41,7 +41,6 @@
 #include "granada/util/application.h"
 #include "granada/util/time.h"
 #include "granada/http/parser.h"
-#include "granada/http/session/checkpoint.h"
 #include "granada/http/session/session.h"
 #include "granada/cache/cache_handler.h"
 #include "granada/crypto/cryptograph.h"
@@ -934,7 +933,7 @@ namespace granada{
            * Load properties.
            */
           OAuth2Authorization(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
-                              std::shared_ptr<granada::http::session::Checkpoint>& session_checkpoint,
+                              std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint,
                               std::shared_ptr<granada::http::oauth2::OAuth2Factory>& oauth2_factory);
 
 
@@ -973,7 +972,7 @@ namespace granada{
            * It is used to create a new session without knowing its type.
            * Used to create OAuth 2.0 user sessions and OAuth 2.0 client sessions.
            */
-          std::shared_ptr<granada::http::session::Checkpoint> session_checkpoint_;
+          std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint_;
 
 
           /**
@@ -1215,7 +1214,7 @@ namespace granada{
           };
 
           virtual std::shared_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
-                                                                                                 std::shared_ptr<granada::http::session::Checkpoint>& session_checkpoint,
+                                                                                                 std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint,
                                                                                                  std::shared_ptr<granada::http::oauth2::OAuth2Factory>& oauth2_factory){
             return std::shared_ptr<granada::http::oauth2::OAuth2Authorization>(new granada::http::oauth2::OAuth2Authorization(oauth2_parameters,session_checkpoint,oauth2_factory));
           };

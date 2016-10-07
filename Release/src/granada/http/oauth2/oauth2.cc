@@ -384,7 +384,7 @@ namespace granada{
 
 
       OAuth2Authorization::OAuth2Authorization(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
-                                               std::shared_ptr<granada::http::session::Checkpoint>& session_checkpoint,
+                                               std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint,
                                                std::shared_ptr<granada::http::oauth2::OAuth2Factory>& oauth2_factory){
         oauth2_parameters_ = oauth2_parameters;
         session_checkpoint_ = session_checkpoint;

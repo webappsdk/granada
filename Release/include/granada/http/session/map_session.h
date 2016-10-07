@@ -21,29 +21,31 @@
   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   * SOFTWARE.
   *
-  * Session that allows to store and retrieve string values.
-  * Uses cache/redis_cache_driver.h
+  * Session with all its data stored in shared map cahes.
   *
   */
 
 #pragma once
-#include "storage_session.h"
-#include "granada/cache/redis_cache_driver.h"
+#include "session.h"
+#include "granada/cache/shared_map_cache_driver.h"
 
 namespace granada{
   namespace http{
     namespace session{
 
-      class RedisStorageSessionHandler;
+      class MapSessionHandler;
 
-      class RedisStorageSession : public StorageSession
+      /**
+       * Session with all its data stored in shared map cahes.
+       */
+      class MapSession : public Session
       {
         public:
 
           /**
            * Constructor
            */
-          RedisStorageSession();
+          MapSession();
 
 
           /**
@@ -58,7 +60,7 @@ namespace granada{
            * @param  request  Http request.
            * @param  response Http response.
            */
-          RedisStorageSession(const web::http::http_request &request,web::http::http_response &response);
+          MapSession(const web::http::http_request &request,web::http::http_response &response);
 
 
           /**
@@ -72,7 +74,7 @@ namespace granada{
            * 
            * @param  request  Http request.
            */
-          RedisStorageSession(const web::http::http_request &request);
+          MapSession(const web::http::http_request &request);
 
 
           /**
@@ -82,7 +84,7 @@ namespace granada{
            * 
            * @param token Session token.
            */
-          RedisStorageSession(const std::string& token);
+          MapSession(const std::string& token);
 
 
 
@@ -103,13 +105,13 @@ namespace granada{
            *          called when session is closed.
            */
           virtual granada::Functions* close_callbacks() override {
-            return RedisStorageSession::close_callbacks_.get();
+            return MapSession::close_callbacks_.get();
           };
 
 
         protected:
 
-          
+
           /**
            * Once flag for properties loading.
            */
@@ -120,13 +122,6 @@ namespace granada{
            * Manager of the roles of the session and its properties
            */
           static std::unique_ptr<granada::Functions> close_callbacks_;
-
-
-          /**
-           * Manager of the storage, and contains
-           * the data stored.
-           */
-          static std::unique_ptr<granada::cache::CacheHandler> cache_;
 
 
           /**
@@ -150,28 +145,18 @@ namespace granada{
           };
 
 
-          /**
-           * Returns a pointer to the manager of the storage, and contains
-           * the data stored.
-           * @return Pointer to a CacheHandler.
-           */
-          virtual granada::cache::CacheHandler* cache(){
-            return RedisStorageSession::cache_.get();
-          }
-
-
       };
 
 
 
-      class RedisStorageSessionRoles : public StorageSessionRoles
+      class MapSessionRoles : public SessionRoles
       {
         public:
 
           /**
            * Constructor
            */
-          RedisStorageSessionRoles(granada::http::session::Session* session){
+          MapSessionRoles(granada::http::session::Session* session){
             session_ = session;
           };
 
@@ -190,24 +175,24 @@ namespace granada{
            * @return Pointer to the cache handler used to store the roles' data.
            */
           virtual granada::cache::CacheHandler* cache() override {
-            return RedisStorageSessionRoles::cache_.get();
+            return MapSessionRoles::cache_.get();
           };
 
       };
 
 
 
-      class RedisStorageSessionHandler : public StorageSessionHandler
+      class MapSessionHandler : public SessionHandler
       {
         public:
 
           /**
            * Constructor
            * Initialize the session properties and the 
-           * session cleaner once per all the MapStorageSessions.
+           * session cleaner once per all the MapSessions.
            */
-          RedisStorageSessionHandler(){
-            std::call_once(RedisStorageSessionHandler::properties_flag_, [this](){
+          MapSessionHandler(){
+            std::call_once(MapSessionHandler::properties_flag_, [this](){
               this->LoadProperties();
             });
 
@@ -220,8 +205,8 @@ namespace granada{
           };
 
 
-
         protected:
+
 
           /**
            * Once flag for properties loading.
@@ -230,7 +215,7 @@ namespace granada{
 
 
           /**
-           * Map where all sessions are stored.
+           * Pointer to the cache used to store the sessions' values.
            */
           static std::unique_ptr<granada::cache::CacheHandler> cache_;
 
@@ -243,7 +228,7 @@ namespace granada{
 
 
           /**
-           * Session pointer used to test sessions status without knowing
+           * Checkpoint Session pointer used to test sessions status without knowing
            * their type.
            */
           static std::unique_ptr<granada::http::session::SessionCheckpoint> checkpoint_;
@@ -254,7 +239,7 @@ namespace granada{
            * @return  Pointer to the cache used to store the sessions' values.
            */
           virtual granada::cache::CacheHandler* cache() override {
-            return RedisStorageSessionHandler::cache_.get();
+            return MapSessionHandler::cache_.get();
           }
 
 
@@ -265,7 +250,7 @@ namespace granada{
            *          for generating unique strings tokens.
            */
           virtual granada::crypto::NonceGenerator* nonce_generator() override {
-            return RedisStorageSessionHandler::nonce_generator_.get();
+            return MapSessionHandler::nonce_generator_.get();
           }
 
 
@@ -276,35 +261,35 @@ namespace granada{
            *          status without knowing their type.
            */
           virtual granada::http::session::SessionCheckpoint* checkpoint() override {
-            return RedisStorageSessionHandler::checkpoint_.get();
+            return MapSessionHandler::checkpoint_.get();
           }
       };
 
 
 
-      class RedisStorageSessionCheckpoint : public StorageSessionCheckpoint
+      class MapSessionCheckpoint : public SessionCheckpoint
       {
         public:
 
           /**
            * Constructor
            */
-          RedisStorageSessionCheckpoint(){};
+          MapSessionCheckpoint(){};
 
           virtual std::shared_ptr<granada::http::session::Session> check() override {
-            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::RedisStorageSession());
+            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::MapSession());
           };
 
           virtual std::shared_ptr<granada::http::session::Session> check(const web::http::http_request &request,web::http::http_response &response) override {
-            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::RedisStorageSession(request,response));
+            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::MapSession(request,response));
           };
 
           virtual std::shared_ptr<granada::http::session::Session> check(const web::http::http_request &request) override {
-            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::RedisStorageSession(request));
+            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::MapSession(request));
           };
 
           virtual std::shared_ptr<granada::http::session::Session> check(const std::string& token) override {
-            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::RedisStorageSession(token));
+            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::MapSession(token));
           };
 
       };

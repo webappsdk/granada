@@ -34,7 +34,7 @@ using namespace web::http::oauth2::details;
 namespace granada{
   namespace http{
     namespace controller{
-      ApplicationController::ApplicationController(utility::string_t url,std::shared_ptr<granada::http::session::Checkpoint>& session_checkpoint)
+      ApplicationController::ApplicationController(utility::string_t url,std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint)
       {
         n_generator_ = std::unique_ptr<utility::nonce_generator>(new utility::nonce_generator(32));
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));
@@ -53,6 +53,7 @@ namespace granada{
 
         session_checkpoint_ = session_checkpoint;
       }
+
 
       void ApplicationController::handle_get(web::http::http_request request){
 
@@ -94,6 +95,7 @@ namespace granada{
               response.set_status_code(status_codes::Found);
               response.headers().add(header_names::location, U(redirect_uri+oauth2_response.to_query_string()));
               request.reply(response);
+
             }else{
               // Retrieves session if it exists
               std::shared_ptr<granada::http::session::Session> session;
@@ -149,6 +151,8 @@ namespace granada{
             response.set_body("404");
           }
         }
+
+
 
         request.reply(response);
       }

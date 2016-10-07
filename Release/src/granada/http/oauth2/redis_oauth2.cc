@@ -30,16 +30,16 @@ namespace granada{
   namespace http{
 
     namespace oauth2{
-      std::shared_ptr<granada::cache::CacheHandler> RedisOAuth2Client::cache_ = std::shared_ptr<granada::cache::CacheHandler>(new granada::cache::RedisCacheDriver());
-      std::shared_ptr<granada::crypto::Cryptograph> RedisOAuth2Client::cryptograph_ = std::shared_ptr<granada::crypto::Cryptograph>(new granada::crypto::OpensslAESCryptograph());
+      std::shared_ptr<granada::cache::CacheHandler> RedisOAuth2Client::cache_(new granada::cache::RedisCacheDriver());
+      std::shared_ptr<granada::crypto::Cryptograph> RedisOAuth2Client::cryptograph_(new granada::crypto::OpensslAESCryptograph());
 
-      std::shared_ptr<granada::cache::CacheHandler> RedisOAuth2User::cache_ = std::shared_ptr<granada::cache::CacheHandler>(new granada::cache::RedisCacheDriver());
-      std::shared_ptr<granada::crypto::Cryptograph> RedisOAuth2User::cryptograph_ = std::shared_ptr<granada::crypto::Cryptograph>(new granada::crypto::OpensslAESCryptograph());
+      std::shared_ptr<granada::cache::CacheHandler> RedisOAuth2User::cache_(new granada::cache::RedisCacheDriver());
+      std::shared_ptr<granada::crypto::Cryptograph> RedisOAuth2User::cryptograph_(new granada::crypto::OpensslAESCryptograph());
 
-      std::shared_ptr<granada::cache::CacheHandler> RedisOAuth2Code::cache_ = std::shared_ptr<granada::cache::CacheHandler>(new granada::cache::RedisCacheDriver());
-      std::shared_ptr<granada::crypto::Cryptograph> RedisOAuth2Code::cryptograph_ = std::shared_ptr<granada::crypto::Cryptograph>(new granada::crypto::OpensslAESCryptograph());
+      std::shared_ptr<granada::cache::CacheHandler> RedisOAuth2Code::cache_(new granada::cache::RedisCacheDriver());
+      std::shared_ptr<granada::crypto::Cryptograph> RedisOAuth2Code::cryptograph_(new granada::crypto::OpensslAESCryptograph());
 
-      std::shared_ptr<granada::cache::CacheHandler> RedisOAuth2Authorization::cache_ = std::shared_ptr<granada::cache::CacheHandler>(new granada::cache::RedisCacheDriver());
+      std::shared_ptr<granada::cache::CacheHandler> RedisOAuth2Authorization::cache_(new granada::cache::RedisCacheDriver());
     }
   }
 }

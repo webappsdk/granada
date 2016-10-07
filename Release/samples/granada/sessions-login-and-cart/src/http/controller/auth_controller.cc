@@ -37,7 +37,7 @@ namespace granada{
       void AuthController::handle_post(web::http::http_request request)
       {
         web::http::http_response response;
-        granada::http::session::SimpleSession simple_session(request,response);
+        granada::http::session::MapSession simple_session(request,response);
         auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
         if (!paths.empty()){
           std::string name = paths[0];

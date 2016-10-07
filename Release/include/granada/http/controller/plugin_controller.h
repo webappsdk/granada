@@ -35,7 +35,7 @@
 #include "granada/defaults.h"
 #include "granada/util/time.h"
 #include "granada/util/string.h"
-#include "granada/http/session/checkpoint.h"
+#include "granada/http/session/session.h"
 #include "granada/plugin/plugin.h"
 #include "granada/http/controller/controller.h"
 
@@ -62,7 +62,7 @@ namespace granada{
            *                              checking and setting sessions. Used to create a new
            *                              session if it does not exist or if it is timed out.
            */
-          PluginController(utility::string_t url,std::shared_ptr<granada::http::session::Checkpoint> session_checkpoint, std::shared_ptr<granada::plugin::PluginFactory> plugin_factory);
+          PluginController(utility::string_t url,std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint, std::shared_ptr<granada::plugin::PluginFactory> plugin_factory);
 
         protected:
           
@@ -304,7 +304,7 @@ namespace granada{
           /**
            * Object for creating a session if it does not exist or if it is timed out.
            */
-          std::shared_ptr<granada::http::session::Checkpoint> session_checkpoint_;
+          std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint_;
 
 
           /**

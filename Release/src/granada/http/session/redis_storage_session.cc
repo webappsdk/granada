@@ -22,91 +22,61 @@
   * SOFTWARE.
   *
   */
+
 #include "granada/http/session/redis_storage_session.h"
 
 namespace granada{
   namespace http{
     namespace session{
 
-
-      // we use a session handler that use a map shared by all user to store the sessions.
-      std::unique_ptr<granada::http::session::SessionHandler> RedisStorageSession::session_handler_ = std::unique_ptr<granada::http::session::SessionHandler>(new granada::http::session::RedisSessionHandler(std::shared_ptr<granada::http::session::RedisStorageSession>(new granada::http::session::RedisStorageSession())));
-      std::unique_ptr<granada::cache::CacheHandler> RedisStorageSession::cache_ = std::unique_ptr<granada::cache::CacheHandler>(new granada::cache::RedisCacheDriver());
+      std::once_flag RedisStorageSession::properties_flag_;
+      std::unique_ptr<granada::http::session::SessionHandler> RedisStorageSession::session_handler_(new granada::http::session::RedisStorageSessionHandler());
+      std::unique_ptr<granada::cache::CacheHandler> RedisStorageSession::cache_(new granada::cache::RedisCacheDriver());
       std::unique_ptr<granada::Functions> RedisStorageSession::close_callbacks_(new granada::FunctionsMap());
 
+
       RedisStorageSession::RedisStorageSession(){
-        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
-        LoadProperties();
+        std::call_once(RedisStorageSession::properties_flag_, [this](){
+          this->LoadProperties();
+        });
+        roles_ = std::unique_ptr<granada::http::session::SessionRoles>(new granada::http::session::RedisStorageSessionRoles(this));
       }
 
-      RedisStorageSession::RedisStorageSession(web::http::http_request &request,web::http::http_response &response){
-        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
-        LoadProperties();
+
+      RedisStorageSession::RedisStorageSession(const web::http::http_request &request,web::http::http_response &response){
+        std::call_once(RedisStorageSession::properties_flag_, [this](){
+          this->LoadProperties();
+        });
+        roles_ = std::unique_ptr<granada::http::session::SessionRoles>(new granada::http::session::RedisStorageSessionRoles(this));
         Session::LoadSession(request,response);
       }
 
-      RedisStorageSession::RedisStorageSession(web::http::http_request &request){
-        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
-        LoadProperties();
+
+      RedisStorageSession::RedisStorageSession(const web::http::http_request &request){
+        std::call_once(RedisStorageSession::properties_flag_, [this](){
+          this->LoadProperties();
+        });
+        roles_ = std::unique_ptr<granada::http::session::SessionRoles>(new granada::http::session::RedisStorageSessionRoles(this));
         Session::LoadSession(request);
       }
 
+
       RedisStorageSession::RedisStorageSession(const std::string& token){
-        roles_ = std::shared_ptr<granada::http::session::Roles>(new granada::http::session::RedisRoles(this));
-        LoadProperties();
+        std::call_once(RedisStorageSession::properties_flag_, [this](){
+          this->LoadProperties();
+        });
+        roles_ = std::unique_ptr<granada::http::session::SessionRoles>(new granada::http::session::RedisStorageSessionRoles(this));
         Session::LoadSession(token);
       }
 
 
-      void RedisStorageSession::LoadProperties(){
-        if (session_handler() != nullptr){
-          Session::LoadProperties();
-          std::string session_clean_extra_timeout_str(session_handler()->GetProperty(entity_keys::session_clean_extra_timeout));
-          if (session_clean_extra_timeout_str.empty()){
-            session_clean_extra_timeout_ = default_numbers::session_session_clean_extra_timeout;
-          }else{
-            try{
-              session_clean_extra_timeout_ = std::stol(session_clean_extra_timeout_str);
-            }catch(const std::logic_error& e){
-              session_clean_extra_timeout_ = default_numbers::session_session_clean_extra_timeout;
-            }
-          }
-        }
-      }
+      std::unique_ptr<granada::cache::CacheHandler> RedisStorageSessionRoles::cache_(new granada::cache::RedisCacheDriver());
+      
+      std::once_flag RedisStorageSessionHandler::properties_flag_;
+      std::unique_ptr<granada::cache::CacheHandler> RedisStorageSessionHandler::cache_(new granada::cache::RedisCacheDriver());
+      std::unique_ptr<granada::crypto::NonceGenerator> RedisStorageSessionHandler::nonce_generator_(new granada::crypto::CPPRESTNonceGenerator());
+      std::unique_ptr<granada::http::session::SessionCheckpoint> RedisStorageSessionHandler::checkpoint_(new granada::http::session::RedisStorageSessionCheckpoint());
 
-      void RedisStorageSession::Update(){
-        update_time_ = std::time(nullptr);
-        granada::http::session::RedisStorageSession* redis_storage_session_ptr = new granada::http::session::RedisStorageSession();
-        *redis_storage_session_ptr = *this;
-        std::shared_ptr<granada::http::session::RedisStorageSession> redis_storage_session_shared_ptr(redis_storage_session_ptr);
-        // save the session wherever all the sessions are stored.
-        session_handler()->SaveSession(redis_storage_session_shared_ptr);
-      }
-
-      void RedisStorageSession::Close(){
-        web::json::value session_json = to_json();
-        close_callbacks()->CallAll(session_json);
-        session_handler()->DeleteSession(this);
-      }
-
-      const std::string RedisStorageSession::Read(const std::string& key){
-        if (token_.empty()){
-          return std::string();
-        }
-        return cache_->Read(cache_namespaces::session_data + token_, key);
-      }
-
-      void RedisStorageSession::Write(const std::string& key, const std::string& value){
-        if (!token_.empty()){
-          cache_->Write(cache_namespaces::session_data + token_, key, value);
-        }
-      }
-
-      void RedisStorageSession::Destroy(const std::string& key){
-        if (!token_.empty()){
-          cache_->Destroy(cache_namespaces::session_data + token_, key);
-        }
-      }
     }
   }
 }

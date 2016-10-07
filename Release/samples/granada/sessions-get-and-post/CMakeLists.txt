@@ -14,9 +14,8 @@ add_executable(sessions-get-and-post
   ${GRANADA_SOURCE_DIR}/http/controller/browser_controller.cc
   ${GRANADA_SOURCE_DIR}/http/session/session.cc
   ${GRANADA_SOURCE_DIR}/http/session/storage_session.cc
-  ${GRANADA_SOURCE_DIR}/http/session/map_roles.cc
-  ${GRANADA_SOURCE_DIR}/http/session/shared_map_session_handler.cc
-  ${GRANADA_SOURCE_DIR}/cache/map_cache_driver.cc
+  ${GRANADA_SOURCE_DIR}/http/session/map_storage_session.cc
+  ${GRANADA_SOURCE_DIR}/cache/shared_map_cache_driver.cc
   src/http/controller/test_controller.cc
   )
 

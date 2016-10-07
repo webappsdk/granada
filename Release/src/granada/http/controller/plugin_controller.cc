@@ -38,7 +38,7 @@ namespace granada{
 
       std::once_flag PluginController::properties_flag_;
 
-      PluginController::PluginController(utility::string_t url,std::shared_ptr<granada::http::session::Checkpoint> session_checkpoint, std::shared_ptr<granada::plugin::PluginFactory> plugin_factory){
+      PluginController::PluginController(utility::string_t url,std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint, std::shared_ptr<granada::plugin::PluginFactory> plugin_factory){
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));
         m_listener_->support(methods::POST, std::bind(&PluginController::handle_post, this, std::placeholders::_1));
         session_checkpoint_ = std::move(session_checkpoint);

@@ -43,7 +43,7 @@ namespace granada{
 
         web::http::http_response response;
 
-        granada::http::session::SimpleSession simple_session(request,response);
+        granada::http::session::MapSession simple_session(request,response);
         business::Cart cart(&simple_session);
 
         auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
@@ -77,7 +77,7 @@ namespace granada{
       void CartController::handle_put(web::http::http_request request)
       {
         web::http::http_response response;
-        granada::http::session::SimpleSession simple_session(request,response);
+        granada::http::session::MapSession simple_session(request,response);
         business::Cart cart(&simple_session);
 
         std::string product_id = "";
@@ -118,7 +118,7 @@ namespace granada{
       void CartController::handle_post(web::http::http_request request)
       {
         web::http::http_response response;
-        granada::http::session::SimpleSession simple_session(request,response);
+        granada::http::session::MapSession simple_session(request,response);
         business::Cart cart(&simple_session);
 
         std::string product_id = "";

@@ -27,7 +27,7 @@
 
 #include <stdio.h>
 #include <string>
-#include "granada/http/session/redis_storage_session_checkpoint.h"
+#include "granada/http/session/redis_session.h"
 #include "granada/plugin/redis_spidermonkey_plugin.h"
 #include "granada/http/controller/browser_controller.h"
 #include "granada/http/controller/plugin_controller.h"
@@ -40,7 +40,7 @@ void on_initialize(const string_t& address)
 {
 
   // session checkpoint used to create sessions.
-  std::shared_ptr<granada::http::session::Checkpoint> session_checkpoint(new granada::http::session::RedisStorageSessionCheckpoint());
+  std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint(new granada::http::session::RedisSessionCheckpoint());
 
   ////
   // Browser Controller

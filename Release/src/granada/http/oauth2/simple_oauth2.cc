@@ -30,16 +30,16 @@ namespace granada{
   namespace http{
 
     namespace oauth2{
-      std::shared_ptr<granada::cache::CacheHandler> SimpleOAuth2Client::cache_ = std::shared_ptr<granada::cache::CacheHandler>(new granada::cache::SharedMapCacheDriver());
-      std::shared_ptr<granada::crypto::Cryptograph> SimpleOAuth2Client::cryptograph_ = std::shared_ptr<granada::crypto::Cryptograph>(new granada::crypto::OpensslAESCryptograph());
+      std::shared_ptr<granada::cache::CacheHandler> SimpleOAuth2Client::cache_(new granada::cache::SharedMapCacheDriver());
+      std::shared_ptr<granada::crypto::Cryptograph> SimpleOAuth2Client::cryptograph_(new granada::crypto::OpensslAESCryptograph());
 
-      std::shared_ptr<granada::cache::CacheHandler> SimpleOAuth2User::cache_ = std::shared_ptr<granada::cache::CacheHandler>(new granada::cache::SharedMapCacheDriver());
-      std::shared_ptr<granada::crypto::Cryptograph> SimpleOAuth2User::cryptograph_ = std::shared_ptr<granada::crypto::Cryptograph>(new granada::crypto::OpensslAESCryptograph());
+      std::shared_ptr<granada::cache::CacheHandler> SimpleOAuth2User::cache_(new granada::cache::SharedMapCacheDriver());
+      std::shared_ptr<granada::crypto::Cryptograph> SimpleOAuth2User::cryptograph_(new granada::crypto::OpensslAESCryptograph());
 
-      std::shared_ptr<granada::cache::CacheHandler> SimpleOAuth2Code::cache_ = std::shared_ptr<granada::cache::CacheHandler>(new granada::cache::SharedMapCacheDriver());
-      std::shared_ptr<granada::crypto::Cryptograph> SimpleOAuth2Code::cryptograph_ = std::shared_ptr<granada::crypto::Cryptograph>(new granada::crypto::OpensslAESCryptograph());
+      std::shared_ptr<granada::cache::CacheHandler> SimpleOAuth2Code::cache_(new granada::cache::SharedMapCacheDriver());
+      std::shared_ptr<granada::crypto::Cryptograph> SimpleOAuth2Code::cryptograph_(new granada::crypto::OpensslAESCryptograph());
 
-      std::shared_ptr<granada::cache::CacheHandler> SimpleOAuth2Authorization::cache_ = std::shared_ptr<granada::cache::CacheHandler>(new granada::cache::SharedMapCacheDriver());
+      std::shared_ptr<granada::cache::CacheHandler> SimpleOAuth2Authorization::cache_(new granada::cache::SharedMapCacheDriver());
     }
   }
 }

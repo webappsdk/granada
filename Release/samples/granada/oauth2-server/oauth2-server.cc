@@ -28,9 +28,9 @@
 
 #include <stdio.h>
 #include <string>
-#include "granada/http/session/simple_session_checkpoint.h"
+#include "granada/http/session/map_session.h"
 #include "granada/http/oauth2/simple_oauth2.h"
-#include "granada/cache/map_cache_driver.h"
+#include "granada/cache/shared_map_cache_driver.h"
 #include "granada/http/controller/browser_controller.h"
 #include "granada/http/controller/oauth2_controller.h"
 #include "src/http/controller/user_controller.h"
@@ -45,11 +45,11 @@ std::vector<std::unique_ptr<granada::http::controller::Controller>> g_controller
 void on_initialize(const string_t& address)
 {
 
-  std::shared_ptr<granada::http::session::Checkpoint> session_checkpoint(new granada::http::session::SimpleSessionCheckpoint());
+  std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint(new granada::http::session::MapSessionCheckpoint());
 
   std::shared_ptr<granada::http::oauth2::OAuth2Factory> oauth2_factory(new granada::http::oauth2::SimpleOAuth2Factory());
 
-  std::shared_ptr<granada::cache::CacheHandler> cache_handler(new granada::cache::MapCacheDriver());
+  std::shared_ptr<granada::cache::CacheHandler> cache_handler(new granada::cache::SharedMapCacheDriver());
 
   ////
   // Browser Controller

@@ -15,11 +15,8 @@ add_executable(oauth2-server
   ${GRANADA_SOURCE_DIR}/crypto/nonce_generator.cc
   ${GRANADA_SOURCE_DIR}/cache/web_resource_cache.cc
   ${GRANADA_SOURCE_DIR}/cache/shared_map_cache_driver.cc
-  ${GRANADA_SOURCE_DIR}/cache/map_cache_driver.cc
   ${GRANADA_SOURCE_DIR}/http/session/session.cc
-  ${GRANADA_SOURCE_DIR}/http/session/simple_session.cc
-  ${GRANADA_SOURCE_DIR}/http/session/shared_map_session_handler.cc
-  ${GRANADA_SOURCE_DIR}/http/session/map_roles.cc
+  ${GRANADA_SOURCE_DIR}/http/session/map_session.cc
   ${GRANADA_SOURCE_DIR}/http/controller/browser_controller.cc
   ${GRANADA_SOURCE_DIR}/http/controller/oauth2_controller.cc
   src/http/controller/client_controller.cc
@@ -43,9 +40,7 @@ add_executable(redis-oauth2-server
   ${GRANADA_SOURCE_DIR}/cache/web_resource_cache.cc
   ${GRANADA_SOURCE_DIR}/cache/redis_cache_driver.cc
   ${GRANADA_SOURCE_DIR}/http/session/session.cc
-  ${GRANADA_SOURCE_DIR}/http/session/redis_storage_session.cc
-  ${GRANADA_SOURCE_DIR}/http/session/redis_session_handler.cc
-  ${GRANADA_SOURCE_DIR}/http/session/redis_roles.cc
+  ${GRANADA_SOURCE_DIR}/http/session/redis_session.cc
   ${GRANADA_SOURCE_DIR}/http/controller/browser_controller.cc
   ${GRANADA_SOURCE_DIR}/http/controller/oauth2_controller.cc
   src/http/controller/client_controller.cc

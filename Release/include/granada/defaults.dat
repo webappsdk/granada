@@ -65,7 +65,7 @@ DAT(oauth2_session_role_username,       "oauth2.user:username")
 DAT(session_cookie,                     "cookie")
 DAT(session_json,                       "json")
 DAT(session_query,                      "query")
-DAT(session_clean_extra_timeout,        "session_clean_extra_timeout")
+DAT(session_garbage_extra_timeout,        "session_garbage_extra_timeout")
 DAT(session_clean_frequency,            "session_clean_frequency")
 DAT(session_set_cookie,                 "Set-Cookie")
 DAT(session_timeout,                    "session_timeout")
@@ -74,6 +74,7 @@ DAT(session_token_label,                "session_token_label")
 DAT(session_token_length,               "session_token_length")
 DAT(session_token,                      "token")
 DAT(session_update_time,                "update.time")
+DAT(session_json_update_time,           "update_time")
 
 DAT(oauth2_client_value_namespace,      "oauth2_client_value_namespace")
 DAT(oauth2_client_id_length,            "oauth2_client_id_length")
@@ -256,8 +257,8 @@ DAT(session_timeout,                     86400)
 // This default value is taken in case "session_clean_frequency" property is not found.
 // By default every hour = 3600 seconds.
 DAT(session_clean_sessions_frequency,    3600)
-// This default value is taken in case "session_clean_extra_timeout" property is not found.
-DAT(session_session_clean_extra_timeout, 0)
+// This default value is taken in case "session_garbage_extra_timeout" property is not found.
+DAT(session_session_garbage_extra_timeout, 0)
 
 // Default maximum bytes a Plug-in Hadler can load.
 // 10 MB.

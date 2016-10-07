@@ -28,7 +28,7 @@
 
 #include <stdio.h>
 #include <string>
-#include "granada/http/session/redis_storage_session_checkpoint.h"
+#include "granada/http/session/redis_session.h"
 #include "granada/http/oauth2/redis_oauth2.h"
 #include "granada/cache/redis_cache_driver.h"
 #include "granada/http/controller/browser_controller.h"
@@ -45,7 +45,7 @@ std::vector<std::unique_ptr<granada::http::controller::Controller>> g_controller
 void on_initialize(const string_t& address)
 {
 
-  std::shared_ptr<granada::http::session::Checkpoint> session_checkpoint(new granada::http::session::RedisStorageSessionCheckpoint());
+  std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint(new granada::http::session::RedisSessionCheckpoint());
 
   std::shared_ptr<granada::http::oauth2::OAuth2Factory> oauth2_factory(new granada::http::oauth2::RedisOAuth2Factory());
 

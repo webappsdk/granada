@@ -20,9 +20,7 @@ add_executable(plugin-server
   ${GRANADA_SOURCE_DIR}/plugin/spidermonkey_plugin.cc
   ${GRANADA_SOURCE_DIR}/plugin/map_spidermonkey_plugin.cc
   ${GRANADA_SOURCE_DIR}/http/session/session.cc
-  ${GRANADA_SOURCE_DIR}/http/session/simple_session.cc
-  ${GRANADA_SOURCE_DIR}/http/session/shared_map_session_handler.cc
-  ${GRANADA_SOURCE_DIR}/http/session/map_roles.cc
+  ${GRANADA_SOURCE_DIR}/http/session/map_session.cc
   ${GRANADA_SOURCE_DIR}/http/controller/browser_controller.cc
   ${GRANADA_SOURCE_DIR}/http/controller/plugin_controller.cc
 )
@@ -44,9 +42,7 @@ add_executable(plugin-server-redis
   ${GRANADA_SOURCE_DIR}/plugin/spidermonkey_plugin.cc
   ${GRANADA_SOURCE_DIR}/plugin/redis_spidermonkey_plugin.cc
   ${GRANADA_SOURCE_DIR}/http/session/session.cc
-  ${GRANADA_SOURCE_DIR}/http/session/redis_storage_session.cc
-  ${GRANADA_SOURCE_DIR}/http/session/redis_session_handler.cc
-  ${GRANADA_SOURCE_DIR}/http/session/redis_roles.cc
+  ${GRANADA_SOURCE_DIR}/http/session/redis_session.cc
   ${GRANADA_SOURCE_DIR}/http/controller/browser_controller.cc
   ${GRANADA_SOURCE_DIR}/http/controller/plugin_controller.cc
 )

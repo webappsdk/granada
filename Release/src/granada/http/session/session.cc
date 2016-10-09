@@ -89,11 +89,14 @@ namespace granada{
 
 
       void Session::Close(){
-        // removes a session from wherever sessions are stored.
-        web::json::value session_json = to_json();
-        close_callbacks()->CallAll(session_json);
-        roles()->RemoveAll();
-        session_handler()->DeleteSession(this);
+        if (!token_.empty()){
+
+          // removes a session from wherever sessions are stored.
+          web::json::value session_json = to_json();
+          close_callbacks()->CallAll(session_json);
+          roles()->RemoveAll();
+          session_handler()->DeleteSession(this);
+        }
       }
 
 
@@ -342,10 +345,7 @@ namespace granada{
       void SessionHandler::DeleteSession(granada::http::session::Session* session){
         const std::string& token = session->GetToken();
         if (!token.empty()){
-          const std::shared_ptr<granada::cache::CacheHandlerIterator>& cache_iterator = cache()->make_iterator("session:*" + token + "*");
-          while(cache_iterator->has_next()){
-            cache()->Destroy(cache_iterator->next());
-          }
+          cache()->Destroy(session_value_hash(token));
         }
       }
 
@@ -354,9 +354,10 @@ namespace granada{
         const std::shared_ptr<granada::cache::CacheHandlerIterator>& cache_iterator = cache()->make_iterator(session_value_hash("*"));
         while(cache_iterator->has_next()){
           const std::string& key = cache_iterator->next();
-          const std::shared_ptr<granada::http::session::Session>& session = checkpoint()->check(cache()->Read(key, entity_keys::session_token));
+          const std::string& token = cache()->Read(key, entity_keys::session_token);
+          const std::shared_ptr<granada::http::session::Session>& session = checkpoint()->check();
           const time_t& update_time = granada::util::time::parse(cache()->Read(key, entity_keys::session_update_time));
-          session->SetUpdateTime(update_time);
+          session->set(token,update_time);
           if (session->IsGarbage()){
             session->Close();
           }

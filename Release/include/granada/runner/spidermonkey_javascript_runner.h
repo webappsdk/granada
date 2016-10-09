@@ -42,6 +42,13 @@ namespace granada{
      * Run javascript using Mozilla's JavaScript engine: Spider Monkey.
      * Spider monkey version 38 is used.
      * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey
+     * 
+     * Recommendation: read Mozilla performance docummentation and specialy
+     * the Memory profiling and leak detection tools
+     * https://developer.mozilla.org/en-US/docs/Mozilla/Performance
+     * 
+     * If you are using Valgrind to detect memory leaks please read:
+     * https://developer.mozilla.org/en-US/docs/Mozilla/Testing/Valgrind
      */
     class SpiderMonkeyJavascriptRunner : public Runner
     {
@@ -82,7 +89,7 @@ namespace granada{
          *          that can be called from the script/executable.
          */
         virtual std::shared_ptr<granada::Functions> functions(){
-          return functions_;
+          return SpiderMonkeyJavascriptRunner::functions_;
         };
 
         
@@ -92,7 +99,7 @@ namespace granada{
          * @return   Vector with the extensions.
          */
         virtual std::vector<std::string> extensions(){
-          return extensions_;
+          return SpiderMonkeyJavascriptRunner::extensions_;
         };
 
 

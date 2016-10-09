@@ -272,6 +272,10 @@ DAT(plugin_runner_use_frequency_limit, 	20)
 
 DAT(plugin_handler_use_frequency_limit,	0)
 
+
+DAT(runner_spidermonkey_runtime_maxbytes,67108864)
+DAT(runner_spidermonkey_context_maxbytes,67108864)
+
 #endif // _DEFAULT_NUMBERS
 
 

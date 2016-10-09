@@ -54,15 +54,14 @@ namespace granada{
 
     std::string SpiderMonkeyJavascriptRunner::Run(const std::string& _script){
 
-      // [SpiderMonkey 38] useHelperThreads parameter is removed.
-      // JSRuntime *rt = JS_NewRuntime(8L * 1024 * 1024);
-      JSRuntime* rt = JS_NewRuntime(1L * 1024 * 1024);
+      JSRuntime* rt = JS_NewRuntime(default_numbers::runner_spidermonkey_runtime_maxbytes);
       if (!rt){
         return runner_initialization_error_;
       }
 
-      JSContext* cx = JS_NewContext(rt, 1024);
+      JSContext* cx = JS_NewContext(rt, default_numbers::runner_spidermonkey_context_maxbytes);
       if (!cx){
+        JS_DestroyRuntime(rt);
         return runner_initialization_error_;
       }
 
@@ -74,52 +73,50 @@ namespace granada{
         // Scope for our various stack objects (JSAutoRequest, RootedObject), so they all go
         // out of scope before we JS_DestroyContext.
 
-        JSAutoRequest ar(cx); // In practice, you would want to exit this any
-                              // time you're spinning the event loop
-
-        // [SpiderMonkey 24] hookOption parameter does not exist.
-        //JS::RootedObject global(cx, JS_NewGlobalObject(cx, &global_class_, nullptr));
         JS::RootedObject global(cx, JS_NewGlobalObject(cx, &global_class_, nullptr, JS::FireOnNewGlobalHook));
         if (!global){
           JS_EndRequest(cx);
+          JS_DestroyContext(cx);
+          JS_DestroyRuntime(rt);
           return runner_initialization_error_;
         }
 
-        
-        JS::RootedValue rval(cx);
 
         {
           // Scope for JSAutoCompartment
           JSAutoCompartment ac(cx, global);
+        
           JS_InitStandardClasses(cx, global);
           const char *script = _script.c_str();
-          const char *filename = "noname";
-          int lineno = 1;
-          // [SpiderMonkey 24] The type of rval parameter is 'jsval *'.
-          // bool ok = JS_EvaluateScript(cx, global, script, strlen(script), filename, lineno, rval.address());
-          // [SpiderMonkey 38] JS_EvaluateScript is replaced with JS::Evaluate.
-          JS::CompileOptions opts(cx);
-          opts.setFileAndLine(filename, lineno);
 
-          std::shared_ptr<granada::FunctionsIterator> it = functions_->make_iterator();
+          std::shared_ptr<granada::FunctionsIterator> it = functions()->make_iterator();
 
           while(it->has_next()){
             granada::Function function = it->next();
             JS_DefineFunction(cx, global, function.name.c_str(), FunctionWrapper, 1, 0);
           }
 
-          bool ok = JS::Evaluate(cx, global, opts, script, strlen(script), &rval);
-          //bool ok = JS_EvaluateScript(cx, global, script, strlen(script), filename, lineno, &rval);
+          JS::RootedValue rval(cx);
+          JSAutoRequest ar(cx);    
+          JS::CompileOptions options(cx);
+          bool ok = JS::Evaluate(cx, global, options, script, std::strlen(script), &rval);
           if (ok){
             JSString *str = rval.toString();
-            response = JS_EncodeString(cx, str);
+            char * bytes = JS_EncodeString(cx, str);
+            response = bytes;
+            JS_free(cx, bytes);
           }else{
             response = "{\"" + default_strings::runner_error + "\":\"" + default_errors::runner_script_error + "\"}";
           }
+          
         }
+
       }
 
       JS_EndRequest(cx);
+      
+      JS_DestroyContext(cx);
+      JS_DestroyRuntime(rt);
 
       return response;
     }
@@ -127,11 +124,8 @@ namespace granada{
 
     bool SpiderMonkeyJavascriptRunner::FunctionWrapper(JSContext *cx, unsigned argc, JS::Value *vp){
 
-      JS_BeginRequest(cx);
-
       std::string error;
 
-      JSAutoRequest ar(cx);
       char nameBuffer[256];
       const char* name = nameBuffer;
       std::string function_name;
@@ -152,6 +146,7 @@ namespace granada{
         }
       }
 
+
       JS::CallArgs args = CallArgsFromVp(argc, vp);
 
       if (function_name.empty()){
@@ -161,9 +156,11 @@ namespace granada{
         // get parameters and call function
         // between the functions of the functions collection.
         JSString* str = args[0].toString();
-        std::string encoded_str = JS_EncodeString(cx, str);
-        web::json::value params;
+        char * bytes = JS_EncodeString(cx, str);
+        std::string encoded_str = bytes;
+        JS_free(cx, bytes);
 
+        web::json::value params;
         try{
           params = web::json::value::parse(encoded_str);
         }catch(const web::json::json_exception& e){
@@ -174,18 +171,21 @@ namespace granada{
 
         std::string response_str;
 
-        // call the function.
-        functions_->Call(function_name,params,[&response_str](const web::json::value& response){
+        // recursive javascript eval is not allowed,
+        // a thread is created to bypass this problem.
+        granada::function_json_json fn = SpiderMonkeyJavascriptRunner::functions_->Get(function_name);
+        pplx::create_task([&fn,&params,&response_str]{
+          // call the function.
           try{
-            response_str = response.serialize();
+            response_str = fn(params).serialize();
           }catch(const web::json::json_exception& e){
             response_str = "{}";
           }
-        });
+        }).wait();
+        
 
         JS::RootedString name_str(cx, JS_NewStringCopyZ(cx, response_str.c_str()));
         if (!name_str){
-          JS_EndRequest(cx);
           return false;
         }
         args.rval().setString(name_str);
@@ -194,13 +194,10 @@ namespace granada{
       if (!error.empty()){
         JS::RootedString name_str(cx, JS_NewStringCopyZ(cx, error.c_str()));
         if (!name_str){
-          JS_EndRequest(cx);
           return false;
         }
         args.rval().setString(name_str);
       }
-
-      JS_EndRequest(cx);
 
       return true;
     }

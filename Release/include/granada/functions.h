@@ -185,7 +185,7 @@ namespace granada{
        * @param callback    Callback function to get the value returned by
        *                    the called function. Function with JSON as a parameter.
        */
-      virtual void Call(const std::string& name, web::json::value& parameters, function_void_json callback){};
+      virtual void Call(const std::string& name, const web::json::value& parameters, function_void_json callback){};
 
 
       /**
@@ -196,7 +196,7 @@ namespace granada{
        * @param parameters  Parameters in form of json value to pass to the
        *                    called function.
        */
-      virtual void Call(const std::string& name, web::json::value& parameters){};
+      virtual void Call(const std::string& name, const web::json::value& parameters){};
 
 
       /**
@@ -241,7 +241,7 @@ namespace granada{
        * @param callback    Callback function to get the value returned by
        *                    the called function. Function with JSON as a parameter.
        */
-      virtual void CallAll(web::json::value& parameters,function_void_json callback){};
+      virtual void CallAll(const web::json::value& parameters,function_void_json callback){};
 
 
       /**
@@ -273,7 +273,7 @@ namespace granada{
        * @param parameters  JSON value containing the parameters to pass to the
        *                    called functions.
        */
-      virtual void CallAll(web::json::value& parameters){};
+      virtual void CallAll(const web::json::value& parameters){};
 
 
       /**
@@ -432,7 +432,7 @@ namespace granada{
        * @param   parameters  JSON to pass to the function to call.
        * @param   callback    Callback function.
        */
-      virtual void Call(const std::string& name, web::json::value& parameters, function_void_json callback);
+      virtual void Call(const std::string& name, const web::json::value& parameters, function_void_json callback);
       
 
       /**
@@ -440,7 +440,7 @@ namespace granada{
        * @param   name        Name identifying the function.
        * @param   parameters  JSON to pass to the function to call.
        */
-      virtual void Call(const std::string& name, web::json::value& parameters);
+      virtual void Call(const std::string& name, const web::json::value& parameters);
 
 
       /**
@@ -476,7 +476,7 @@ namespace granada{
        * @param   parameters  JSON to pass to the functions.
        * @param   callback    Callback function with a JSON array containing the returns of the functions.
        */
-      virtual void CallAll(web::json::value& parameters,function_void_json callback);
+      virtual void CallAll(const web::json::value& parameters,function_void_json callback);
       
 
       /**
@@ -502,7 +502,7 @@ namespace granada{
        * Calls all functions from the collection with given parameters.
        * @param   parameters  JSON to pass to the functions.
        */
-      virtual void CallAll(web::json::value& parameters);
+      virtual void CallAll(const web::json::value& parameters);
 
 
       /**

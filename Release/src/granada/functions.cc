@@ -94,9 +94,7 @@ namespace granada{
 
 
   function_json_json FunctionsMap::Get(const std::string& name){
-    mtx_.lock();
     function_json_json fn = (*this)[name];
-    mtx_.unlock();
     return fn;
   }
 
@@ -114,25 +112,25 @@ namespace granada{
   }
 
 
-  void FunctionsMap::Call(const std::string& name, web::json::value& parameters, function_void_json callback){
+  void FunctionsMap::Call(const std::string& name, const web::json::value& parameters, function_void_json callback){
     web::json::value response = (*this)[name](parameters);
     callback(response);
   };
   
 
-  void FunctionsMap::Call(const std::string& name, web::json::value& parameters){
+  void FunctionsMap::Call(const std::string& name, const web::json::value& parameters){
     (*this)[name](parameters);
   };
 
 
   void FunctionsMap::Call(const std::string& name, function_void_json callback){
-    web::json::value parameters = Functions::DefaultParameters();
+    const web::json::value& parameters = Functions::DefaultParameters();
     Call(name,parameters,callback);
   };
 
 
   void FunctionsMap::Call(const std::string& name){
-    web::json::value parameters = Functions::DefaultParameters();
+    const web::json::value& parameters = Functions::DefaultParameters();
     Call(name,parameters);
   };
 
@@ -142,7 +140,7 @@ namespace granada{
   };
 
 
-  void FunctionsMap::CallAll(web::json::value& parameters,function_void_json callback){
+  void FunctionsMap::CallAll(const web::json::value& parameters,function_void_json callback){
     web::json::value response = web::json::value::object();
     web::json::value data = web::json::value::object();
     mtx_.lock();
@@ -159,12 +157,12 @@ namespace granada{
   
 
   void FunctionsMap::CallAll(function_void_json callback){
-    web::json::value parameters = Functions::DefaultParameters();
+    const web::json::value& parameters = Functions::DefaultParameters();
     CallAll(parameters,callback);
   };
 
 
-  void FunctionsMap::CallAll(web::json::value& parameters){
+  void FunctionsMap::CallAll(const web::json::value& parameters){
     mtx_.lock();
     for (auto it = functions_->begin(); it != functions_->end(); ++it){
       it->second(parameters);

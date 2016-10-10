@@ -53,13 +53,12 @@ namespace granada{
 
 
     std::string SpiderMonkeyJavascriptRunner::Run(const std::string& _script){
-
       JSRuntime* rt = JS_NewRuntime(default_numbers::runner_spidermonkey_runtime_maxbytes);
       if (!rt){
         return runner_initialization_error_;
       }
 
-      JSContext* cx = JS_NewContext(rt, default_numbers::runner_spidermonkey_context_maxbytes);
+      JSContext* cx = JS_NewContext(rt, default_numbers::runner_spidermonkey_context_stackchunksize);
       if (!cx){
         JS_DestroyRuntime(rt);
         return runner_initialization_error_;
@@ -75,14 +74,9 @@ namespace granada{
 
         JS::RootedObject global(cx, JS_NewGlobalObject(cx, &global_class_, nullptr, JS::FireOnNewGlobalHook));
         if (!global){
-          JS_EndRequest(cx);
-          JS_DestroyContext(cx);
-          JS_DestroyRuntime(rt);
-          return runner_initialization_error_;
-        }
-
-
-        {
+          response = runner_initialization_error_;
+        }else{
+          
           // Scope for JSAutoCompartment
           JSAutoCompartment ac(cx, global);
         
@@ -107,10 +101,8 @@ namespace granada{
             JS_free(cx, bytes);
           }else{
             response = "{\"" + default_strings::runner_error + "\":\"" + default_errors::runner_script_error + "\"}";
-          }
-          
+          }  
         }
-
       }
 
       JS_EndRequest(cx);

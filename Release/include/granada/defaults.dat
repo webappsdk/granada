@@ -26,7 +26,6 @@ DAT(plugin_store,                       "plugin:store:")
 DAT(plugin_value,                       "plugin:value:")
 DAT(plugin_handler_value,               "plugin.handler:value:")
 DAT(plugin_event_value,                 "plugin.event:value:")
-DAT(plugin_extended,					"plugin.extended:")
 
 
 #endif // _CACHE_NAMESPACES
@@ -273,8 +272,10 @@ DAT(plugin_runner_use_frequency_limit, 	20)
 DAT(plugin_handler_use_frequency_limit,	0)
 
 
-DAT(runner_spidermonkey_runtime_maxbytes,67108864)
-DAT(runner_spidermonkey_context_maxbytes,67108864)
+DAT(runner_spidermonkey_runtime_maxbytes,8388608)
+DAT(runner_spidermonkey_context_stackchunksize,8192)
+
+
 
 #endif // _DEFAULT_NUMBERS
 

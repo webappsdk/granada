@@ -55,28 +55,27 @@ namespace granada{
 
 
         /**
-         * Destructor.
-         */
-        ~RedisSyncClientWrapper(){
-          delete redis_;
-        };
-
-
-        /**
          * Returns redis sync client pointer.
          * @return Redis sync client Pointer.
          */
-        RedisSyncClient* get(){
-          return redis_;
+        redisclient::RedisSyncClient* get(){
+          return redis_.get();
         };
 
 
       private:
 
+
+        /**
+         * Once flag for properties loading.
+         */
+        static std::once_flag properties_flag_;
+
+
         /**
          * Redis sync client.
          */
-        RedisSyncClient* redis_;
+        std::unique_ptr<redisclient::RedisSyncClient> redis_;
 
 
         /**
@@ -84,7 +83,7 @@ namespace granada{
          * of the "redis_cache_driver_address" property. If the property
          * is not provided default_strings::redis_cache_redis_address will be taken instead.
          */
-        std::string redis_address_;
+        static std::string redis_address_;
 
 
         /**
@@ -92,7 +91,7 @@ namespace granada{
          * of the "redis_cache_driver_port" property. If the property
          * is not provided default_strings::redis_cache_redis_port will be taken instead.
          */
-        unsigned short redis_port_;
+        static unsigned short redis_port_;
 
 
         /**
@@ -107,7 +106,7 @@ namespace granada{
          * @param _address Redis server adress.
          * @param port     Redis server port.
          */
-        void ConnectRedisSyncClient(RedisSyncClient* redis, const std::string& _address, const unsigned short& port);
+        void ConnectRedisSyncClient(redisclient::RedisSyncClient* redis, const std::string& _address, const unsigned short& port);
     };
 
 
@@ -161,6 +160,12 @@ namespace granada{
 
 
         /**
+         * Destructor
+         */
+        virtual ~RedisIterator(){};
+
+
+        /**
          * Set the iterator, useful to reuse it.
          * @param type       SCAN or KEYS command.
          * @param expression Filter pattern/expression.
@@ -196,7 +201,7 @@ namespace granada{
         /**
          * Results of the SCAN or KEYS search.
          */
-        std::vector<RedisValue> keys_;
+        std::vector<redisclient::RedisValue> keys_;
 
 
         /**
@@ -244,6 +249,12 @@ namespace granada{
          * Controler
          */
         RedisCacheDriver(){};
+
+
+        /**
+         * Destructor
+         */
+        virtual ~RedisCacheDriver(){};
 
 
         /**
@@ -331,7 +342,7 @@ namespace granada{
          *                         
          * @return            RedisValue containing a group keys and a new cursor.
          */
-        RedisValue Scan(const std::string& cursor, const std::string& expression_);
+        redisclient::RedisValue Scan(const std::string& cursor, const std::string& expression_);
 
 
         /**
@@ -352,7 +363,7 @@ namespace granada{
          *                         
          * @return            RedisValue containing all the keys.
          */
-        RedisValue Keys(const std::string& expression_);
+        redisclient::RedisValue Keys(const std::string& expression_);
 
 
         /**
@@ -362,7 +373,7 @@ namespace granada{
          * @return  Iterator.
          */
         std::shared_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
-          return std::shared_ptr<granada::cache::CacheHandlerIterator>(new granada::cache::RedisIterator(expression));
+          return std::make_shared<granada::cache::RedisIterator>(expression);
         };
 
       protected:
@@ -376,6 +387,7 @@ namespace granada{
          * Mutex for thread safety.
          */
         static std::mutex mtx_;
+
 
     };
   }

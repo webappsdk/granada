@@ -82,6 +82,12 @@ namespace granada{
 
 
         /**
+         * Destructor
+         */
+        virtual ~SharedMapIterator(){};
+
+
+        /**
          * Return true if there is another value with same pattern, false
          * if there is not.
          * @return True | False
@@ -132,6 +138,12 @@ namespace granada{
          * Constructor
          */
         SharedMapCacheDriver();
+
+
+        /**
+         * Destructor
+         */
+        virtual ~SharedMapCacheDriver(){};
 
 
         /**
@@ -229,16 +241,16 @@ namespace granada{
          * @return  Iterator.
          */
         std::shared_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
-          return std::shared_ptr<granada::cache::CacheHandlerIterator>(new granada::cache::SharedMapIterator(expression,this));
+          return std::make_shared<granada::cache::SharedMapIterator>(expression,this);
         };
 
 
       protected:
 
         /**
-         * Map where all data is store.
+         * Map where all data is stored.
          */
-        std::shared_ptr<std::unordered_map<std::string,std::map<std::string,std::string>>> data_;
+        std::unique_ptr<std::unordered_map<std::string,std::map<std::string,std::string>>> data_;
 
         /**
          * Mutex for thread safety.

@@ -52,7 +52,7 @@ namespace granada{
     }
 
     SharedMapCacheDriver::SharedMapCacheDriver(){
-      data_ = std::shared_ptr<std::unordered_map<std::string,std::map<std::string,std::string>>>(new std::unordered_map<std::string,std::map<std::string,std::string>>);
+      data_.reset(new std::unordered_map<std::string,std::map<std::string,std::string>>());
     }
 
     const bool SharedMapCacheDriver::Exists(const std::string& key){

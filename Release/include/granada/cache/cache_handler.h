@@ -68,6 +68,12 @@ namespace granada{
 
 
         /**
+         * Destructor
+         */
+        virtual ~CacheHandlerIterator(){};
+
+
+        /**
          * Set the iterator, useful to reuse it.
          * @param expression Filter pattern/expression.
          *                   Example:
@@ -230,7 +236,7 @@ namespace granada{
          * Returns an iterator to iterate over keys with an expression.
          */
         virtual std::shared_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
-          return std::shared_ptr<granada::cache::CacheHandlerIterator>(new granada::cache::CacheHandlerIterator(expression));
+          return std::make_shared<granada::cache::CacheHandlerIterator>(expression);
         };
         
     };

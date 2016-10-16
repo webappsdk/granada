@@ -42,7 +42,6 @@ namespace granada{
       class BrowserController : public Controller
       {
 
-
       public:
 
 
@@ -56,12 +55,17 @@ namespace granada{
         /**
          * Constructor
          * @param   url                 URI the controller listens to.
-         * @param   session_checkpoint  Session checkpoint. Allows to have a unique point for
+         * @param   session_factory  Session factory. Allows to have a unique point for
          *                              checking and setting sessions. Used to create a new
          *                              session if it does not exist or if it is timed out.
          */
-        BrowserController(utility::string_t url,std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint);
+        BrowserController(utility::string_t url,std::shared_ptr<granada::http::session::SessionFactory>& session_factory);
 
+
+        /**
+         * Destructor
+         */
+        virtual ~BrowserController(){};
 
 
       private:
@@ -79,11 +83,11 @@ namespace granada{
 
 
         /**
-         * Session checkpoint. Allows to have a unique point for
+         * Session factory. Allows to have a unique point for
          * checking and setting sessions. Used to create a new
          * session if it does not exist or if it is timed out.
          */
-        std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint_;
+        std::shared_ptr<granada::http::session::SessionFactory> session_factory_;
         
       };
     }

@@ -43,18 +43,26 @@ namespace granada{
        * Controllers process the HTTP requests.
        */
       class Controller{
+
         public:
+
+          /**
+           * Controller
+           */
+          virtual ~Controller(){};
+
 
           /**
            * Opens and returns the listener.
            */
-          pplx::task<void> open() { return m_listener_->open(); };
+          virtual pplx::task<void> open() { return m_listener_->open(); };
 
 
           /**
            * Closes the listener.
            */
-          pplx::task<void> close() { return m_listener_->close(); };
+          virtual pplx::task<void> close() { return m_listener_->close(); };
+
 
         protected:
 
@@ -62,6 +70,7 @@ namespace granada{
            * Listener
            */
           std::unique_ptr<web::http::experimental::listener::http_listener> m_listener_;
+
       };
     }
   }

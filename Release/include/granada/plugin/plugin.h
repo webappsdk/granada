@@ -36,6 +36,7 @@
 #include "cpprest/json.h"
 #include "boost/filesystem.hpp"
 #include "granada/defaults.h"
+#include "granada/util/memory.h"
 #include "granada/util/string.h"
 #include "granada/util/vector.h"
 #include "granada/util/json.h"
@@ -365,7 +366,7 @@ namespace granada{
          * @param plugin  Plug-in to add.
          * @return        True if plug-in has been added correctly, false if it has not.
          */
-        virtual bool Add(const std::shared_ptr<granada::plugin::Plugin>& plugin);
+        virtual bool Add(granada::plugin::Plugin* plugin);
 
 
         /**
@@ -379,7 +380,7 @@ namespace granada{
          *                      executed just after adding it.
          * @return              True if plug-in has been added correctly, false if it has not.
          */
-        virtual bool Add(const std::shared_ptr<granada::plugin::Plugin>& plugin, web::json::value& parameters);
+        virtual bool Add(granada::plugin::Plugin* plugin, web::json::value& parameters);
 
 
         /**
@@ -395,7 +396,7 @@ namespace granada{
          * @param plugin    Pointer to the plug-in that is going to extend
          *                  other plug-ins.
          */
-        virtual void Extend(const std::shared_ptr<granada::plugin::Plugin>& plugin);
+        virtual void Extend(granada::plugin::Plugin* plugin);
 
 
         /**
@@ -410,7 +411,7 @@ namespace granada{
          * @param plugin            Pointer to the plug-in that is going to extend
          *                          other plug-ins.
          */
-        virtual void Extend(const std::shared_ptr<granada::plugin::Plugin>& extended_plugin, const std::shared_ptr<granada::plugin::Plugin>& plugin);
+        virtual void Extend(granada::plugin::Plugin* extended_plugin, granada::plugin::Plugin* plugin);
 
 
         /**
@@ -425,7 +426,7 @@ namespace granada{
          * @param plugin                Pointer to the plug-in that is going to extend
          *                              other plug-ins.
          */
-        virtual void Extend(const web::json::array& extended_plugins_ids, const std::shared_ptr<granada::plugin::Plugin>& plugin){
+        virtual void Extend(const web::json::array& extended_plugins_ids, granada::plugin::Plugin* plugin){
             // override
         };
 
@@ -448,7 +449,7 @@ namespace granada{
          * 
          * @return bool        True if plug-in has been extended, false if not.
          */
-        virtual bool ApplyExtensions(const std::shared_ptr<granada::plugin::Plugin>& plugin);
+        virtual bool ApplyExtensions(granada::plugin::Plugin* plugin);
 
 
         /**
@@ -504,7 +505,7 @@ namespace granada{
          * 
          * @param plugin_id   Pointer pointing to a plug-in.
          */
-        virtual void RemoveEventListeners(const std::shared_ptr<granada::plugin::Plugin>& plugin);
+        virtual void RemoveEventListeners(granada::plugin::Plugin* plugin);
 
 
         /**
@@ -536,7 +537,7 @@ namespace granada{
          * @param plugin_id   Plugin id.
          * @return            Plugin pointer.
          */
-        virtual std::shared_ptr<granada::plugin::Plugin> GetPluginById(const std::string& plugin_id);
+        virtual std::unique_ptr<granada::plugin::Plugin> GetPluginById(const std::string& plugin_id);
 
 
         /**
@@ -621,7 +622,7 @@ namespace granada{
          *                              "error" : "script_error"
          *                            }@endcode
          */
-        virtual void Run(const std::shared_ptr<granada::plugin::Plugin>& plugin, web::json::value& parameters,const std::string& event_name, function_void_json success, function_void_json failure);
+        virtual void Run(granada::plugin::Plugin* plugin, web::json::value& parameters,const std::string& event_name, function_void_json success, function_void_json failure);
 
 
         /**
@@ -1019,8 +1020,8 @@ namespace granada{
          * script paths as well as plug-ins global values. Needs to be overridden.
          * @return  Pointer to the Cache Handler.
          */
-        virtual std::shared_ptr<granada::cache::CacheHandler> cache(){
-          return std::shared_ptr<granada::cache::CacheHandler>(nullptr);
+        virtual granada::cache::CacheHandler* cache(){
+          return nullptr;
         };
 
         
@@ -1028,8 +1029,8 @@ namespace granada{
          * Returns a pointer to a Plug-in Factory. Used to create PluginHandlers and Plugins.
          * @return Pointer to a plug-in Factory.
          */
-        virtual std::shared_ptr<granada::plugin::PluginFactory> plugin_factory(){
-          return std::shared_ptr<granada::plugin::PluginFactory>(nullptr);
+        virtual granada::plugin::PluginFactory* plugin_factory(){
+          return nullptr;
         };
 
 
@@ -1038,8 +1039,8 @@ namespace granada{
          * plug-in scripts/executables.
          * @return Pointer to the scripts/executables runner.
          */
-        virtual std::shared_ptr<granada::runner::Runner> runner(){
-          return std::shared_ptr<granada::runner::Runner>(nullptr);
+        virtual granada::runner::Runner* runner(){
+          return nullptr;
         };
 
 
@@ -1260,7 +1261,7 @@ namespace granada{
          *
          * @return             True if plug-in loaded successfully, false if not.
          */
-        virtual bool Load(const std::shared_ptr<granada::plugin::Plugin>& plugin, const web::json::value& loader){
+        virtual bool Load(granada::plugin::Plugin* plugin, const web::json::value& loader){
           return false;
         };
 
@@ -1595,29 +1596,47 @@ namespace granada{
     class PluginFactory{
 
       public:
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin(){
-          return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::Plugin());
+
+        virtual std::unique_ptr<granada::plugin::Plugin>Plugin_unique_ptr(){
+          return granada::util::memory::make_unique<granada::plugin::Plugin>();
         };
 
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin(granada::plugin::PluginHandler* plugin_handler,const std::string& id){
-          return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::Plugin(plugin_handler,id));
+        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr(){
+          return std::make_shared<granada::plugin::Plugin>();
         };
 
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script){
-          return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::Plugin(plugin_handler,header,configuration,script));
+        virtual std::unique_ptr<granada::plugin::Plugin>Plugin_unique_ptr(granada::plugin::PluginHandler* plugin_handler,const std::string& id){
+          return granada::util::memory::make_unique<granada::plugin::Plugin>(plugin_handler,id);
         };
 
-        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler(){
-          return std::shared_ptr<granada::plugin::PluginHandler>(new granada::plugin::PluginHandler());
+        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr(granada::plugin::PluginHandler* plugin_handler,const std::string& id){
+          return std::make_shared<granada::plugin::Plugin>(plugin_handler,id);
         };
 
-        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler(const std::string& id){
-          return std::shared_ptr<granada::plugin::PluginHandler>(new granada::plugin::PluginHandler(id));
+        virtual std::unique_ptr<granada::plugin::Plugin>Plugin_unique_ptr(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script){
+          return granada::util::memory::make_unique<granada::plugin::Plugin>(plugin_handler,header,configuration,script);
         };
 
-        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler(granada::plugin::PluginHandler* plugin_handler){
-          return std::shared_ptr<granada::plugin::PluginHandler>(plugin_handler);
+        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script){
+          return std::make_shared<granada::plugin::Plugin>(plugin_handler,header,configuration,script);
         };
+
+        virtual std::unique_ptr<granada::plugin::PluginHandler>PluginHandler_unique_ptr(){
+          return granada::util::memory::make_unique<granada::plugin::PluginHandler>();
+        };
+
+        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler_shared_ptr(){
+          return std::make_shared<granada::plugin::PluginHandler>();
+        };
+
+        virtual std::unique_ptr<granada::plugin::PluginHandler>PluginHandler_unique_ptr(const std::string& id){
+          return granada::util::memory::make_unique<granada::plugin::PluginHandler>(id);
+        };
+
+        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler_shared_ptr(const std::string& id){
+          return std::make_shared<granada::plugin::PluginHandler>(id);
+        };
+
     };
   }
 }

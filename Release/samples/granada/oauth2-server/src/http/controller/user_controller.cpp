@@ -62,7 +62,7 @@ namespace granada{
           if (password==password2){
             if (username.length() > 5 && username.length() < 16 && password.length() > 5 && password.length() < 16){
               // create user
-              std::shared_ptr<granada::http::oauth2::OAuth2User> oauth2_user = oauth2_factory_->OAuth2User();
+              std::unique_ptr<granada::http::oauth2::OAuth2User> oauth2_user = oauth2_factory_->OAuth2User_unique_ptr();
               web::json::value roles;
               std::string roles_str = "{\"msg.select\":{\"username\":\"{{username}}\"},\"msg.insert\":{\"username\":\"{{username}}\"},\"msg.update\":{\"username\":\"{{username}}\"},\"msg.delete\":{\"username\":\"{{username}}\"}}";
               std::deque<std::pair<std::string,std::string>> values;

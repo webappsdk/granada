@@ -29,9 +29,9 @@ namespace granada{
 
   namespace plugin{
 
-    std::shared_ptr<granada::cache::CacheHandler> MapSpidermonkeyPluginHandler::cache_(new granada::cache::SharedMapCacheDriver());
-    std::shared_ptr<granada::plugin::PluginFactory> MapSpidermonkeyPluginHandler::plugin_factory_(new granada::plugin::MapSpidermonkeyPluginFactory());
-    std::shared_ptr<granada::runner::Runner> MapSpidermonkeyPluginHandler::runner_(new granada::runner::SpiderMonkeyJavascriptRunner());
+    std::unique_ptr<granada::cache::CacheHandler> MapSpidermonkeyPluginHandler::cache_(new granada::cache::SharedMapCacheDriver());
+    std::unique_ptr<granada::plugin::PluginFactory> MapSpidermonkeyPluginHandler::plugin_factory_(new granada::plugin::MapSpidermonkeyPluginFactory());
+    std::unique_ptr<granada::runner::Runner> MapSpidermonkeyPluginHandler::runner_(new granada::runner::SpiderMonkeyJavascriptRunner());
 
   }
 }

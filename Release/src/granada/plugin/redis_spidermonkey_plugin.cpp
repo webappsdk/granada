@@ -29,9 +29,9 @@ namespace granada{
 
   namespace plugin{
 
-    std::shared_ptr<granada::cache::CacheHandler> RedisSpidermonkeyPluginHandler::cache_(new granada::cache::RedisCacheDriver());
-    std::shared_ptr<granada::plugin::PluginFactory> RedisSpidermonkeyPluginHandler::plugin_factory_(new granada::plugin::RedisSpidermonkeyPluginFactory());
-    std::shared_ptr<granada::runner::Runner> RedisSpidermonkeyPluginHandler::runner_(new granada::runner::SpiderMonkeyJavascriptRunner());
+    std::unique_ptr<granada::cache::CacheHandler> RedisSpidermonkeyPluginHandler::cache_(new granada::cache::RedisCacheDriver());
+    std::unique_ptr<granada::plugin::PluginFactory> RedisSpidermonkeyPluginHandler::plugin_factory_(new granada::plugin::RedisSpidermonkeyPluginFactory());
+    std::unique_ptr<granada::runner::Runner> RedisSpidermonkeyPluginHandler::runner_(new granada::runner::SpiderMonkeyJavascriptRunner());
 
   }
 }

@@ -30,17 +30,25 @@ namespace granada{
   namespace cache{
 
     SharedMapIterator::SharedMapIterator(const std::string& expression, SharedMapCacheDriver* cache){
+      cache_ = cache;
+      set(expression);
+    }
+
+
+    void SharedMapIterator::set(const std::string& expression){
       expression_ = expression;
       std::deque<std::pair<std::string,std::string>> values;
       values.push_back(std::make_pair("*",".*"));
       granada::util::string::replace(expression_,values,"","");
-      cache->Keys(expression_,keys_);
+      cache_->Keys(expression_,keys_);
       it_ = keys_.begin();
     }
+
 
     const bool SharedMapIterator::has_next(){
       return it_ != keys_.end();
     }
+
 
     const std::string SharedMapIterator::next(){
       if (it_ != keys_.end()){
@@ -51,9 +59,11 @@ namespace granada{
       return std::string();
     }
 
+
     SharedMapCacheDriver::SharedMapCacheDriver(){
       data_.reset(new std::unordered_map<std::string,std::map<std::string,std::string>>());
     }
+
 
     const bool SharedMapCacheDriver::Exists(const std::string& key){
       mtx.lock();
@@ -65,6 +75,7 @@ namespace granada{
       mtx.unlock();
       return false;
     }
+
 
     const bool SharedMapCacheDriver::Exists(const std::string& hash,const std::string& key){
       mtx.lock();
@@ -129,6 +140,7 @@ namespace granada{
       mtx.unlock();
     }
 
+
     void SharedMapCacheDriver::Write(const std::string& hash,const std::string& key,const std::string& value){
       mtx.lock();
       auto it = data_->find(hash);
@@ -161,6 +173,7 @@ namespace granada{
         mtx.unlock();
       }
     }
+
 
     void SharedMapCacheDriver::Destroy(const std::string& hash,const std::string& key){
       mtx.lock();

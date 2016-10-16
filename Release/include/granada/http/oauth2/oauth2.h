@@ -37,6 +37,7 @@
 #include "cpprest/http_msg.h"
 #include "cpprest/oauth2.h"
 #include "granada/defaults.h"
+#include "granada/util/memory.h"
 #include "granada/util/vector.h"
 #include "granada/util/application.h"
 #include "granada/util/time.h"
@@ -295,8 +296,8 @@ namespace granada{
            * Returns the used cache: where entities data is stored.
            * @return Cache where data is stored.
            */
-          virtual std::shared_ptr<granada::cache::CacheHandler> cache(){
-            return std::shared_ptr<granada::cache::CacheHandler>(nullptr);
+          virtual granada::cache::CacheHandler* cache(){
+            return nullptr;
           };
 
 
@@ -304,8 +305,8 @@ namespace granada{
            * Returns the cryptograph used to encrypt and decrypt data.
            * return Cryptograph.
            */
-          virtual std::shared_ptr<granada::crypto::Cryptograph> cryptograph(){
-            return std::shared_ptr<granada::crypto::Cryptograph>(nullptr);
+          virtual granada::crypto::Cryptograph* cryptograph(){
+            return nullptr;
           };
 
 
@@ -313,8 +314,8 @@ namespace granada{
            * Returns the nonce generator used to generate alphanumeric keys.
            * return Nonce generator.
            */
-          virtual std::shared_ptr<granada::crypto::NonceGenerator> nonce_generator(){
-            return std::shared_ptr<granada::crypto::NonceGenerator>(nullptr);
+          virtual granada::crypto::NonceGenerator* nonce_generator(){
+            return nullptr;
           };
 
 
@@ -322,7 +323,7 @@ namespace granada{
            * Returns true if OAuth 2.0 entity exists wherever it is stored.
            * @return True if OAuth 2.0 entity exists false if it does not.
            */
-          virtual bool Exists(){
+          virtual const bool Exists(){
             return cache()->Exists(hash());
           };
 
@@ -343,28 +344,15 @@ namespace granada{
 
         protected:
 
-          /**
-           * Namespace of the key of the entity data in the cache.
-           * Example:
-           * 	If we have the key : oauth2.client:value:L05l6pFaPFgZbtP9
-           * 	=> namespace is : oauth2.client:value:
-           */
-          std::string cache_namespace_;
-
-
-          /**
-           * Mutex for multithread safety.
-           */
-          std::mutex mtx;
-
 
           /**
            * Returns the key of the data : that is the namespace and the identifier
            * @return Key of the entity values.
            */
-          virtual std::string hash(){
+          virtual const std::string hash(){
             return std::string();
           };
+
 
           /**
            * Loads properties given in the configuration file, if properties
@@ -386,7 +374,7 @@ namespace granada{
            * Constructor
            * Loads the properties.
            */
-          OAuth2Client();
+          OAuth2Client(){};
 
 
           /**
@@ -394,7 +382,7 @@ namespace granada{
            * Loads the properties and the values of the client with given id.
            * @param id Identifier of the client.
            */
-          OAuth2Client(const std::string& id);
+          OAuth2Client(const std::string& id){};
 
 
           /**
@@ -402,7 +390,7 @@ namespace granada{
            * Loads the values of the client retrieving them from the cache
            * with the client id.
            */
-          virtual void Load();
+          virtual void Load() override;
 
 
           /**
@@ -411,7 +399,7 @@ namespace granada{
            * with the given client id.
            * @param identifier Client id.
            */
-          virtual void Load(const std::string& identifier);
+          virtual void Load(const std::string& identifier) override;
 
 
           /**
@@ -440,13 +428,13 @@ namespace granada{
 
 
           /**
-           * Checl if client credentials: id and secret are correct decrypting
+           * Check if client credentials: id and secret are correct decrypting
            * the key stored in the client key property. Use the cryptograph to
            * decrypt the key with the given client secret.
            * @param  secret Client password.
            * @return        True if credentials are correct, false if they are not.
            */
-          virtual bool CorrectCredentials(std::string& secret);
+          virtual bool CorrectCredentials(std::string secret);
 
 
           /**
@@ -517,6 +505,27 @@ namespace granada{
 
 
           /**
+           * Mutex for multithread safety.
+           */
+          static std::mutex oauth2_client_creation_mtx_;
+
+
+          /**
+           * Namespace of the key of the entity data in the cache.
+           * Example:
+           *  If we have the key : oauth2.client:value:L05l6pFaPFgZbtP9
+           *  => namespace is : oauth2.client:value:
+           */
+          static std::string cache_namespace_;
+
+
+          /**
+           * Length of the unique alphanumeric id assigned to the client when created.
+           */
+          static int client_id_length_;
+
+
+          /**
            * Client id. Unique alphanumeric hash.
            */
           std::string id_;
@@ -572,12 +581,6 @@ namespace granada{
 
 
           /**
-           * Length of the unique alphanumeric id assigned to the client when created.
-           */
-          int client_id_length_;
-
-
-          /**
            * @override
            * Loads properties given in the configuration file, if properties
            * are not found, then default values included in granada/defaults.dat
@@ -595,7 +598,7 @@ namespace granada{
            * roles, creation time.
            * @return Key of the client values.
            */
-          virtual std::string hash(){
+          virtual const std::string hash() override {
             return cache_namespace_ + id_;
           };
 
@@ -616,7 +619,7 @@ namespace granada{
            * Constructor
            * Loads the properties.
            */
-          OAuth2User();
+          OAuth2User(){};
 
 
           /**
@@ -624,7 +627,7 @@ namespace granada{
            * Loads the properties and the values of the user with given username.
            * @param username Username.
            */
-          OAuth2User(const std::string& username);
+          OAuth2User(const std::string& username){};
 
 
           /**
@@ -632,7 +635,7 @@ namespace granada{
            * Loads the values of the user retrieving them from the cache
            * with the username.
            */
-          virtual void Load();
+          virtual void Load() override;
 
           /**
            * @override
@@ -640,7 +643,7 @@ namespace granada{
            * with the given username.
            * @param identifier Username.
            */
-          virtual void Load(const std::string& identifier);
+          virtual void Load(const std::string& identifier) override;
 
 
           /**
@@ -663,7 +666,7 @@ namespace granada{
            * @param  password User password
            * @return          True if credentials are correct and false if they are not.
            */
-          virtual bool CorrectCredentials(std::string& password);
+          virtual bool CorrectCredentials(std::string password);
 
 
           /**
@@ -703,6 +706,21 @@ namespace granada{
 
 
         protected:
+
+          /**
+           * Mutex for multithread safety.
+           */
+          static std::mutex oauth2_user_creation_mtx_;
+
+
+          /**
+           * Namespace of the key of the entity data in the cache.
+           * Example:
+           *  If we have the key : oauth2.client:value:L05l6pFaPFgZbtP9
+           *  => namespace is : oauth2.client:value:
+           */
+          static std::string cache_namespace_;
+
 
           /**
            * Username. Unique identifier of the user.
@@ -747,7 +765,7 @@ namespace granada{
            * This is the key to retrieve the user values, such as its key, roles, creation time.
            * @return Key of the OAuth 2.0 user values.
            */
-          virtual std::string hash(){
+          virtual const std::string hash() override {
             return cache_namespace_ + username_;
           };
 
@@ -783,7 +801,7 @@ namespace granada{
            * Constructor
            * Loads the properties.
            */
-          OAuth2Code();
+          OAuth2Code(){};
 
 
           /**
@@ -791,7 +809,7 @@ namespace granada{
            * Loads the properties and the values of the code with given code.
            * @param code Unique alphanumeric code.
            */
-          OAuth2Code(const std::string& code);
+          OAuth2Code(const std::string& code){};
 
 
           /**
@@ -799,7 +817,7 @@ namespace granada{
            * Loads the values of the code retrieving them from the cache
            * with the code.
            */
-          virtual void Load();
+          virtual void Load() override;
 
 
           /**
@@ -808,7 +826,7 @@ namespace granada{
            * with the given code.
            * @param identifier Unique alphanumeric code.
            */
-          virtual void Load(const std::string& identifier);
+          virtual void Load(const std::string& identifier) override;
 
 
           /**
@@ -832,27 +850,53 @@ namespace granada{
             return code_;
           };
 
+
           virtual void SetCode(const std::string& code){
             code_.assign(code);
           };
+
 
           virtual const std::string GetClientId(){
             return client_id_;
           };
 
+
           virtual const std::string GetUsername(){
             return username_;
           };
 
+
           virtual const std::vector<std::string> GetRoles(){
             return roles_;
           };
+
 
           virtual const std::time_t GetCreationTime(){
             return creation_time_;
           };
 
         protected:
+
+          /**
+           * Mutex for multithread safety.
+           */
+          static std::mutex oauth2_code_creation_mtx_;
+
+
+          /**
+           * Namespace of the key of the entity data in the cache.
+           * Example:
+           *  If we have the key : oauth2.client:value:L05l6pFaPFgZbtP9
+           *  => namespace is : oauth2.client:value:
+           */
+          static std::string cache_namespace_;
+
+
+          /**
+           * Length of the unique alphanumeric code.
+           */
+          static int code_length_;
+
 
           /**
            * Alphanumeric unique code.
@@ -886,12 +930,6 @@ namespace granada{
 
 
           /**
-           * Length of the unique alphanumeric code.
-           */
-          int code_length_;
-
-
-          /**
            * @override
            * Loads properties given in the configuration file, if properties
            * are not found, then default values included in granada/defaults.dat
@@ -909,7 +947,7 @@ namespace granada{
            * roles, creation time.
            * @return Key of the OAuth 2.0 code values.
            */
-          virtual std::string hash(){
+          virtual const std::string hash() override {
             return cache_namespace_ + code_;
           };
 
@@ -926,15 +964,14 @@ namespace granada{
            * Constructor
            * Load properties.
            */
-          OAuth2Authorization();
+          OAuth2Authorization(){};
 
           /**
            * Constructor
            * Load properties.
            */
           OAuth2Authorization(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
-                              std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint,
-                              std::shared_ptr<granada::http::oauth2::OAuth2Factory>& oauth2_factory);
+                              granada::http::session::SessionFactory* session_factory){};
 
 
           /**
@@ -967,19 +1004,30 @@ namespace granada{
 
         protected:
 
+
+          /**
+           * Namespace of the key of the entity data in the cache.
+           * Example:
+           *  If we have the key : oauth2.client:value:L05l6pFaPFgZbtP9
+           *  => namespace is : oauth2.client:value:
+           */
+          static std::string cache_namespace_;
+
+
+          /**
+           * If true when client request an access token a refresh token is also delivered.
+           * The refresh token can be used to obtain new access tokens using the same
+           * authorization grant.
+           */
+          static bool oauth2_use_refresh_token_;
+          
+
           /**
            * Session check point. Allows to have a unique point for checking and setting sessions.
            * It is used to create a new session without knowing its type.
            * Used to create OAuth 2.0 user sessions and OAuth 2.0 client sessions.
            */
-          std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint_;
-
-
-          /**
-           * OAuth 2.0 Factory.
-           * Used to instanciate OAuth 2.0 clients, users and codes.
-           */
-          std::shared_ptr<granada::http::oauth2::OAuth2Factory> oauth2_factory_;
+          granada::http::session::SessionFactory* session_factory_;
 
 
           /**
@@ -988,14 +1036,6 @@ namespace granada{
            * the token endpoint and the information and deletion endpoint.
            */
           granada::http::oauth2::OAuth2Parameters oauth2_parameters_;
-
-
-          /**
-           * If true when client request an access token a refresh token is also delivered.
-           * The refresh token can be used to obtain new access tokens using the same
-           * authorization grant.
-           */
-          bool oauth2_use_refresh_token_;
 
 
           /**
@@ -1020,7 +1060,7 @@ namespace granada{
            * 			oauth2.authorization:johndoe:gida8fZEFh9abpkg::Gkt2DkEv94jXLhOV7ezd8tdTro2qwOnjNM30hAAJrNPDllUBnzk9cxsIfMA1ecs52
            * @return Key made with the user, the client, the code and the session identifiers.
            */
-          virtual std::string hash(){
+          virtual const std::string hash() override {
             return cache_namespace_ + oauth2_parameters_.username + ":" + oauth2_parameters_.client_id + ":" + oauth2_parameters_.code + ":" + oauth2_parameters_.access_token;
           };
 
@@ -1033,7 +1073,8 @@ namespace granada{
            * @param oauth2_client     OAuth 2.0 client.
            * @param oauth2_response   OAuth 2.0 parameters.
            */
-          virtual void CheckClient(std::shared_ptr<granada::http::oauth2::OAuth2Client>& oauth2_client, granada::http::oauth2::OAuth2Parameters& oauth2_response);
+          virtual void CheckClient(std::unique_ptr<granada::http::oauth2::OAuth2Client>& oauth2_client,
+                                    granada::http::oauth2::OAuth2Parameters& oauth2_response);
 
 
           /**
@@ -1055,10 +1096,10 @@ namespace granada{
            * @param request             HTTP request.
            * @param response            HTTP response.
            */
-          virtual void CheckCredentials(std::shared_ptr<granada::http::oauth2::OAuth2Client>& oauth2_client,
-                                         std::shared_ptr<granada::http::oauth2::OAuth2User>& oauth2_user,
-                                         std::shared_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
-                                         std::shared_ptr<granada::http::session::Session>& oauth2_user_session,
+          virtual void CheckCredentials(granada::http::oauth2::OAuth2Client* oauth2_client,
+                                         std::unique_ptr<granada::http::oauth2::OAuth2User>& oauth2_user,
+                                         std::unique_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
+                                         std::unique_ptr<granada::http::session::Session>& oauth2_user_session,
                                          granada::http::oauth2::OAuth2Parameters& oauth2_response,
                                          web::http::http_request& request,
                                          web::http::http_response& response);
@@ -1078,9 +1119,9 @@ namespace granada{
            * @param request             HTTP request.
            * @param response            HTTP response.
            */
-          virtual void CreateCode(std::shared_ptr<granada::http::session::Session>& oauth2_user_session,
-                                   std::shared_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
-                                   std::shared_ptr<granada::http::oauth2::OAuth2User>& oauth2_user,
+          virtual void CreateCode(std::unique_ptr<granada::http::session::Session>& oauth2_user_session,
+                                   std::unique_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
+                                   granada::http::oauth2::OAuth2User* oauth2_user,
                                    granada::http::oauth2::OAuth2Parameters& oauth2_response,
                                    web::http::http_request& request,
                                    web::http::http_response& response);
@@ -1105,9 +1146,9 @@ namespace granada{
            * @param response            HTTP response.
            */
           virtual void CreateAccessToken(std::vector<std::string>& roles,
-                                          std::shared_ptr<granada::http::session::Session>& oauth2_user_session,
-                                          std::shared_ptr<granada::http::oauth2::OAuth2User>& oauth2_user,
-                                          std::shared_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
+                                          std::unique_ptr<granada::http::session::Session>& oauth2_user_session,
+                                          granada::http::oauth2::OAuth2User* oauth2_user,
+                                          std::unique_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
                                           granada::http::oauth2::OAuth2Parameters& oauth2_response,
                                           web::http::http_request& request,
                                           web::http::http_response& response);
@@ -1122,9 +1163,9 @@ namespace granada{
            *                              OAuth 2.0 code
            * @param oauth2_response       OAuth 2.0 parameters containing the response: error or generated code.
            */
-          virtual void CreateRefreshToken(std::shared_ptr<granada::http::session::Session>& oauth2_client_session,
-                                          std::shared_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
-                                          granada::http::oauth2::OAuth2Parameters& oauth2_response);
+          virtual void CreateRefreshToken(granada::http::session::Session* oauth2_client_session,
+                                           std::unique_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
+                                           granada::http::oauth2::OAuth2Parameters& oauth2_response);
 
 
           /**
@@ -1141,8 +1182,8 @@ namespace granada{
            *                       authorize the client to have them.
            */
           virtual bool CheckRoleAllowance(std::vector<std::string>& roles,
-                                           std::shared_ptr<granada::http::oauth2::OAuth2Client>& oauth2_client,
-                                           std::shared_ptr<granada::http::oauth2::OAuth2User>& oauth2_user);
+                                           granada::http::oauth2::OAuth2Client* oauth2_client,
+                                           granada::http::oauth2::OAuth2User* oauth2_user);
 
 
           /**
@@ -1154,8 +1195,8 @@ namespace granada{
            * @param oauth2_client_session Session of the OAuth 2.0 client used to access to the user's resources.
            */
           virtual void AssignRolesToClientSession(std::vector<std::string>& roles,
-                                                   std::shared_ptr<granada::http::oauth2::OAuth2User>& oauth2_user,
-                                                   std::shared_ptr<granada::http::session::Session>& oauth2_client_session);
+                                                   const web::json::value& user_roles,
+                                                   granada::http::session::Session* oauth2_client_session);
 
 
           /**
@@ -1169,10 +1210,20 @@ namespace granada{
            * @param request             HTTP request.
            * @param response            HTTP response.
            */
-          virtual void AssignRolesToOAuth2UserSession(std::shared_ptr<granada::http::session::Session>& oauth2_user_session,
-                                                               std::shared_ptr<granada::http::oauth2::OAuth2User>& oauth2_user,
-                                                               web::http::http_request& request,
-                                                               web::http::http_response& response);
+          virtual void AssignRolesToOAuth2UserSession(std::unique_ptr<granada::http::session::Session>& oauth2_user_session,
+                                                     const web::json::value& user_roles,
+                                                      web::http::http_request& request,
+                                                      web::http::http_response& response);
+
+
+          virtual granada::http::oauth2::OAuth2Factory* factory(){
+            return nullptr;
+          };
+
+
+          virtual granada::http::session::SessionFactory* session_factory(){
+            return session_factory_;
+          };
 
       };
 
@@ -1185,38 +1236,70 @@ namespace granada{
 
         public:
 
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2Client>OAuth2Client(){
-            return std::shared_ptr<granada::http::oauth2::OAuth2Client>(new granada::http::oauth2::OAuth2Client());
+          virtual std::unique_ptr<granada::http::oauth2::OAuth2Client>OAuth2Client_unique_ptr(){
+            return granada::util::memory::make_unique<granada::http::oauth2::OAuth2Client>();
           };
 
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2Client>OAuth2Client(const std::string& client_id){
-            return std::shared_ptr<granada::http::oauth2::OAuth2Client>(new granada::http::oauth2::OAuth2Client(client_id));
+          virtual std::shared_ptr<granada::http::oauth2::OAuth2Client>OAuth2Client_shared_ptr(){
+            return std::make_shared<granada::http::oauth2::OAuth2Client>();
           };
 
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2User>OAuth2User(){
-            return std::shared_ptr<granada::http::oauth2::OAuth2User>(new granada::http::oauth2::OAuth2User());
+          virtual std::unique_ptr<granada::http::oauth2::OAuth2Client>OAuth2Client_unique_ptr(const std::string& client_id){
+            return granada::util::memory::make_unique<granada::http::oauth2::OAuth2Client>(client_id);
           };
 
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2User>OAuth2User(const std::string& username){
-            return std::shared_ptr<granada::http::oauth2::OAuth2User>(new granada::http::oauth2::OAuth2User(username));
+          virtual std::shared_ptr<granada::http::oauth2::OAuth2Client>OAuth2Client_shared_ptr(const std::string& client_id){
+            return std::make_shared<granada::http::oauth2::OAuth2Client>(client_id);
           };
 
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2Code>OAuth2Code(){
-            return std::shared_ptr<granada::http::oauth2::OAuth2Code>(new granada::http::oauth2::OAuth2Code());
+          virtual std::unique_ptr<granada::http::oauth2::OAuth2User>OAuth2User_unique_ptr(){
+            return granada::util::memory::make_unique<granada::http::oauth2::OAuth2User>();
           };
 
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2Code>OAuth2Code(const std::string& code){
-            return std::shared_ptr<granada::http::oauth2::OAuth2Code>(new granada::http::oauth2::OAuth2Code(code));
+          virtual std::shared_ptr<granada::http::oauth2::OAuth2User>OAuth2User_shared_ptr(){
+            return std::make_shared<granada::http::oauth2::OAuth2User>();
           };
 
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization(){
-            return std::shared_ptr<granada::http::oauth2::OAuth2Authorization>(new granada::http::oauth2::OAuth2Authorization());
+          virtual std::unique_ptr<granada::http::oauth2::OAuth2User>OAuth2User_unique_ptr(const std::string& username){
+            return granada::util::memory::make_unique<granada::http::oauth2::OAuth2User>(username);
           };
 
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
-                                                                                                 std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint,
-                                                                                                 std::shared_ptr<granada::http::oauth2::OAuth2Factory>& oauth2_factory){
-            return std::shared_ptr<granada::http::oauth2::OAuth2Authorization>(new granada::http::oauth2::OAuth2Authorization(oauth2_parameters,session_checkpoint,oauth2_factory));
+          virtual std::shared_ptr<granada::http::oauth2::OAuth2User>OAuth2User_shared_ptr(const std::string& username){
+            return std::make_shared<granada::http::oauth2::OAuth2User>(username);
+          };
+
+          virtual std::unique_ptr<granada::http::oauth2::OAuth2Code>OAuth2Code_unique_ptr(){
+            return granada::util::memory::make_unique<granada::http::oauth2::OAuth2Code>();
+          };
+
+          virtual std::shared_ptr<granada::http::oauth2::OAuth2Code>OAuth2Code_shared_ptr(){
+            return std::make_shared<granada::http::oauth2::OAuth2Code>();
+          };
+
+          virtual std::unique_ptr<granada::http::oauth2::OAuth2Code>OAuth2Code_unique_ptr(const std::string& code){
+            return granada::util::memory::make_unique<granada::http::oauth2::OAuth2Code>(code);
+          };
+
+          virtual std::shared_ptr<granada::http::oauth2::OAuth2Code>OAuth2Code_shared_ptr(const std::string& code){
+            return std::make_shared<granada::http::oauth2::OAuth2Code>(code);
+          };
+
+          virtual std::unique_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization_unique_ptr(){
+            return granada::util::memory::make_unique<granada::http::oauth2::OAuth2Authorization>();
+          };
+
+          virtual std::shared_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization_shared_ptr(){
+            return std::make_shared<granada::http::oauth2::OAuth2Authorization>();
+          };
+
+          virtual std::unique_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization_unique_ptr(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
+                                                                                                 granada::http::session::SessionFactory* session_factory){
+            return granada::util::memory::make_unique<granada::http::oauth2::OAuth2Authorization>(oauth2_parameters,session_factory);
+          };
+
+          virtual std::shared_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization_shared_ptr(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
+                                                                                                 granada::http::session::SessionFactory* session_factory){
+            return std::make_shared<granada::http::oauth2::OAuth2Authorization>(oauth2_parameters,session_factory);
           };
 
       };

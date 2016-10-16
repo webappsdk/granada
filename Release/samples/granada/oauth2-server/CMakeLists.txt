@@ -11,7 +11,7 @@ add_executable(oauth2-server
   ${GRANADA_SOURCE_DIR}/http/parser.cpp
   ${GRANADA_SOURCE_DIR}/http/http_msg.cpp
   ${GRANADA_SOURCE_DIR}/http/oauth2/oauth2.cpp
-  ${GRANADA_SOURCE_DIR}/http/oauth2/simple_oauth2.cpp
+  ${GRANADA_SOURCE_DIR}/http/oauth2/map_oauth2.cpp
   ${GRANADA_SOURCE_DIR}/crypto/nonce_generator.cpp
   ${GRANADA_SOURCE_DIR}/cache/web_resource_cache.cpp
   ${GRANADA_SOURCE_DIR}/cache/shared_map_cache_driver.cpp

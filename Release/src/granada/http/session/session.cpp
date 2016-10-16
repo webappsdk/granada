@@ -134,6 +134,29 @@ namespace granada{
       }
 
 
+      const std::string Session::Read(const std::string& key){
+        if (!key.empty() && !token_.empty()){
+          Update();
+          return session_handler()->cache()->Read(session_data_hash(),key);
+        }
+        return std::string();
+      }
+
+      void Session::Write(const std::string& key, const std::string& value){
+        if (!key.empty() && !token_.empty()){
+          session_handler()->cache()->Write(session_data_hash(),key, value);
+          Update();
+        }
+      }
+
+      void Session::Destroy(const std::string& key){
+        if (!key.empty() && !token_.empty()){
+          session_handler()->cache()->Destroy(session_data_hash(),key);
+          Update();
+        }
+      }
+
+
       web::json::value Session::to_json(){
         web::json::value json = web::json::value::object();
         json[entity_keys::session_token] = web::json::value::string(token_);
@@ -258,14 +281,14 @@ namespace granada{
 
 
       const bool SessionRoles::Is(const std::string& role_name){
-        return cache()->Exists(session_roles_hash(role_name));
+        return session_->session_handler()->cache()->Exists(session_roles_hash(role_name));
       }
 
 
       const bool SessionRoles::Add(const std::string& role_name){
         // add only if role is not already added.
         if (!Is(role_name)){
-          cache()->Write(session_roles_hash(role_name), "0", "0");
+          session_->session_handler()->cache()->Write(session_roles_hash(role_name), "0", "0");
           session_->Update();
           return true;
         }
@@ -274,7 +297,7 @@ namespace granada{
 
 
       void SessionRoles::Remove(const std::string& role_name){
-        cache()->Destroy(session_roles_hash(role_name));
+        session_->session_handler()->cache()->Destroy(session_roles_hash(role_name));
         session_->Update();
       }
 
@@ -286,18 +309,18 @@ namespace granada{
 
 
       void SessionRoles::SetProperty(const std::string& role_name, const std::string& key, const std::string& value){
-        cache()->Write(session_roles_hash(role_name), key, value);
+        session_->session_handler()->cache()->Write(session_roles_hash(role_name), key, value);
         session_->Update();
       }
 
 
       const std::string SessionRoles::GetProperty(const std::string& role_name, const std::string& key){
-        return cache()->Read(session_roles_hash(role_name), key);
+        return session_->session_handler()->cache()->Read(session_roles_hash(role_name), key);
       }
 
 
       void SessionRoles::DestroyProperty(const std::string& role_name, const std::string& key){
-        cache()->Destroy(session_roles_hash(role_name), key);
+        session_->session_handler()->cache()->Destroy(session_roles_hash(role_name), key);
         session_->Update();
       }
 
@@ -351,11 +374,11 @@ namespace granada{
 
 
       void SessionHandler::CleanSessions(){
-        const std::shared_ptr<granada::cache::CacheHandlerIterator>& cache_iterator = cache()->make_iterator(session_value_hash("*"));
+        const std::unique_ptr<granada::cache::CacheHandlerIterator>& cache_iterator = cache()->make_iterator(session_value_hash("*"));
         while(cache_iterator->has_next()){
           const std::string& key = cache_iterator->next();
           const std::string& token = cache()->Read(key, entity_keys::session_token);
-          const std::shared_ptr<granada::http::session::Session>& session = checkpoint()->check();
+          const std::unique_ptr<granada::http::session::Session>& session = factory()->Session_unique_ptr();
           const time_t& update_time = granada::util::time::parse(cache()->Read(key, entity_keys::session_update_time));
           session->set(token,update_time);
           if (session->IsGarbage()){

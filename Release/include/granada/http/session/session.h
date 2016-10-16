@@ -33,6 +33,7 @@
 #include "cpprest/http_listener.h"
 #include "granada/defaults.h"
 #include "granada/functions.h"
+#include "granada/util/memory.h"
 #include "granada/util/application.h"
 #include "granada/util/time.h"
 #include "granada/util/string.h"
@@ -45,13 +46,13 @@ namespace granada{
   namespace http{
 
     /**
-     * Namespace for Sessions, Sessions Handlers, Session Roles and Session checkpoints (factories).
+     * Namespace for Sessions, Sessions Handlers, Session Roles and Session factories.
      */
     namespace session{
 
       class SessionRoles;
       class SessionHandler;
-      class SessionCheckpoint;
+      class SessionFactory;
 
       /**
        * Abstract Session class that allows to manage session roles.
@@ -107,6 +108,12 @@ namespace granada{
            * @param token Session token.
            */
           Session(const std::string& token){};
+
+
+          /**
+           * Destructor
+           */
+          virtual ~Session(){};
 
 
           /**
@@ -198,6 +205,29 @@ namespace granada{
 
 
           /**
+           * Write session data.
+           * @param key   Key or name of the data.
+           * @param value Data as string.
+           */
+          virtual void Write(const std::string& key, const std::string& value);
+
+
+          /**
+           * Read session data.
+           * @param  key Key or name of the data.
+           * @return     Data as string.
+           */
+          virtual const std::string Read(const std::string& key);
+
+
+          /**
+           * Destroy session data with given key.
+           * @param key Data key or name.
+           */
+          virtual void Destroy(const std::string& key);
+
+
+          /**
            * Returns the session in a JSON object format.
            * @return  Session in form of JSON object.
            *          Example:@code
@@ -249,6 +279,15 @@ namespace granada{
            * @return Pointer to the roles of the session.
            */
           virtual granada::http::session::SessionRoles* roles(){
+            return nullptr;
+          };
+
+
+          /**
+           * Returns the pointer of Session Handler that manages the session.
+           * @return Session Handler.
+           */
+          virtual granada::http::session::SessionHandler* session_handler(){
             return nullptr;
           };
 
@@ -390,10 +429,12 @@ namespace granada{
 
 
           /**
-           * Returns the pointer of Session Handler that manages the session.
-           * @return Session Handler.
+           * Returns the key to identify the session data
+           * in the cache.
            */
-          virtual granada::http::session::SessionHandler* session_handler(){ return nullptr; };
+          virtual const std::string session_data_hash(){
+            return cache_namespaces::session_data + token_;
+          };
 
 
           /**
@@ -541,15 +582,6 @@ namespace granada{
 
 
           /**
-           * Returns a pointer to the cache handler used to store the roles' data.
-           * @return Pointer to the cache handler used to store the roles' data.
-           */
-          virtual granada::cache::CacheHandler* cache(){
-            return nullptr;
-          };
-
-
-          /**
            * Returns the key to access a role data.
            * 
            * @param role_name Name of the role.
@@ -631,6 +663,15 @@ namespace granada{
           virtual void CleanSessions(bool recursive);
 
 
+          /**
+           * Returns a pointer to the cache handler used to store the sessions data.
+           * @return Pointer to the cache handler used to store the sessions data.
+           */
+          virtual granada::cache::CacheHandler* cache(){
+            return nullptr;
+          }
+
+
         protected:
 
 
@@ -656,15 +697,6 @@ namespace granada{
 
 
           /**
-           * Returns a pointer to the cache handler used to store the sessions data.
-           * @return Pointer to the cache handler used to store the sessions data.
-           */
-          virtual granada::cache::CacheHandler* cache(){
-            return nullptr;
-          }
-
-
-          /**
            * Returns a pointer to a generator of random alphanumeric strings.
            * Used to generate sessions' tokens.
            * @return  Pointer to a generator of random alphanumeric strings.
@@ -675,13 +707,13 @@ namespace granada{
 
 
           /**
-           * Returns a pointer to a session checkpoint. It Aallows
+           * Returns a pointer to a session factory. It Aallows
            * to have a unique point for
            * checking and setting sessions. Used to create a new
            * session if it does not exist or if it is timed out.
-           * @return  Pointer to a session checkpoint
+           * @return  Pointer to a session factory
            */
-          virtual granada::http::session::SessionCheckpoint* checkpoint(){
+          virtual granada::http::session::SessionFactory* factory(){
             return nullptr;
           }
 
@@ -721,18 +753,23 @@ namespace granada{
 
       /**
        * Abstract class, checks a session.
-       * Session checkpoint. Allows to have a unique point for
+       * Session factory. Allows to have a unique point for
        * checking and setting sessions. Used to create a new
        * session if it does not exist or if it is timed out.
        */
-      class SessionCheckpoint
+      class SessionFactory
       {
+
         public:
 
           /**
-           * Constructor
+           * Checks if session is open / valid.
+           * Can be used in case we want to open a session in case it does not exist,
+           * or in case it is timed out.
            */
-          SessionCheckpoint(){};
+          virtual std::unique_ptr<granada::http::session::Session> Session_unique_ptr(){
+            return granada::util::memory::make_unique<granada::http::session::Session>();
+          };
 
 
           /**
@@ -740,8 +777,8 @@ namespace granada{
            * Can be used in case we want to open a session in case it does not exist,
            * or in case it is timed out.
            */
-          virtual std::shared_ptr<granada::http::session::Session> check(){
-            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::Session());
+          virtual std::shared_ptr<granada::http::session::Session> Session_shared_ptr(){
+            return std::make_shared<granada::http::session::Session>();
           };
 
 
@@ -752,8 +789,20 @@ namespace granada{
            * @param request   HTTP request.
            * @param response  HTTP response.
            */
-          virtual std::shared_ptr<granada::http::session::Session> check(const web::http::http_request &request,web::http::http_response &response){
-            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::Session(request,response));
+          virtual std::unique_ptr<granada::http::session::Session> Session_unique_ptr(const web::http::http_request &request,web::http::http_response &response){
+            return granada::util::memory::make_unique<granada::http::session::Session>(request,response);
+          };
+
+
+          /**
+           * Checks if session is open / valid.
+           * Can be used in case we want to open a session in case it does not exist,
+           * or in case it is timed out.
+           * @param request   HTTP request.
+           * @param response  HTTP response.
+           */
+          virtual std::shared_ptr<granada::http::session::Session> Session_shared_ptr(const web::http::http_request &request,web::http::http_response &response){
+            return std::make_shared<granada::http::session::Session>(request,response);
           };
 
 
@@ -763,8 +812,19 @@ namespace granada{
            * or in case it is timed out.
            * @param request   HTTP request.
            */
-          virtual std::shared_ptr<granada::http::session::Session> check(const web::http::http_request &request){
-            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::Session(request));
+          virtual std::unique_ptr<granada::http::session::Session> Session_unique_ptr(const web::http::http_request &request){
+            return granada::util::memory::make_unique<granada::http::session::Session>(request);
+          };
+
+
+          /**
+           * Checks if session is open / valid.
+           * Can be used in case we want to open a session in case it does not exist,
+           * or in case it is timed out.
+           * @param request   HTTP request.
+           */
+          virtual std::shared_ptr<granada::http::session::Session> Session_shared_ptr(const web::http::http_request &request){
+            return std::make_shared<granada::http::session::Session>(request);
           };
 
 
@@ -774,11 +834,12 @@ namespace granada{
            * or in case it is timed out.
            * @param token   Session token.
            */
-          virtual std::shared_ptr<granada::http::session::Session> check(const std::string& token){
-            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::Session(token));
+          virtual std::unique_ptr<granada::http::session::Session> Session_unique_ptr(const std::string& token){
+            return granada::util::memory::make_unique<granada::http::session::Session>(token);
           };
 
       };
+
     }
   }
 }

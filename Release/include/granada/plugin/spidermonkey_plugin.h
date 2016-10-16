@@ -146,7 +146,7 @@ namespace granada{
          * @param plugin                Pointer to the plug-in that is going to extend
          *                              other plug-ins.
          */
-        virtual void Extend(const web::json::array& extended_plugins_ids, const std::shared_ptr<granada::plugin::Plugin>& plugin);
+        virtual void Extend(const web::json::array& extended_plugins_ids, granada::plugin::Plugin* plugin) override;
 
 
         /**
@@ -175,7 +175,7 @@ namespace granada{
          *                              "error" : "script_error"
          *                            }@endcode
          */
-        virtual void Run(const std::shared_ptr<granada::plugin::Plugin>& plugin, web::json::value& parameters,const std::string& event_name, function_void_json success, function_void_json failure);
+        virtual void Run(granada::plugin::Plugin* plugin, web::json::value& parameters,const std::string& event_name, function_void_json success, function_void_json failure) override;
 
 
         /**
@@ -204,7 +204,7 @@ namespace granada{
          *                                          }
          *                              }@endcode
          */
-        virtual web::json::value Run(const std::vector<std::string>& plugin_ids, const std::string& event_name, web::json::value& parameters);
+        virtual web::json::value Run(const std::vector<std::string>& plugin_ids, const std::string& event_name, web::json::value& parameters) override;
 
 
         /**
@@ -233,7 +233,7 @@ namespace granada{
          *                              }@endcode
          * @param failure     Callback function called when there is a problem running plug-ins with the error code and error description.
          */
-        virtual void Fire(const std::string& event_name, web::json::value& parameters, function_void_json success, function_void_json failure);
+        virtual void Fire(const std::string& event_name, web::json::value& parameters, function_void_json success, function_void_json failure) override;
 
 
         /**
@@ -256,7 +256,7 @@ namespace granada{
          *                                   }
          *                          }@endcode
          */
-        virtual web::json::value SendMessage(const std::string& from, const std::vector<std::string>& to_ids, const web::json::value& message);
+        virtual web::json::value SendMessage(const std::string& from, const std::vector<std::string>& to_ids, const web::json::value& message) override;
 
 
       protected:
@@ -306,7 +306,7 @@ namespace granada{
          *
          * @return             True if plug-in loaded successfully, false if not.
          */
-        virtual bool Load(const std::shared_ptr<granada::plugin::Plugin>& plugin, const web::json::value& loader);
+        virtual bool Load(granada::plugin::Plugin* plugin, const web::json::value& loader) override;
 
 
         /**
@@ -350,7 +350,7 @@ namespace granada{
          * @param plugin    Plugin
          * @return          Javascript plugin basic functions.
          */
-        virtual std::string GetJavaScriptPluginCore(const std::shared_ptr<granada::plugin::Plugin>& plugin);
+        virtual std::string GetJavaScriptPluginCore(granada::plugin::Plugin* plugin);
 
 
         /**
@@ -360,7 +360,7 @@ namespace granada{
          * @param plugin    Plugin
          * @return          Javascript plugin basic functions.
          */
-        virtual std::string GetJavaScriptPluginExtension(const std::shared_ptr<granada::plugin::Plugin>& plugin);
+        virtual std::string GetJavaScriptPluginExtension(granada::plugin::Plugin* plugin);
 
     };
 
@@ -446,33 +446,50 @@ namespace granada{
 
 
     /**
-     * Plug-in Factory, used to instanciate SpidermonkeyPlugins and SpidermonkeyPluginHandlers.
+     * Plug-in Factory, used to instanciate Plugins and PluginHandlers.
      */
     class SpidermonkeyPluginFactory : public PluginFactory{
 
       public:
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin(){
-          return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::SpidermonkeyPlugin());
+
+        virtual std::unique_ptr<granada::plugin::Plugin>Plugin_unique_ptr() override {
+          return granada::util::memory::make_unique<granada::plugin::SpidermonkeyPlugin>();
         };
 
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin(granada::plugin::PluginHandler* plugin_handler,const std::string& id){
-          return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::SpidermonkeyPlugin(plugin_handler,id));
+        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr() override {
+          return std::make_shared<granada::plugin::SpidermonkeyPlugin>();
         };
 
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script){
-          return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::SpidermonkeyPlugin(plugin_handler,header,configuration,script));
+        virtual std::unique_ptr<granada::plugin::Plugin>Plugin_unique_ptr(granada::plugin::PluginHandler* plugin_handler,const std::string& id) override {
+          return granada::util::memory::make_unique<granada::plugin::SpidermonkeyPlugin>(plugin_handler,id);
         };
 
-        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler(){
-          return std::shared_ptr<granada::plugin::PluginHandler>(new granada::plugin::SpidermonkeyPluginHandler());
+        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr(granada::plugin::PluginHandler* plugin_handler,const std::string& id) override {
+          return std::make_shared<granada::plugin::SpidermonkeyPlugin>(plugin_handler,id);
         };
 
-        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler(const std::string& id){
-          return std::shared_ptr<granada::plugin::PluginHandler>(new granada::plugin::SpidermonkeyPluginHandler(id));
+        virtual std::unique_ptr<granada::plugin::Plugin>Plugin_unique_ptr(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script) override {
+          return granada::util::memory::make_unique<granada::plugin::SpidermonkeyPlugin>(plugin_handler,header,configuration,script);
         };
 
-        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler(granada::plugin::PluginHandler* plugin_handler){
-          return std::shared_ptr<granada::plugin::PluginHandler>(plugin_handler);
+        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script) override {
+          return std::make_shared<granada::plugin::SpidermonkeyPlugin>(plugin_handler,header,configuration,script);
+        };
+
+        virtual std::unique_ptr<granada::plugin::PluginHandler>PluginHandler_unique_ptr() override {
+          return granada::util::memory::make_unique<granada::plugin::SpidermonkeyPluginHandler>();
+        };
+
+        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler_shared_ptr() override {
+          return std::make_shared<granada::plugin::SpidermonkeyPluginHandler>();
+        };
+
+        virtual std::unique_ptr<granada::plugin::PluginHandler>PluginHandler_unique_ptr(const std::string& id) override {
+          return granada::util::memory::make_unique<granada::plugin::SpidermonkeyPluginHandler>(id);
+        };
+
+        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler_shared_ptr(const std::string& id) override {
+          return std::make_shared<granada::plugin::SpidermonkeyPluginHandler>(id);
         };
     };
   }

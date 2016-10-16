@@ -141,7 +141,7 @@ SUITE(shared_map_cache_driver)
 		cache_driver.Write("session:roles:777","ROLES_777");
 
 
-		std::shared_ptr<granada::cache::CacheHandlerIterator> cache_iterator = cache_driver.make_iterator("");
+		std::unique_ptr<granada::cache::CacheHandlerIterator> cache_iterator = cache_driver.make_iterator("");
 		VERIFY_IS_TRUE(!cache_iterator->has_next());
 		for (int i = 0; i < 5; i++){
 			VERIFY_IS_TRUE(cache_iterator->next()=="");

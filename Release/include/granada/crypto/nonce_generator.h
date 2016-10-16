@@ -8,8 +8,25 @@ namespace granada{
   namespace crypto{
     class NonceGenerator{
       public:
+
+        /**
+         * Constructor
+         */
         NonceGenerator(){};
 
+
+        /**
+         * Destructor
+         */
+        virtual ~NonceGenerator(){};
+
+
+        /**
+         * Generate a nonce with the given length.
+         * 
+         * @param length  Length of the nonce.
+         * @return        Nonce.
+         */
         virtual std::string generate(int& length){
           return std::string();
         };
@@ -19,14 +36,33 @@ namespace granada{
 
 
       public:
+
+        /**
+         * Constructor
+         */
         CPPRESTNonceGenerator(){};
 
-        std::string generate(int& length){
+
+        /**
+         * Destructor
+         */
+        virtual ~CPPRESTNonceGenerator(){};
+
+
+        /**
+         * Generate a random alphanumeric string
+         * with the given length.
+         * 
+         * @param length  Length of the nonce.
+         * @return        Nonce.
+         */
+        std::string generate(int& length) override {
           n_generator_->set_length(length);
           return n_generator_->generate();
         };
 
       private:
+        
         /**
          * Nonce string generator, for generating unique strings tokens.
          * From cpprest/asyncrt_utils.h

@@ -45,7 +45,7 @@ std::vector<std::unique_ptr<granada::http::controller::Controller>> g_controller
 void on_initialize(const string_t& address)
 {
 
-  std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint(new granada::http::session::RedisSessionCheckpoint());
+  std::shared_ptr<granada::http::session::SessionFactory> session_factory(new granada::http::session::RedisSessionFactory());
 
   std::shared_ptr<granada::http::oauth2::OAuth2Factory> oauth2_factory(new granada::http::oauth2::RedisOAuth2Factory());
 
@@ -61,7 +61,7 @@ void on_initialize(const string_t& address)
   if(!browser_module.empty() && browser_module=="on"){
     uri_builder uri(address);
     auto addr = uri.to_uri().to_string();
-    std::unique_ptr<granada::http::controller::Controller> browser_controller(new granada::http::controller::BrowserController(addr,session_checkpoint));
+    std::unique_ptr<granada::http::controller::Controller> browser_controller(new granada::http::controller::BrowserController(addr,session_factory));
     browser_controller->open().wait();
     g_controllers.push_back(std::move(browser_controller));
     ucout << "Browser Controller: Initialized... Listening for requests at: " << addr << std::endl;
@@ -100,7 +100,7 @@ void on_initialize(const string_t& address)
   uri_builder auth_uri(address);
   auth_uri.append_path(U("oauth2"));
   addr = auth_uri.to_uri().to_string();
-  std::unique_ptr<granada::http::controller::OAuth2Controller> auth_controller(new granada::http::controller::OAuth2Controller(addr,session_checkpoint,oauth2_factory));
+  std::unique_ptr<granada::http::controller::OAuth2Controller> auth_controller(new granada::http::controller::OAuth2Controller(addr,session_factory,oauth2_factory));
   auth_controller->open().wait();
   g_controllers.push_back(std::move(auth_controller));
   ucout << "Auth Controller: Initialized... Listening for requests at: " << addr << std::endl;
@@ -112,7 +112,7 @@ void on_initialize(const string_t& address)
   uri_builder message_uri(address);
   message_uri.append_path(U("message"));
   addr = message_uri.to_uri().to_string();
-  std::unique_ptr<granada::http::controller::MessageController> message_controller(new granada::http::controller::MessageController(addr,session_checkpoint,cache_handler));
+  std::unique_ptr<granada::http::controller::MessageController> message_controller(new granada::http::controller::MessageController(addr,session_factory,cache_handler));
   message_controller->open().wait();
   g_controllers.push_back(std::move(message_controller));
   ucout << "Message Controller: Initialized... Listening for requests at: " << addr << std::endl;
@@ -124,7 +124,7 @@ void on_initialize(const string_t& address)
   uri_builder application_uri(address);
   application_uri.append_path(U("application"));
   addr = application_uri.to_uri().to_string();
-  std::unique_ptr<granada::http::controller::ApplicationController> application_controller(new granada::http::controller::ApplicationController(addr,session_checkpoint));
+  std::unique_ptr<granada::http::controller::ApplicationController> application_controller(new granada::http::controller::ApplicationController(addr,session_factory));
   application_controller->open().wait();
   g_controllers.push_back(std::move(application_controller));
   ucout << "Application Controller: Initialized... Listening for requests at: " << addr << std::endl;

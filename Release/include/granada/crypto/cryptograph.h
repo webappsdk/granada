@@ -39,6 +39,12 @@ namespace granada{
 
 
         /**
+         * Destructor
+         */
+        virtual ~Cryptograph(){};
+
+
+        /**
          * Encrypt a text with a password.
          * @param  text     Text to encrypt.
          * @param  password Password to use to encrypt text.

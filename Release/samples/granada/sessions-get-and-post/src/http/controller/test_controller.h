@@ -27,7 +27,7 @@
 #include <unordered_map>
 #include "granada/http/parser.h"
 #include "granada/http/controller/controller.h"
-#include "granada/http/session/map_storage_session.h"
+#include "granada/http/session/session.h"
 
 namespace granada{
   namespace http{
@@ -38,7 +38,8 @@ namespace granada{
           /**
            * Constructor
            */
-          TestController(utility::string_t url);
+          TestController(utility::string_t url,std::shared_ptr<granada::http::session::SessionFactory>& session_factory);
+
 
         private:
 
@@ -50,23 +51,13 @@ namespace granada{
 
 
           /**
-           * Handles HTTP PUT requests.
-           * @param request HTTP request.
-           */
-          void handle_put(http_request request);
-
-
-          /**
            * Handles HTTP POST requests.
            * @param request HTTP request.
            */
           void handle_post(http_request request);
 
-          /**
-           * Handles HTTP DELETE requests.
-           * @param request HTTP request.
-           */
-          void handle_delete(http_request request);
+
+          std::shared_ptr<granada::http::session::SessionFactory> session_factory_;
       };
     }
   }

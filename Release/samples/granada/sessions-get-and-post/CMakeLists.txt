@@ -13,8 +13,7 @@ add_executable(sessions-get-and-post
   ${GRANADA_SOURCE_DIR}/cache/web_resource_cache.cpp
   ${GRANADA_SOURCE_DIR}/http/controller/browser_controller.cpp
   ${GRANADA_SOURCE_DIR}/http/session/session.cpp
-  ${GRANADA_SOURCE_DIR}/http/session/storage_session.cpp
-  ${GRANADA_SOURCE_DIR}/http/session/map_storage_session.cpp
+  ${GRANADA_SOURCE_DIR}/http/session/map_session.cpp
   ${GRANADA_SOURCE_DIR}/cache/shared_map_cache_driver.cpp
   src/http/controller/test_controller.cpp
   )

@@ -34,15 +34,15 @@ namespace granada{
       BrowserController::BrowserController(utility::string_t url){
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));
         m_listener_->support(methods::GET, std::bind(&BrowserController::handle_get, this, std::placeholders::_1));
-        cache_handler_ = std::unique_ptr<granada::cache::WebResourceCache>(new granada::cache::WebResourceCache());
-        session_checkpoint_ = std::shared_ptr<granada::http::session::SessionCheckpoint>(new granada::http::session::SessionCheckpoint());
+        cache_handler_.reset(new granada::cache::WebResourceCache());
+        session_factory_.reset(new granada::http::session::SessionFactory());
       }
 
-      BrowserController::BrowserController(utility::string_t url,std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint){
+      BrowserController::BrowserController(utility::string_t url,std::shared_ptr<granada::http::session::SessionFactory>& session_factory){
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));
         m_listener_->support(methods::GET, std::bind(&BrowserController::handle_get, this, std::placeholders::_1));
-        cache_handler_ = std::unique_ptr<granada::cache::WebResourceCache>(new granada::cache::WebResourceCache());
-        session_checkpoint_ = session_checkpoint;
+        cache_handler_.reset(new granada::cache::WebResourceCache());
+        session_factory_ = session_factory;
       }
 
       //
@@ -53,8 +53,8 @@ namespace granada{
         std::string relative_uri_path = request.relative_uri().path();
 
         http_response response;
-
-        session_checkpoint_->check(request,response);
+        
+        session_factory_->Session_unique_ptr(request,response);
 
         // retrieve a resource with this a given path from cache.
 
@@ -84,6 +84,7 @@ namespace granada{
           }
         }
         request.reply(response);
+
       }
     }
   }

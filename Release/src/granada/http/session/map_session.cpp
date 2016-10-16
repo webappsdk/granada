@@ -69,12 +69,11 @@ namespace granada{
       }
 
 
-      std::unique_ptr<granada::cache::CacheHandler> MapSessionRoles::cache_(new granada::cache::SharedMapCacheDriver());
-      
       std::once_flag MapSessionHandler::properties_flag_;
+      std::once_flag MapSessionHandler::clean_sessions_flag_;
       std::unique_ptr<granada::cache::CacheHandler> MapSessionHandler::cache_(new granada::cache::SharedMapCacheDriver());
       std::unique_ptr<granada::crypto::NonceGenerator> MapSessionHandler::nonce_generator_(new granada::crypto::CPPRESTNonceGenerator());
-      std::unique_ptr<granada::http::session::SessionCheckpoint> MapSessionHandler::checkpoint_(new granada::http::session::MapSessionCheckpoint());
+      std::unique_ptr<granada::http::session::SessionFactory> MapSessionHandler::factory_(new granada::http::session::MapSessionFactory());
 
     }
   }

@@ -34,19 +34,30 @@ namespace granada{
   namespace http{
     namespace controller{
 
+      std::once_flag OAuth2Controller::properties_flag_;
+      std::string OAuth2Controller::oauth2_authorize_uri_;
+      std::string OAuth2Controller::oauth2_logout_uri_;
+      std::string OAuth2Controller::oauth2_info_uri_;
+      std::string OAuth2Controller::oauth2_authorizing_login_template_;
+      std::string OAuth2Controller::oauth2_authorizing_message_template_;
+      std::string OAuth2Controller::oauth2_logout_template_;
+      std::string OAuth2Controller::oauth2_authorizing_error_template_;
+
       OAuth2Controller::OAuth2Controller(
         utility::string_t url,
-        std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint,
+        std::shared_ptr<granada::http::session::SessionFactory>& session_factory,
         std::shared_ptr<granada::http::oauth2::OAuth2Factory>& oauth2_factory)
       {
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));
         m_listener_->support(methods::GET, std::bind(&OAuth2Controller::handle_get, this, std::placeholders::_1));
         m_listener_->support(methods::POST, std::bind(&OAuth2Controller::handle_post, this, std::placeholders::_1));
         m_listener_->support(methods::DEL, std::bind(&OAuth2Controller::handle_delete, this, std::placeholders::_1));
-        session_checkpoint_ = session_checkpoint;
+        session_factory_ = session_factory;
         oauth2_factory_ = oauth2_factory;
         url_ = url;
-        LoadProperties();
+        std::call_once(OAuth2Controller::properties_flag_, [this](){
+          this->LoadProperties();
+        });
       }
 
       void OAuth2Controller::handle_get(web::http::http_request request){
@@ -71,7 +82,6 @@ namespace granada{
             if (oauth2_parameters.error.empty() && (oauth2_parameters.response_type.empty() || oauth2_parameters.client_id.empty())){
               status_code = status_codes::Forbidden;
             }else{
-              std::shared_ptr<granada::http::session::Session> session = session_checkpoint_->check(request,response);
 
               std::unordered_map<std::string, std::string> values = oauth2_parameters.to_unordered_map();
               values.insert(std::make_pair(entity_keys::oauth2_authorization_form_action, url_ + "/" + oauth2_authorize_uri_));
@@ -80,6 +90,7 @@ namespace granada{
               // with the asked roles.
               bool has_all_roles = false;
               if (!oauth2_parameters.scope.empty()){
+                const std::unique_ptr<granada::http::session::Session>& session = session_factory_->Session_unique_ptr(request,response);
                 has_all_roles = true;
                 std::vector<std::string> roles;
                 granada::util::string::split(oauth2_parameters.scope, ' ', roles);
@@ -90,16 +101,17 @@ namespace granada{
                 }
               }
 
+
               if(has_all_roles){
                 // only show website with message
                 // with state
-                std::string authorizing_message_template = *oauth2_authorizing_message_template_;
+                std::string authorizing_message_template = oauth2_authorizing_message_template_;
                 granada::util::string::replace(authorizing_message_template,values);
                 response.set_body(authorizing_message_template);
               }else{
                 // show message and login.
                 // with state
-                std::string authorizing_login_template = *oauth2_authorizing_login_template_;
+                std::string authorizing_login_template = oauth2_authorizing_login_template_;
                 granada::util::string::replace(authorizing_login_template,values);
                 response.set_body(authorizing_login_template);
               }
@@ -108,9 +120,9 @@ namespace granada{
             }
 
           }else if (name == oauth2_logout_uri_){
-            std::shared_ptr<granada::http::session::Session> session = session_checkpoint_->check(request,response);
+            const std::unique_ptr<granada::http::session::Session>& session = session_factory_->Session_unique_ptr(request,response);
             session->Close();
-            response.set_body(*oauth2_logout_template_);
+            response.set_body(oauth2_logout_template_);
             status_code = status_codes::OK;
           }else if(name == oauth2_info_uri_){
             // oauth2 response parameters.
@@ -118,10 +130,10 @@ namespace granada{
 
             web::json::value json;
             // only provide information if user is logged
-            std::shared_ptr<granada::http::session::Session> authorization_server_session = session_checkpoint_->check(request,response);
+            const std::unique_ptr<granada::http::session::Session>& authorization_server_session = session_factory_->Session_unique_ptr(request,response);
             if (authorization_server_session->roles()->Is(entity_keys::oauth2_session_role)){
               oauth2_parameters.username = authorization_server_session->roles()->GetProperty(entity_keys::oauth2_session_role,entity_keys::oauth2_session_role_username);
-              std::shared_ptr<granada::http::oauth2::OAuth2Authorization> oauth2_authorization = oauth2_factory_->OAuth2Authorization(oauth2_parameters,session_checkpoint_,oauth2_factory_);
+              std::unique_ptr<granada::http::oauth2::OAuth2Authorization> oauth2_authorization = oauth2_factory_->OAuth2Authorization_unique_ptr(oauth2_parameters,session_factory_.get());
               json = oauth2_authorization->Information();
             }else{
               oauth2_response.error = oauth2_errors::access_denied;
@@ -141,7 +153,7 @@ namespace granada{
           std::deque<std::pair<std::string, std::string>> values;
           values.push_back(std::make_pair(oauth2_errors::error,"403"));
           values.push_back(std::make_pair(oauth2_errors::error_description,"Forbidden"));
-          std::string authorizing_error_template = *oauth2_authorizing_error_template_;
+          std::string authorizing_error_template = oauth2_authorizing_error_template_;
           granada::util::string::replace(authorizing_error_template,values);
           response.set_body(authorizing_error_template);
         }
@@ -166,12 +178,12 @@ namespace granada{
         if (!paths.empty() && paths.size() == 1 && paths[0] == oauth2_authorize_uri_){
 
           // extract data from the HTTP request.
-          std::string body = request.extract_string().get();
+          const std::string& body = request.extract_string().get();
 
           // oauth2 parameters obtained from HTTP request body.
           granada::http::oauth2::OAuth2Parameters oauth2_parameters(body);
 
-          std::shared_ptr<granada::http::oauth2::OAuth2Authorization> oauth2_authorization = oauth2_factory_->OAuth2Authorization(oauth2_parameters,session_checkpoint_,oauth2_factory_);
+          std::unique_ptr<granada::http::oauth2::OAuth2Authorization> oauth2_authorization = oauth2_factory_->OAuth2Authorization_unique_ptr(oauth2_parameters,session_factory_.get());
           oauth2_response = oauth2_authorization->Grant(request,response);
 
           if (oauth2_parameters.grant_type == oauth2_strings::authorization_code){
@@ -207,7 +219,7 @@ namespace granada{
 
         granada::http::oauth2::OAuth2Parameters oauth2_response;
 
-        std::string query_string = request.request_uri().query();
+        const std::string& query_string = request.request_uri().query();
         granada::http::oauth2::OAuth2Parameters oauth2_parameters(query_string);
 
         web::json::value json;
@@ -218,10 +230,10 @@ namespace granada{
           json = oauth2_response.to_json();
         }else{
           // Allow deletion only if user is logged
-          std::shared_ptr<granada::http::session::Session> authorization_server_session = session_checkpoint_->check(request,response);
+          std::unique_ptr<granada::http::session::Session> authorization_server_session = session_factory_->Session_unique_ptr(request,response);
           if (authorization_server_session->roles()->Is(entity_keys::oauth2_session_role)){
             oauth2_parameters.username = authorization_server_session->roles()->GetProperty(entity_keys::oauth2_session_role,entity_keys::oauth2_session_role_username);
-            std::shared_ptr<granada::http::oauth2::OAuth2Authorization> oauth2_authorization = oauth2_factory_->OAuth2Authorization(oauth2_parameters,session_checkpoint_,oauth2_factory_);
+            std::unique_ptr<granada::http::oauth2::OAuth2Authorization> oauth2_authorization = oauth2_factory_->OAuth2Authorization_unique_ptr(oauth2_parameters,session_factory_.get());
             json = oauth2_authorization->Delete();
           }
         }
@@ -278,19 +290,15 @@ namespace granada{
       }
 
 
-      void OAuth2Controller::LoadHTMLTemplate(const std::string& property_name, const std::string& default_template, std::shared_ptr<std::string>& html_template){
+      void OAuth2Controller::LoadHTMLTemplate(const std::string& property_name, const std::string& default_template, std::string& html_template){
         std::string template_path = granada::util::application::GetProperty(property_name);
-        if (html_template.get() == nullptr){
-          html_template = std::shared_ptr<std::string>(new std::string());
-        }
         if (template_path.empty()){
-          html_template->assign(default_template);
+          html_template.assign(default_template);
         }else{
           if (template_path[0]!='/'){
             template_path = granada::util::application::get_selfpath() + "/" + template_path;
           }
-          std::ifstream ifs(template_path.c_str());
-          html_template->assign((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+          html_template.assign(granada::util::file::ContentAsString(template_path));
         }
       }
 

@@ -30,13 +30,12 @@
 namespace granada{
   namespace http{
     namespace controller{
-      TestController::TestController(utility::string_t url)
+      TestController::TestController(utility::string_t url,std::shared_ptr<granada::http::session::SessionFactory>& session_factory)
       {
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));
+        session_factory_ = session_factory;
         m_listener_->support(methods::GET, std::bind(&TestController::handle_get, this, std::placeholders::_1));
-        m_listener_->support(methods::PUT, std::bind(&TestController::handle_put, this, std::placeholders::_1));
         m_listener_->support(methods::POST, std::bind(&TestController::handle_post, this, std::placeholders::_1));
-        m_listener_->support(methods::DEL, std::bind(&TestController::handle_delete, this, std::placeholders::_1));
       }
 
       void TestController::handle_get(web::http::http_request request)
@@ -44,41 +43,33 @@ namespace granada{
 
         web::http::http_response response;
 
-        granada::http::session::MapStorageSession storage_session(request,response);
+        {
+          auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
+          if (!paths.empty()){
+            std::string name = paths[0];
 
-        auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
-        if (!paths.empty()){
-          std::string name = paths[0];
+            std::unique_ptr<granada::http::session::Session> session = session_factory_->Session_unique_ptr(request,response);
 
-          if(name == "set"){
-            storage_session.Write("test","testvalue!");
-            granada::http::session::MapStorageSession storage_session2(request,response);
-            std::string value = storage_session2.Read("test");
-            response.set_body("{\"success\":true,\"value\":\"" + value + "\",\"token\":\"" + storage_session.GetToken() + "\"}");
+            if(name == "set"){
+              session->Write("test","testvalue!");
+              std::string value = session->Read("test");
+              response.set_body("{\"success\":true,\"value\":\"" + value + "\",\"token\":\"" + session->GetToken() + "\"}");
 
-          }else if (name == "get"){
-            std::string value = storage_session.Read("test");
-            response.set_body("{\"success\":true,\"value\":\"" + value + "\",\"token\":\"" + storage_session.GetToken() + "\"}");
-          }else if (name == "auth"){
-            if (storage_session.GetToken().empty()){
-              storage_session.Open();
+            }else if (name == "get"){
+              std::string value = session->Read("test");
+              response.set_body("{\"success\":true,\"value\":\"" + value + "\",\"token\":\"" + session->GetToken() + "\"}");
+            }else if (name == "auth"){
+              if (session->GetToken().empty()){
+                session->Open();
+              }
+              response.set_body("{\"success\":true,\"token\":\"" + session->GetToken() + "\"}");
             }
-            response.set_body("{\"success\":true,\"token\":\"" + storage_session.GetToken() + "\"}");
           }
         }
 
         response.set_status_code(status_codes::OK);
         response.headers().add(U("Content-Type"), "text/json; charset=utf-8");
 
-        request.reply(response);
-      }
-
-      void TestController::handle_put(web::http::http_request request)
-      {
-        web::http::http_response response;
-        response.set_status_code(status_codes::OK);
-        response.headers().add(U("Content-Type"), "text/json; charset=utf-8");
-        response.set_body("{\"success\":true}");
         request.reply(response);
       }
 
@@ -86,40 +77,32 @@ namespace granada{
       {
         web::http::http_response response;
 
-        granada::http::session::MapStorageSession storage_session(request,response);
+        {
+          auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
+          if (!paths.empty()){
+            std::string name = paths[0];
 
-        auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
-        if (!paths.empty()){
-          std::string name = paths[0];
+            std::unique_ptr<granada::http::session::Session> session = session_factory_->Session_unique_ptr(request,response);
+            if(name == "set"){
+              session->Write("test","testvalue!");
+              std::string value = session->Read("test");
+              response.set_body("{\"success\":true,\"value\":\"" + value + "\",\"token\":\"" + session->GetToken() + "\"}");
 
-          if(name == "set"){
-            storage_session.Write("test","testvalue!");
-            std::string value = storage_session.Read("test");
-            response.set_body("{\"success\":true,\"value\":\"" + value + "\",\"token\":\"" + storage_session.GetToken() + "\"}");
-
-          }else if (name == "get"){
-            std::string value = storage_session.Read("test");
-            response.set_body("{\"success\":true,\"value\":\"" + value + "\",\"token\":\"" + storage_session.GetToken() + "\"}");
-          }else if (name == "auth"){
-            if (storage_session.GetToken().empty()){
-              storage_session.Open();
+            }else if (name == "get"){
+              std::string value = session->Read("test");
+              response.set_body("{\"success\":true,\"value\":\"" + value + "\",\"token\":\"" + session->GetToken() + "\"}");
+            }else if (name == "auth"){
+              if (session->GetToken().empty()){
+                session->Open();
+              }
+              response.set_body("{\"success\":true,\"token\":\"" + session->GetToken() + "\"}");
             }
-            response.set_body("{\"success\":true,\"token\":\"" + storage_session.GetToken() + "\"}");
           }
         }
 
         response.set_status_code(status_codes::OK);
         response.headers().add(U("Content-Type"), "text/json; charset=utf-8");
 
-        request.reply(response);
-      }
-
-      void TestController::handle_delete(web::http::http_request request)
-      {
-        web::http::http_response response;
-        response.set_status_code(status_codes::OK);
-        response.headers().add(U("Content-Type"), "text/json; charset=utf-8");
-        response.set_body("{\"success\":true}");
         request.reply(response);
       }
     }

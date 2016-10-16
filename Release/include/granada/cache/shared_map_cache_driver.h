@@ -88,21 +88,36 @@ namespace granada{
 
 
         /**
+         * Set the iterator, useful to reuse it.
+         * @param expression Filter pattern/expression.
+         *                   Example:
+         *                              session:*TOKEN46464* => will SCAN or KEYS keys that match the given expression.
+         */
+        virtual void set(const std::string& expression) override;
+
+
+        /**
          * Return true if there is another value with same pattern, false
          * if there is not.
          * @return True | False
          */
-        const bool has_next();
+        virtual const bool has_next() override;
 
 
         /**
          * Return the next key found with the given pattern.
          * @return [description]
          */
-        const std::string next();
+        virtual const std::string next() override;
 
 
       protected:
+
+        /**
+         * Cache containing the keys to iterate.
+         */
+        SharedMapCacheDriver* cache_;
+
 
         /**
          * Vector for storing found keys.
@@ -150,7 +165,7 @@ namespace granada{
          * Checks if a key exist in the cache.
          * @param  key  Key to check.
          */
-        const bool Exists(const std::string& key);
+        virtual const bool Exists(const std::string& key) override;
 
 
         /**
@@ -159,7 +174,7 @@ namespace granada{
          * @param  key  Key of the value
          * @return      True if exist, false if it does not.
          */
-        const bool Exists(const std::string& hash,const std::string& key);
+        virtual const bool Exists(const std::string& hash,const std::string& key) override;
 
 
         /**
@@ -167,7 +182,7 @@ namespace granada{
          * @param  key Key of the value.
          * @return     Value
          */
-        const std::string Read(const std::string& key);
+        virtual const std::string Read(const std::string& key) override;
 
 
         /**
@@ -177,7 +192,7 @@ namespace granada{
          * @param  key  Key to identify the value.
          * @return      Value.
          */
-        const std::string Read(const std::string& hash,const std::string& key);
+        virtual const std::string Read(const std::string& hash,const std::string& key) override;
 
 
         /**
@@ -185,7 +200,7 @@ namespace granada{
          * @param key   Key of the value.
          * @param value Value.
          */
-        void Write(const std::string& key,const std::string& value);
+        virtual void Write(const std::string& key,const std::string& value) override;
 
 
         /**
@@ -195,14 +210,14 @@ namespace granada{
          * @param  key  Key to identify the value.
          * @param       Value.
          */
-        void Write(const std::string& hash,const std::string& key,const std::string& value);
+        virtual void Write(const std::string& hash,const std::string& key,const std::string& value) override;
 
 
         /**
          * Destroys a set of key-value pairs with the given name.
          * @param hash Name of the unordered map containing the key-value pairs
          */
-        void Destroy(const std::string& key);
+        virtual void Destroy(const std::string& key) override;
 
 
         /**
@@ -210,7 +225,7 @@ namespace granada{
          * @param hash Name of the unordered map containing the key-value pair to destroy.
          * @param key  Key associated with the value to destroy.
          */
-        void Destroy(const std::string& hash,const std::string& key);
+        virtual void Destroy(const std::string& hash,const std::string& key) override;
 
 
         /**
@@ -240,8 +255,8 @@ namespace granada{
          *          Example: "user*" => we will iterate over all the keys that start with "user"
          * @return  Iterator.
          */
-        std::shared_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
-          return std::make_shared<granada::cache::SharedMapIterator>(expression,this);
+        virtual std::unique_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression) override{
+          return granada::util::memory::make_unique<granada::cache::SharedMapIterator>(expression,this);
         };
 
 

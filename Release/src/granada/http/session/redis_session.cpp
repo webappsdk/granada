@@ -68,14 +68,11 @@ namespace granada{
         Session::LoadSession(token);
       }
 
-
-      std::unique_ptr<granada::cache::CacheHandler> RedisSessionRoles::cache_(new granada::cache::RedisCacheDriver());
-      
       std::once_flag RedisSessionHandler::properties_flag_;
+      std::once_flag RedisSessionHandler::clean_sessions_flag_;
       std::unique_ptr<granada::cache::CacheHandler> RedisSessionHandler::cache_(new granada::cache::RedisCacheDriver());
       std::unique_ptr<granada::crypto::NonceGenerator> RedisSessionHandler::nonce_generator_(new granada::crypto::CPPRESTNonceGenerator());
-      std::unique_ptr<granada::http::session::SessionCheckpoint> RedisSessionHandler::checkpoint_(new granada::http::session::RedisSessionCheckpoint());
-
+      std::unique_ptr<granada::http::session::SessionFactory> RedisSessionHandler::factory_(new granada::http::session::RedisSessionFactory());
     }
   }
 }

@@ -30,16 +30,25 @@ namespace granada{
   namespace http{
 
     namespace oauth2{
-      std::shared_ptr<granada::cache::CacheHandler> RedisOAuth2Client::cache_(new granada::cache::RedisCacheDriver());
-      std::shared_ptr<granada::crypto::Cryptograph> RedisOAuth2Client::cryptograph_(new granada::crypto::OpensslAESCryptograph());
 
-      std::shared_ptr<granada::cache::CacheHandler> RedisOAuth2User::cache_(new granada::cache::RedisCacheDriver());
-      std::shared_ptr<granada::crypto::Cryptograph> RedisOAuth2User::cryptograph_(new granada::crypto::OpensslAESCryptograph());
+      std::once_flag RedisOAuth2Client::properties_flag_;
+      std::unique_ptr<granada::cache::CacheHandler> RedisOAuth2Client::cache_(new granada::cache::RedisCacheDriver());
+      std::unique_ptr<granada::crypto::Cryptograph> RedisOAuth2Client::cryptograph_(new granada::crypto::OpensslAESCryptograph());
+      std::unique_ptr<granada::crypto::NonceGenerator> RedisOAuth2Client::n_generator_(new granada::crypto::CPPRESTNonceGenerator());
 
-      std::shared_ptr<granada::cache::CacheHandler> RedisOAuth2Code::cache_(new granada::cache::RedisCacheDriver());
-      std::shared_ptr<granada::crypto::Cryptograph> RedisOAuth2Code::cryptograph_(new granada::crypto::OpensslAESCryptograph());
+      std::once_flag RedisOAuth2User::properties_flag_;
+      std::unique_ptr<granada::cache::CacheHandler> RedisOAuth2User::cache_(new granada::cache::RedisCacheDriver());
+      std::unique_ptr<granada::crypto::Cryptograph> RedisOAuth2User::cryptograph_(new granada::crypto::OpensslAESCryptograph());
+      std::unique_ptr<granada::crypto::NonceGenerator> RedisOAuth2User::n_generator_(new granada::crypto::CPPRESTNonceGenerator());
 
-      std::shared_ptr<granada::cache::CacheHandler> RedisOAuth2Authorization::cache_(new granada::cache::RedisCacheDriver());
+      std::once_flag RedisOAuth2Code::properties_flag_;
+      std::unique_ptr<granada::cache::CacheHandler> RedisOAuth2Code::cache_(new granada::cache::RedisCacheDriver());
+      std::unique_ptr<granada::crypto::Cryptograph> RedisOAuth2Code::cryptograph_(new granada::crypto::OpensslAESCryptograph());
+      std::unique_ptr<granada::crypto::NonceGenerator> RedisOAuth2Code::n_generator_(new granada::crypto::CPPRESTNonceGenerator());
+      
+      std::once_flag RedisOAuth2Authorization::properties_flag_;
+      std::unique_ptr<granada::http::oauth2::OAuth2Factory> RedisOAuth2Authorization::oauth2_factory_(new granada::http::oauth2::RedisOAuth2Factory());
+      std::unique_ptr<granada::cache::CacheHandler> RedisOAuth2Authorization::cache_(new granada::cache::RedisCacheDriver());
     }
   }
 }

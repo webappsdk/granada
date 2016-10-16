@@ -30,8 +30,8 @@ namespace granada{
   namespace plugin{
 
 
-    void SpidermonkeyPluginHandler::Extend(const web::json::array& extended_plugins_ids, const std::shared_ptr<granada::plugin::Plugin>& plugin){
-      if (plugin.get()!=nullptr && extended_plugins_ids.size()>0){
+    void SpidermonkeyPluginHandler::Extend(const web::json::array& extended_plugins_ids, granada::plugin::Plugin* plugin){
+      if (plugin!=nullptr && extended_plugins_ids.size()>0){
         std::string extended_plugins_scripts = "";
         std::string extended_configurations = "";
 
@@ -53,7 +53,7 @@ namespace granada{
           // check that plug-in has been added yet.
           if (it->is_string()){
             const std::string& extended_plugin_id = it->as_string();
-            const std::shared_ptr<granada::plugin::Plugin>& extended_plugin = GetPluginById(extended_plugin_id);
+            const std::unique_ptr<granada::plugin::Plugin>& extended_plugin = GetPluginById(extended_plugin_id);
             if (extended_plugin.get()==nullptr){
 
               // the plug-in that has to be extended has not been added yet.
@@ -124,7 +124,7 @@ namespace granada{
     }
 
 
-    void SpidermonkeyPluginHandler::Run(const std::shared_ptr<granada::plugin::Plugin>& plugin, web::json::value& parameters,const std::string& event_name, function_void_json success, function_void_json failure){
+    void SpidermonkeyPluginHandler::Run(granada::plugin::Plugin* plugin, web::json::value& parameters,const std::string& event_name, function_void_json success, function_void_json failure){
 
       // run plug-in and return response.
         
@@ -197,8 +197,8 @@ namespace granada{
         return response;
       }else{
 
-        const std::shared_ptr<granada::plugin::Plugin>& plugin = plugin_factory()->Plugin(this,"none");
-        script = "var __PLUGIN; " + GetJavaScriptPluginCore(plugin) + script;
+        const std::unique_ptr<granada::plugin::Plugin>& plugin = plugin_factory()->Plugin_unique_ptr(this,"none");
+        script = "var __PLUGIN; " + GetJavaScriptPluginCore(plugin.get()) + script;
 
         // cache script so it can be reused
         cache()->Write(plugin_event_value_hash(event_name),entity_keys::plugin_event_script,script);  
@@ -270,8 +270,8 @@ namespace granada{
       
       if (!script.empty()){
 
-        const std::shared_ptr<granada::plugin::Plugin>& plugin = plugin_factory()->Plugin(this,"none");
-        script = "var __PLUGIN; " + GetJavaScriptPluginCore(plugin) + script + " __multiOnMessage(" + granada::util::string::stringified_json(message.serialize()) + ",\"" + from + "\");";
+        const std::unique_ptr<granada::plugin::Plugin>& plugin = plugin_factory()->Plugin_unique_ptr(this,"none");
+        script = "var __PLUGIN; " + GetJavaScriptPluginCore(plugin.get()) + script + " __multiOnMessage(" + granada::util::string::stringified_json(message.serialize()) + ",\"" + from + "\");";
 
         // wait until runner is usable, it is recommended to 
         // limit the use of the runner so it does not harm
@@ -321,7 +321,7 @@ namespace granada{
 
           if (not_present){
             not_present_extends.push_back(extended_plugin_extend);
-            std::shared_ptr<granada::plugin::Plugin> extended_plugin_to_test = plugin_factory()->Plugin(this,extended_plugin_extend);
+            const std::unique_ptr<granada::plugin::Plugin>& extended_plugin_to_test = plugin_factory()->Plugin_unique_ptr(this,extended_plugin_extend);
             if (!extended_plugin_to_test->Exists()){
 
               // the plug-in that has to be extended has not been added yet.
@@ -355,7 +355,7 @@ namespace granada{
     }
 
 
-    bool SpidermonkeyPluginHandler::Load(const std::shared_ptr<granada::plugin::Plugin>& plugin, const web::json::value& loader){
+    bool SpidermonkeyPluginHandler::Load(granada::plugin::Plugin* plugin, const web::json::value& loader){
 
       const std::string& plugin_loader_hash = plugin_loader_value_hash(plugin->GetId());
       const std::string& header_str = cache()->Read(plugin_loader_hash,entity_keys::plugin_header);
@@ -421,7 +421,7 @@ namespace granada{
       std::string configurations = "";
       for (auto it = plugin_ids.begin(); it != plugin_ids.end(); ++it){
 
-        const std::shared_ptr<granada::plugin::Plugin>& plugin = GetPluginById(*it);
+        const std::unique_ptr<granada::plugin::Plugin>& plugin = GetPluginById(*it);
 
         if (plugin.get() != nullptr){
 
@@ -481,7 +481,7 @@ namespace granada{
 
 
 
-    std::string SpidermonkeyPluginHandler::GetJavaScriptPluginCore(const std::shared_ptr<granada::plugin::Plugin>& plugin){
+    std::string SpidermonkeyPluginHandler::GetJavaScriptPluginCore(granada::plugin::Plugin* plugin){
       std::string script_extension = javascript_plugin_core_;
       std::deque<std::pair<std::string,std::string>> values;
       values.push_back(std::make_pair(entity_keys::plugin_parameter_plugin_id,plugin->GetId()));
@@ -492,7 +492,7 @@ namespace granada{
     }
 
 
-    std::string SpidermonkeyPluginHandler::GetJavaScriptPluginExtension(const std::shared_ptr<granada::plugin::Plugin>& plugin){
+    std::string SpidermonkeyPluginHandler::GetJavaScriptPluginExtension(granada::plugin::Plugin* plugin){
       std::string script_inheritance = javascript_plugin_extension_;
       std::deque<std::pair<std::string,std::string>> values;
       values.push_back(std::make_pair(entity_keys::plugin_parameter_configuration,plugin->GetConfiguration().serialize()));

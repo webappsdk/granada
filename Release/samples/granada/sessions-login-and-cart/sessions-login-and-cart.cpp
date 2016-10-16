@@ -47,11 +47,11 @@ void on_initialize(const string_t& address)
   std::string browser_module = granada::util::application::GetProperty("browser_controller");
   if(!browser_module.empty() && browser_module=="on"){
 
-    std::shared_ptr<granada::http::session::SessionCheckpoint> map_simple_session_checkpoint(new granada::http::session::MapSessionCheckpoint());
+    std::shared_ptr<granada::http::session::SessionFactory> map_simple_session_factory(new granada::http::session::MapSessionFactory());
 
     uri_builder uri(address);
     auto addr = uri.to_uri().to_string();
-    std::unique_ptr<granada::http::controller::Controller> browser_controller(new granada::http::controller::BrowserController(addr,map_simple_session_checkpoint));
+    std::unique_ptr<granada::http::controller::Controller> browser_controller(new granada::http::controller::BrowserController(addr,map_simple_session_factory));
     browser_controller->open().wait();
     g_controllers.push_back(std::move(browser_controller));
     ucout << "Browser Controller: Initialized... Listening for requests at: " << addr << std::endl;

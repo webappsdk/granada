@@ -24,6 +24,8 @@
   * Utils for memory.
   */
 
+#pragma once
+
 namespace granada {
 	namespace util {
 		namespace memory{

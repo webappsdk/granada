@@ -58,8 +58,9 @@ namespace granada{
         if (redirect_uris_str.empty() || application_name.empty() || roles_str.empty()){
           json = web::json::value::parse("{\"error\":\"invalid_request\",\"error_description\":\"Error registering client, a parameter has not been filled.\"}");
         }else{
+          
           // create client
-          std::shared_ptr<granada::http::oauth2::OAuth2Client> oauth2_client = oauth2_factory_->OAuth2Client();
+          std::unique_ptr<granada::http::oauth2::OAuth2Client> oauth2_client = oauth2_factory_->OAuth2Client_unique_ptr();
           try{
             std::deque<std::pair<std::string,std::string>> values;
             values.push_back(std::make_pair("+", " "));
@@ -80,6 +81,7 @@ namespace granada{
             std::string type = "public";
 
             oauth2_client->Create(type, redirect_uris, application_name, roles, password);
+
             json = web::json::value::parse("{\"client_id\":\"" + oauth2_client->GetId() + "\",\"client_secret\":\"" + password + "\",\"description\":\"Client created successfully.\"}");
           }catch(const std::exception& e){
             json = web::json::value::parse("{\"error\":\"server_error\",\"error_description\":\"Error creating client.\"}");

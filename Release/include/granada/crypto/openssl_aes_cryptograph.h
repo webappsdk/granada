@@ -44,8 +44,14 @@ namespace granada{
         OpensslAESCryptograph(){};
 
 
+        /**
+         * Destructor
+         */
+        virtual ~OpensslAESCryptograph(){};
+
+
         // override
-        std::string Encrypt(const std::string& text, std::string password){
+        std::string Encrypt(const std::string& text, std::string password) override {
           password += "qwertyuiopasdfghjklzxcvbnmqwertyqwertyuiopasdfghjklzxcvbnmqwerty";
           unsigned char text_to_encrypt[text.size()+1];
           memcpy(text_to_encrypt,text.c_str(),text.size()+1);
@@ -59,7 +65,7 @@ namespace granada{
         };
 
         // override
-        std::string Decrypt(const std::string& text, std::string password){
+        std::string Decrypt(const std::string& text, std::string password) override {
           password += "qwertyuiopasdfghjklzxcvbnmqwertyqwertyuiopasdfghjklzxcvbnmqwerty";
           unsigned char key[password.size()+1];
           memcpy(key,password.c_str(),password.size()+1);

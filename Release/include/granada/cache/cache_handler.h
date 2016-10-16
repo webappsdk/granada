@@ -30,6 +30,7 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include "granada/util/memory.h"
 
 namespace granada{
   namespace cache{
@@ -94,7 +95,7 @@ namespace granada{
 
         /**
          * Return the next key found with the given pattern.
-         * @return [description]
+         * @return found Key
          */
         virtual const std::string next(){ return std::string(); };
 
@@ -192,7 +193,7 @@ namespace granada{
          */
         virtual const void Match(const std::string& expression, std::vector<std::string>& keys){
           keys.clear();
-          std::shared_ptr<granada::cache::CacheHandlerIterator> cache_iterator = this->make_iterator(expression);
+          std::unique_ptr<granada::cache::CacheHandlerIterator> cache_iterator = this->make_iterator(expression);
           while (cache_iterator->has_next()){
             keys.push_back(cache_iterator->next());
           }
@@ -235,8 +236,8 @@ namespace granada{
         /**
          * Returns an iterator to iterate over keys with an expression.
          */
-        virtual std::shared_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
-          return std::make_shared<granada::cache::CacheHandlerIterator>(expression);
+        virtual std::unique_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
+          return granada::util::memory::make_unique<granada::cache::CacheHandlerIterator>(expression);
         };
         
     };

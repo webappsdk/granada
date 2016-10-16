@@ -39,8 +39,8 @@ std::vector<std::unique_ptr<granada::http::controller::Controller>> g_controller
 void on_initialize(const string_t& address)
 {
 
-  // session checkpoint used to create sessions.
-  std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint(new granada::http::session::RedisSessionCheckpoint());
+  // session factory used to create sessions.
+  std::shared_ptr<granada::http::session::SessionFactory> session_factory(new granada::http::session::RedisSessionFactory());
 
   ////
   // Browser Controller
@@ -51,7 +51,7 @@ void on_initialize(const string_t& address)
   if(!browser_module.empty() && browser_module=="on"){
     uri_builder uri(address);
     auto addr = uri.to_uri().to_string();
-    std::unique_ptr<granada::http::controller::Controller> browser_controller(new granada::http::controller::BrowserController(addr,session_checkpoint));
+    std::unique_ptr<granada::http::controller::Controller> browser_controller(new granada::http::controller::BrowserController(addr,session_factory));
     browser_controller->open().wait();
     g_controllers.push_back(std::move(browser_controller));
     ucout << "Browser Controller: Initialized... Listening for requests at: " << addr << std::endl;
@@ -66,7 +66,7 @@ void on_initialize(const string_t& address)
   uri_builder plugin_uri(address);
   plugin_uri.append_path(U("plugin"));
   auto addr = plugin_uri.to_uri().to_string();
-  std::unique_ptr<granada::http::controller::PluginController> plugin_controller(new granada::http::controller::PluginController(addr,session_checkpoint,plugin_factory));
+  std::unique_ptr<granada::http::controller::PluginController> plugin_controller(new granada::http::controller::PluginController(addr,session_factory,plugin_factory));
   plugin_controller->open().wait();
   g_controllers.push_back(std::move(plugin_controller));
   ucout << "Plugin Controller: Initialized... Listening for requests at: " << addr << std::endl;

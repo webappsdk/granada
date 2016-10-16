@@ -38,10 +38,10 @@ namespace granada{
 
       std::once_flag PluginController::properties_flag_;
 
-      PluginController::PluginController(utility::string_t url,std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint, std::shared_ptr<granada::plugin::PluginFactory> plugin_factory){
+      PluginController::PluginController(utility::string_t url,std::shared_ptr<granada::http::session::SessionFactory> session_factory, std::shared_ptr<granada::plugin::PluginFactory> plugin_factory){
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));
         m_listener_->support(methods::POST, std::bind(&PluginController::handle_post, this, std::placeholders::_1));
-        session_checkpoint_ = std::move(session_checkpoint);
+        session_factory_ = std::move(session_factory);
         plugin_factory_ = std::move(plugin_factory);
         std::call_once(PluginController::properties_flag_, [this](){
           this->LoadProperties();
@@ -83,14 +83,14 @@ namespace granada{
         }
 
         // kill the plug-in handler when the session closes.
-        const std::shared_ptr<granada::http::session::Session>& session = session_checkpoint_->check();
+        const std::unique_ptr<granada::http::session::Session>& session = session_factory_->Session_unique_ptr();
         if (!session->close_callbacks()->Has(default_strings::plugin_function_stop_plugin_handler)){
           const std::shared_ptr<granada::plugin::PluginFactory>& plugin_factory = plugin_factory_;
           session->close_callbacks()->Add(default_strings::plugin_function_stop_plugin_handler,[plugin_factory](const web::json::value& data){
             if (data.has_field(entity_keys::session_token)){
               const web::json::value& token = data.at(entity_keys::session_token);
               if (token.is_string()){
-                const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory->PluginHandler(token.as_string());
+                const std::unique_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory->PluginHandler_unique_ptr(token.as_string());
                 plugin_handler->Stop();
               }
             }
@@ -111,7 +111,7 @@ namespace granada{
       }
 
 
-      void PluginController::PluginHandlerInitialization(const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler, const std::shared_ptr<granada::http::session::Session>& session){
+      void PluginController::PluginHandlerInitialization(granada::plugin::PluginHandler* plugin_handler, granada::http::session::Session* session){
         std::vector<std::string> paths;
 
         // public plug-ins can be accessed by everybody
@@ -135,7 +135,7 @@ namespace granada{
       }
 
 
-      void PluginController::PluginHandlerLock(const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler){
+      void PluginController::PluginHandlerLock(granada::plugin::PluginHandler* plugin_handler){
         if (PluginController::PLUGIN_HANDLER_USE_FREQUENCY_LIMIT_>0){
           std::string plugin_handler_value_hash_str = plugin_handler->plugin_handler_value_hash();
           std::string t_str = plugin_handler->cache()->Read(plugin_handler_value_hash_str,entity_keys::plugin_handler_last_use);
@@ -163,7 +163,7 @@ namespace granada{
       }
 
 
-      web::json::value PluginController::FireEvent(const web::json::value& request_json, const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler){
+      web::json::value PluginController::FireEvent(const web::json::value& request_json, granada::plugin::PluginHandler* plugin_handler){
         web::json::value response_json;
 
         const web::json::value& plugin_event = request_json.at(entity_keys::plugin_event);
@@ -186,7 +186,7 @@ namespace granada{
       }
 
 
-      web::json::value PluginController::RunPlugin(const web::json::value& request_json, const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler){
+      web::json::value PluginController::RunPlugin(const web::json::value& request_json, granada::plugin::PluginHandler* plugin_handler){
         web::json::value response_json;
         const web::json::value& plugin_id_json = request_json.at(entity_keys::plugin_id);
         if (plugin_id_json.is_string()){
@@ -213,7 +213,7 @@ namespace granada{
       }
 
       
-      web::json::value PluginController::SendMessage(const web::json::value& request_json, const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler){
+      web::json::value PluginController::SendMessage(const web::json::value& request_json, granada::plugin::PluginHandler* plugin_handler){
         web::json::value response_json;
 
         const web::json::value& from = request_json.at(entity_keys::plugin_parameter_from);
@@ -233,7 +233,7 @@ namespace granada{
       }
 
 
-      web::json::value PluginController::RunCommand(const web::json::value& request_json, const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler){
+      web::json::value PluginController::RunCommand(const web::json::value& request_json, granada::plugin::PluginHandler* plugin_handler){
         web::json::value response_json;
 
         const web::json::value& command_json = request_json.at(default_strings::plugin_command);
@@ -268,17 +268,17 @@ namespace granada{
         web::json::value response_json;
 
         // retrieve client session
-        const std::shared_ptr<granada::http::session::Session>& session = session_checkpoint_->check(request,response);
+        std::unique_ptr<granada::http::session::Session> session = session_factory_->Session_unique_ptr(request,response);
         session->Update();
 
         // create a plug-in handler, linked to the session through the session token.
-        const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory_->PluginHandler(session->GetToken());
+        const std::unique_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory_->PluginHandler_unique_ptr(session->GetToken());
 
         // initialize Plug-in Handler only if it is not
         // already cached in the cache.
         if (!plugin_handler->Exists()){
           // initialize plug-in handler
-          PluginHandlerInitialization(plugin_handler,session);
+          PluginHandlerInitialization(plugin_handler.get(),session.get());
         }
 
 
@@ -292,7 +292,7 @@ namespace granada{
             ////
 
             if (PluginController::ALLOW_CLIENT_TO_FIRE_EVENTS_){
-              response_json = FireEvent(request_json, plugin_handler);
+              response_json = FireEvent(request_json, plugin_handler.get());
             }else{
               response_json = web::json::value::object();
               response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_forbidden_command);
@@ -304,7 +304,7 @@ namespace granada{
             ////
 
             if (PluginController::ALLOW_CLIENT_TO_RUN_PLUGINS_){
-              response_json = RunPlugin(request_json, plugin_handler);
+              response_json = RunPlugin(request_json, plugin_handler.get());
             }else{
               response_json = web::json::value::object();
               response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_forbidden_command);
@@ -318,7 +318,7 @@ namespace granada{
             ////
 
             if (PluginController::ALLOW_CLIENT_TO_SEND_MESSAGES_){
-              response_json = SendMessage(request_json, plugin_handler);
+              response_json = SendMessage(request_json, plugin_handler.get());
             }else{
               response_json = web::json::value::object();
               response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_forbidden_command);
@@ -331,7 +331,7 @@ namespace granada{
             ///
 
             if (PluginController::ALLOW_CLIENT_TO_RUN_COMMANDS_){
-              response_json = RunCommand(request_json, plugin_handler);
+              response_json = RunCommand(request_json, plugin_handler.get());
             }else{
               response_json = web::json::value::object();
               response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_forbidden_command);

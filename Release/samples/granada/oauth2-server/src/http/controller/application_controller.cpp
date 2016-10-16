@@ -34,7 +34,7 @@ using namespace web::http::oauth2::details;
 namespace granada{
   namespace http{
     namespace controller{
-      ApplicationController::ApplicationController(utility::string_t url,std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint)
+      ApplicationController::ApplicationController(utility::string_t url,std::shared_ptr<granada::http::session::SessionFactory>& session_factory)
       {
         n_generator_ = std::unique_ptr<utility::nonce_generator>(new utility::nonce_generator(32));
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));
@@ -51,7 +51,7 @@ namespace granada{
         readcode_client_id_->assign(GetClientId("readcode"));
         readwritecode_client_id_->assign(GetClientId("readwritecode"));
 
-        session_checkpoint_ = session_checkpoint;
+        session_factory_ = session_factory;
       }
 
 
@@ -64,6 +64,7 @@ namespace granada{
 
         auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
 
+        
         if (paths.empty()){
           response.set_body("404");
         }else{
@@ -75,15 +76,16 @@ namespace granada{
               sub_name = paths[1];
             }
             if (sub_name == "auth"){
+              
               granada::http::oauth2::OAuth2Parameters oauth2_response;
               // Retrieves session if it exists
-              std::shared_ptr<granada::http::session::Session> session;
+              std::unique_ptr<granada::http::session::Session> session;
               // as the example is all done in localhost I retrieve the session token manually
-              MessageApplicationSessionCheckpoint(session, request, response);
+
+              MessageApplicationSessionFactory(session, request, response);
 
               // generate state
-              std::string state;
-              state.assign(n_generator_->generate());
+              std::string state(n_generator_->generate());
               session->roles()->SetProperty("msg.user", "state", state);
               session->roles()->SetProperty("msg.user", "state.creation.time", granada::util::time::stringify(std::time(nullptr)));
               oauth2_response.response_type = "code";
@@ -98,9 +100,9 @@ namespace granada{
 
             }else{
               // Retrieves session if it exists
-              std::shared_ptr<granada::http::session::Session> session;
+              std::unique_ptr<granada::http::session::Session> session;
               // as the example is all done in localhost I retrieve the session token manually
-              MessageApplicationSessionCheckpoint(session, request, response);
+              MessageApplicationSessionFactory(session, request, response);
 
               // check if we have recieved a code and a state to obtain access tokens
               std::string query_string = request.request_uri().query();
@@ -162,9 +164,9 @@ namespace granada{
         web::http::http_response response;
 
         // Retrieves session if it exists
-        std::shared_ptr<granada::http::session::Session> session;
+        std::unique_ptr<granada::http::session::Session> session;
         // as the example is all done in localhost I retrieve the session token manually
-        MessageApplicationSessionCheckpoint(session, request, response);
+        MessageApplicationSessionFactory(session, request, response);
 
         // retrieve the user's list of messages if the user
         // has the permission.
@@ -216,9 +218,9 @@ namespace granada{
           if (name == "list" || name == "edit"){
 
             // Retrieves session if it exists
-            std::shared_ptr<granada::http::session::Session> session;
+            std::unique_ptr<granada::http::session::Session> session;
             // as the example is all done in localhost I retrieve the session token manually
-            MessageApplicationSessionCheckpoint(session, request, response);
+            MessageApplicationSessionFactory(session, request, response);
 
             // retrieve the user's list of messages if the user
             // has the permission.
@@ -283,9 +285,9 @@ namespace granada{
         web::http::http_response response;
 
         // Retrieves session if it exists
-        std::shared_ptr<granada::http::session::Session> session;
+        std::unique_ptr<granada::http::session::Session> session;
         // as the example is all done in localhost I retrieve the session token manually
-        MessageApplicationSessionCheckpoint(session, request, response);
+        MessageApplicationSessionFactory(session, request, response);
 
         // retrieve the user's list of messages if the user
         // has the permission.
@@ -322,17 +324,17 @@ namespace granada{
       }
 
 
-      void ApplicationController::MessageApplicationSessionCheckpoint(std::shared_ptr<granada::http::session::Session>& session, web::http::http_request request, web::http::http_response response){
+      void ApplicationController::MessageApplicationSessionFactory(std::unique_ptr<granada::http::session::Session>& session, web::http::http_request request, web::http::http_response response){
         std::unordered_map<std::string, std::string> cookies = granada::http::parser::ParseCookies(request);
         const std::string token_label = "message_token";
         auto it = cookies.find(token_label);
         if (it == cookies.end()){
-          session = session_checkpoint_->check();
+          session = session_factory_->Session_unique_ptr();
           session->Open();
           response.headers().add(U("Set-Cookie"), token_label + "=" + session->GetToken() + "; path=/");
         }else{
           std::string token = it->second;
-          session = session_checkpoint_->check(token);
+          session = session_factory_->Session_unique_ptr(token);
           if (session->GetToken().empty() || session->IsGarbage()){
             session->Open();
             response.headers().add(U("Set-Cookie"), token_label + "=" + session->GetToken() + "; path=/");
@@ -342,11 +344,11 @@ namespace granada{
 
       std::string ApplicationController::GetClientId(const std::string& name){
         if (name == "readcode"){
-          if (!readcode_client_id_->empty()){
+          if (readcode_client_id_.get() == nullptr || !readcode_client_id_->empty()){
             return *readcode_client_id_;
           }
         }else if (name == "readwritecode"){
-          if (!readwritecode_client_id_->empty()){
+          if (readwritecode_client_id_.get() == nullptr || !readwritecode_client_id_->empty()){
             return *readwritecode_client_id_;
           }
         }
@@ -354,8 +356,8 @@ namespace granada{
         // this shouldn't be done here, it is done here just for example
         // purpose,
         //
-        std::shared_ptr<std::string> client_id = std::shared_ptr<std::string>(new std::string());
-        std::shared_ptr<std::string> client_secret = std::shared_ptr<std::string>(new std::string(""));
+        std::string client_id;
+        std::string client_secret("");
 
         web::uri uri("http://localhost:80/client");
         web::http::client::http_client client(uri);
@@ -364,38 +366,38 @@ namespace granada{
         request2.set_request_uri(uri);
         request2.set_body(U("redirect_uri=http://localhost/application/" + name + "&application_name=" + GetApplicationName(name) + "&roles=" + GetRoles(name)));
 
-        client.request(request2).then([client_id,client_secret](web::http::http_response response2)
+        client.request(request2).then([&client_id,&client_secret](web::http::http_response response2)
         {
           try{
             web::json::value json = response2.extract_json().get();
             if (json.has_field("client_id")){
               web::json::value client_id_json = json.at("client_id");
               if (client_id_json.is_string()){
-                client_id->assign(client_id_json.as_string());
+                client_id.assign(client_id_json.as_string());
               }
             }
             if (json.has_field("client_secret")){
               web::json::value client_secret_json = json.at("client_secret");
               if (client_secret_json.is_string()){
-                client_secret->assign(client_secret_json.as_string());
+                client_secret.assign(client_secret_json.as_string());
               }
             }
           }catch(const std::exception& e){
-            client_id->assign("0");
+            client_id.assign("0");
           }
         }).wait();
 
         if (name == "readcode"){
-          readcode_client_secret_->assign(*client_secret);
+          readcode_client_secret_->assign(client_secret);
         }else if (name == "readwritecode"){
-          readwritecode_client_secret_->assign(*client_secret);
+          readwritecode_client_secret_->assign(client_secret);
         }
 
-        return *client_id;
+        return client_id;
       }
 
 
-      std::string ApplicationController::GetAccessToken(const std::string& name, std::shared_ptr<granada::http::session::Session>& session){
+      std::string ApplicationController::GetAccessToken(const std::string& name, std::unique_ptr<granada::http::session::Session>& session){
         // register the client
         // this shouldn't be done here, it is done here just for example
         // purpose,

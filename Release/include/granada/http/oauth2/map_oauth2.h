@@ -22,7 +22,7 @@
   * SOFTWARE.
   *
   * Classes of entities useful for OAuth 2.0 authorization,
-  * use Redis to store data.
+  * use maps to store data.
   * Based on rfc6749 document: The OAuth 2.0 Authorization Framework
   * https://tools.ietf.org/html/rfc6749
   *
@@ -30,7 +30,7 @@
 
 #pragma once
 #include "granada/http/oauth2/oauth2.h"
-#include "granada/cache/redis_cache_driver.h"
+#include "granada/cache/shared_map_cache_driver.h"
 #include "granada/crypto/nonce_generator.h"
 #include "granada/crypto/openssl_aes_cryptograph.h"
 
@@ -40,14 +40,14 @@ namespace granada{
 
     namespace oauth2{
 
-      class RedisOAuth2Client : public OAuth2Client{
+      class MapOAuth2Client : public OAuth2Client{
         public:
           /**
            * Constructor
            * Initialize nonce generator and load properties.
            */
-          RedisOAuth2Client(){
-            std::call_once(RedisOAuth2Client::properties_flag_, [this](){
+          MapOAuth2Client(){
+            std::call_once(MapOAuth2Client::properties_flag_, [this](){
               this->LoadProperties();
             });
           };
@@ -57,8 +57,8 @@ namespace granada{
            * Constructor
            * Initialize nonce generator, load properties and load client with the given id.
            */
-          RedisOAuth2Client(const std::string& id){
-            std::call_once(RedisOAuth2Client::properties_flag_, [this](){
+          MapOAuth2Client(const std::string& id){
+            std::call_once(MapOAuth2Client::properties_flag_, [this](){
               this->LoadProperties();
             });
             id_ = id;
@@ -109,14 +109,14 @@ namespace granada{
       };
 
 
-      class RedisOAuth2User : public OAuth2User{
+      class MapOAuth2User : public OAuth2User{
         public:
           /**
            * Constructor
            * Initialize nonce generator and load properties.
            */
-          RedisOAuth2User(){
-            std::call_once(RedisOAuth2User::properties_flag_, [this](){
+          MapOAuth2User(){
+            std::call_once(MapOAuth2User::properties_flag_, [this](){
               this->LoadProperties();
             });
           };
@@ -126,8 +126,8 @@ namespace granada{
            * Constructor
            * Initialize nonce generator, load properties and load user with the given username.
            */
-          RedisOAuth2User(const std::string& username){
-            std::call_once(RedisOAuth2User::properties_flag_, [this](){
+          MapOAuth2User(const std::string& username){
+            std::call_once(MapOAuth2User::properties_flag_, [this](){
               this->LoadProperties();
             });
             username_ = username;
@@ -148,6 +148,7 @@ namespace granada{
           virtual granada::crypto::NonceGenerator* nonce_generator() override {
             return n_generator_.get();
           };
+
 
 
         private:
@@ -178,14 +179,14 @@ namespace granada{
       };
 
 
-      class RedisOAuth2Code : public OAuth2Code{
+      class MapOAuth2Code : public OAuth2Code{
         public:
           /**
            * Constructor
            * Initialize nonce generator and load properties.
            */
-          RedisOAuth2Code(){
-            std::call_once(RedisOAuth2Code::properties_flag_, [this](){
+          MapOAuth2Code(){
+            std::call_once(MapOAuth2Code::properties_flag_, [this](){
               this->LoadProperties();
             });
           };
@@ -195,8 +196,8 @@ namespace granada{
            * Constructor
            * Initialize nonce generator, load properties and load code with the given code.
            */
-          RedisOAuth2Code(const std::string& code){
-            std::call_once(RedisOAuth2Code::properties_flag_, [this](){
+          MapOAuth2Code(const std::string& code){
+            std::call_once(MapOAuth2Code::properties_flag_, [this](){
               this->LoadProperties();
             });
             code_ = code;
@@ -247,21 +248,21 @@ namespace granada{
       };
 
 
-      class RedisOAuth2Authorization : public OAuth2Authorization{
+      class MapOAuth2Authorization : public OAuth2Authorization{
         public:
 
-          RedisOAuth2Authorization(){
-            std::call_once(RedisOAuth2Authorization::properties_flag_, [this](){
+          MapOAuth2Authorization(){
+            std::call_once(MapOAuth2Authorization::properties_flag_, [this](){
               this->LoadProperties();
             });
           };
 
 
-          RedisOAuth2Authorization(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
+          MapOAuth2Authorization(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
                                     granada::http::session::SessionFactory* session_factory){
             oauth2_parameters_ = oauth2_parameters;
             session_factory_ = session_factory;
-            std::call_once(RedisOAuth2Authorization::properties_flag_, [this](){
+            std::call_once(MapOAuth2Authorization::properties_flag_, [this](){
               this->LoadProperties();
             });
           };
@@ -270,6 +271,7 @@ namespace granada{
           granada::cache::CacheHandler* cache() override {
             return cache_.get();
           };
+
 
         protected:
 
@@ -297,77 +299,80 @@ namespace granada{
            * Cache to insert, modify and delete client data.
            */
           static std::unique_ptr<granada::cache::CacheHandler> cache_;
+
+
+          
       };
 
 
-      class RedisOAuth2Factory : public OAuth2Factory{
+      class MapOAuth2Factory : public OAuth2Factory{
 
         public:
 
           virtual std::unique_ptr<granada::http::oauth2::OAuth2Client>OAuth2Client_unique_ptr(){
-            return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2Client>();
+            return granada::util::memory::make_unique<granada::http::oauth2::MapOAuth2Client>();
           };
 
           virtual std::shared_ptr<granada::http::oauth2::OAuth2Client>OAuth2Client_shared_ptr(){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2Client>();
+            return std::make_shared<granada::http::oauth2::MapOAuth2Client>();
           };
 
           virtual std::unique_ptr<granada::http::oauth2::OAuth2Client>OAuth2Client_unique_ptr(const std::string& client_id){
-            return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2Client>(client_id);
+            return granada::util::memory::make_unique<granada::http::oauth2::MapOAuth2Client>(client_id);
           };
 
           virtual std::shared_ptr<granada::http::oauth2::OAuth2Client>OAuth2Client_shared_ptr(const std::string& client_id){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2Client>(client_id);
+            return std::make_shared<granada::http::oauth2::MapOAuth2Client>(client_id);
           };
 
           virtual std::unique_ptr<granada::http::oauth2::OAuth2User>OAuth2User_unique_ptr(){
-            return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2User>();
+            return granada::util::memory::make_unique<granada::http::oauth2::MapOAuth2User>();
           };
 
           virtual std::shared_ptr<granada::http::oauth2::OAuth2User>OAuth2User_shared_ptr(){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2User>();
+            return std::make_shared<granada::http::oauth2::MapOAuth2User>();
           };
 
           virtual std::unique_ptr<granada::http::oauth2::OAuth2User>OAuth2User_unique_ptr(const std::string& username){
-            return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2User>(username);
+            return granada::util::memory::make_unique<granada::http::oauth2::MapOAuth2User>(username);
           };
 
           virtual std::shared_ptr<granada::http::oauth2::OAuth2User>OAuth2User_shared_ptr(const std::string& username){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2User>(username);
+            return std::make_shared<granada::http::oauth2::MapOAuth2User>(username);
           };
 
           virtual std::unique_ptr<granada::http::oauth2::OAuth2Code>OAuth2Code_unique_ptr(){
-            return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2Code>();
+            return granada::util::memory::make_unique<granada::http::oauth2::MapOAuth2Code>();
           };
 
           virtual std::shared_ptr<granada::http::oauth2::OAuth2Code>OAuth2Code_shared_ptr(){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2Code>();
+            return std::make_shared<granada::http::oauth2::MapOAuth2Code>();
           };
 
           virtual std::unique_ptr<granada::http::oauth2::OAuth2Code>OAuth2Code_unique_ptr(const std::string& code){
-            return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2Code>(code);
+            return granada::util::memory::make_unique<granada::http::oauth2::MapOAuth2Code>(code);
           };
 
           virtual std::shared_ptr<granada::http::oauth2::OAuth2Code>OAuth2Code_shared_ptr(const std::string& code){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2Code>(code);
+            return std::make_shared<granada::http::oauth2::MapOAuth2Code>(code);
           };
 
           virtual std::unique_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization_unique_ptr(){
-            return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2Authorization>();
+            return granada::util::memory::make_unique<granada::http::oauth2::MapOAuth2Authorization>();
           };
 
           virtual std::shared_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization_shared_ptr(){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2Authorization>();
+            return std::make_shared<granada::http::oauth2::MapOAuth2Authorization>();
           };
 
           virtual std::unique_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization_unique_ptr(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
                                                                                                  granada::http::session::SessionFactory* session_factory){
-            return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2Authorization>(oauth2_parameters,session_factory);
+            return granada::util::memory::make_unique<granada::http::oauth2::MapOAuth2Authorization>(oauth2_parameters,session_factory);
           };
 
           virtual std::shared_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization_shared_ptr(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
                                                                                                  granada::http::session::SessionFactory* session_factory){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2Authorization>(oauth2_parameters,session_factory);
+            return std::make_shared<granada::http::oauth2::MapOAuth2Authorization>(oauth2_parameters,session_factory);
           };
 
       };

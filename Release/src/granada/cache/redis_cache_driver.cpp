@@ -85,7 +85,7 @@ namespace granada{
     std::unique_ptr<granada::cache::RedisCacheDriver> RedisIterator::cache_(new granada::cache::RedisCacheDriver());
 
     RedisIterator::RedisIterator(const std::string& expression){
-      set(RedisIterator::Type::KEYS, expression);
+      set(expression);
     }
 
     RedisIterator::RedisIterator(RedisIterator::Type type, const std::string& expression){
@@ -95,6 +95,11 @@ namespace granada{
 
       // get first set of keys.
       GetNextVector();
+    }
+
+
+    void RedisIterator::set(const std::string& expression){
+      set(RedisIterator::Type::KEYS, expression);
     }
 
 

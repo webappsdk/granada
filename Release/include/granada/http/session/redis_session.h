@@ -86,11 +86,26 @@ namespace granada{
 
 
           /**
+           * Destructor
+           */
+          virtual ~RedisSession(){};
+
+
+          /**
            * Returns a pointer to the roles of a session.
            * @return Pointer to the roles of the session.
            */
           virtual granada::http::session::SessionRoles* roles() override {
             return roles_.get();
+          };
+
+
+          /**
+           * Returns the pointer of Session Handler that manages the session.
+           * @return Session Handler.
+           */
+          virtual granada::http::session::SessionHandler* session_handler() override {
+            return session_handler_.get();
           };
 
 
@@ -106,7 +121,7 @@ namespace granada{
           };
 
 
-        protected:
+        private:
 
 
           /**
@@ -133,15 +148,6 @@ namespace granada{
           std::unique_ptr<granada::http::session::SessionRoles> roles_;
 
 
-          /**
-           * Returns the pointer of Session Handler that manages the session.
-           * @return Session Handler.
-           */
-          virtual granada::http::session::SessionHandler* session_handler() override {
-            return session_handler_.get();
-          };
-
-
       };
 
 
@@ -155,24 +161,6 @@ namespace granada{
            */
           RedisSessionRoles(granada::http::session::Session* session){
             session_ = session;
-          };
-
-
-        protected:
-
-          /**
-           * Manager of the storage, and contains
-           * the data stored.
-           */
-          static std::unique_ptr<granada::cache::CacheHandler> cache_;
-
-
-          /**
-           * Returns a pointer to the cache handler used to store the roles' data.
-           * @return Pointer to the cache handler used to store the roles' data.
-           */
-          virtual granada::cache::CacheHandler* cache() override {
-            return RedisSessionRoles::cache_.get();
           };
 
       };
@@ -194,42 +182,14 @@ namespace granada{
             });
 
             // thread for cleaning the sessions.
-            if (clean_sessions_frequency()>-1){
-              pplx::create_task([this]{
-                this->CleanSessions(true);
-              });
-            }
+            std::call_once(RedisSessionHandler::clean_sessions_flag_, [this](){
+              if (clean_sessions_frequency()>-1){
+                pplx::create_task([this]{
+                  this->CleanSessions(true);
+                });
+              }
+            });
           };
-
-
-
-        protected:
-
-
-          /**
-           * Once flag for properties loading.
-           */
-          static std::once_flag properties_flag_;
-
-
-          /**
-           * Map where all sessions are stored.
-           */
-          static std::unique_ptr<granada::cache::CacheHandler> cache_;
-
-
-          /**
-           * Nonce string generator, for generating unique strings tokens.
-           * Generate a nonce string containing random alphanumeric characters (A-Za-z0-9).
-           */
-          static std::unique_ptr<granada::crypto::NonceGenerator> nonce_generator_;
-
-
-          /**
-           * Session pointer used to test sessions status without knowing
-           * their type.
-           */
-          static std::unique_ptr<granada::http::session::SessionCheckpoint> checkpoint_;
 
 
           /**
@@ -239,6 +199,9 @@ namespace granada{
           virtual granada::cache::CacheHandler* cache() override {
             return RedisSessionHandler::cache_.get();
           }
+
+
+        protected:
 
 
           /**
@@ -258,38 +221,79 @@ namespace granada{
            * @return  Checkpoint Session pointer used to test sessions
            *          status without knowing their type.
            */
-          virtual granada::http::session::SessionCheckpoint* checkpoint() override {
-            return RedisSessionHandler::checkpoint_.get();
+          virtual granada::http::session::SessionFactory* factory() override {
+            return RedisSessionHandler::factory_.get();
           }
+
+        private:
+
+
+          /**
+           * Once flag for properties loading.
+           */
+          static std::once_flag properties_flag_;
+
+
+          /**
+           * Once flag for calling clean sessions function only
+           * once.
+           */
+          static std::once_flag clean_sessions_flag_;
+
+
+          /**
+           * Map where all sessions are stored.
+           */
+          static std::unique_ptr<granada::cache::CacheHandler> cache_;
+
+
+          /**
+           * Nonce string generator, for generating unique strings tokens.
+           * Generate a nonce string containing random alphanumeric characters (A-Za-z0-9).
+           */
+          static std::unique_ptr<granada::crypto::NonceGenerator> nonce_generator_;
+
+
+          /**
+           * Session pointer used to test sessions status without knowing
+           * their type.
+           */
+          static std::unique_ptr<granada::http::session::SessionFactory> factory_;
+
       };
 
 
-
-      class RedisSessionCheckpoint : public SessionCheckpoint
-      {
+      class RedisSessionFactory : public SessionFactory{
         public:
 
-          /**
-           * Constructor
-           */
-          RedisSessionCheckpoint(){};
 
-          virtual std::shared_ptr<granada::http::session::Session> check() override {
-            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::RedisSession());
+          virtual std::unique_ptr<granada::http::session::Session> Session_unique_ptr() override {
+            return granada::util::memory::make_unique<granada::http::session::RedisSession>();
           };
 
-          virtual std::shared_ptr<granada::http::session::Session> check(const web::http::http_request &request,web::http::http_response &response) override {
-            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::RedisSession(request,response));
+          virtual std::shared_ptr<granada::http::session::Session> Session_shared_ptr() override {
+            return std::make_shared<granada::http::session::RedisSession>();
           };
 
-          virtual std::shared_ptr<granada::http::session::Session> check(const web::http::http_request &request) override {
-            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::RedisSession(request));
+          virtual std::unique_ptr<granada::http::session::Session> Session_unique_ptr(const web::http::http_request &request,web::http::http_response &response) override {
+            return granada::util::memory::make_unique<granada::http::session::RedisSession>(request,response);
           };
 
-          virtual std::shared_ptr<granada::http::session::Session> check(const std::string& token) override {
-            return std::shared_ptr<granada::http::session::Session>(new granada::http::session::RedisSession(token));
+          virtual std::shared_ptr<granada::http::session::Session> Session_shared_ptr(const web::http::http_request &request,web::http::http_response &response) override {
+            return std::make_shared<granada::http::session::RedisSession>(request,response);
           };
 
+          virtual std::unique_ptr<granada::http::session::Session> Session_unique_ptr(const web::http::http_request &request) override {
+            return granada::util::memory::make_unique<granada::http::session::RedisSession>(request);
+          };
+
+          virtual std::shared_ptr<granada::http::session::Session> Session_shared_ptr(const web::http::http_request &request) override {
+            return std::make_shared<granada::http::session::RedisSession>(request);
+          };
+
+          virtual std::unique_ptr<granada::http::session::Session> Session_unique_ptr(const std::string& token) override {
+            return granada::util::memory::make_unique<granada::http::session::RedisSession>(token);
+          };
       };
 
 

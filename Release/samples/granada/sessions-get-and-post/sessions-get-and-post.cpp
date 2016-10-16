@@ -23,9 +23,10 @@
   *
   * Server for browsing content in the server side, handling plugins.
   */
-
+#include <memory>
 #include <stdio.h>
 #include <string>
+#include "granada/http/session/map_session.h"
 #include "granada/http/controller/browser_controller.h"
 #include "src/http/controller/test_controller.h"
 
@@ -36,48 +37,30 @@ std::vector<std::unique_ptr<granada::http::controller::Controller>> g_controller
 void on_initialize(const string_t& address)
 {
 
+  std::shared_ptr<granada::http::session::SessionFactory> session_factory = std::make_shared<granada::http::session::MapSessionFactory>();
+
   ////
   // Browser Controller
   // Permits to browse server resources.
-
   // get property "browser_module" from the server configuration file
   // If this property equals "on" we will use browser controller.
   std::string browser_module = granada::util::application::GetProperty("browser_controller");
   if(!browser_module.empty() && browser_module=="on"){
     uri_builder uri(address);
     auto addr = uri.to_uri().to_string();
-    std::unique_ptr<granada::http::controller::Controller> browser_controller(new granada::http::controller::BrowserController(addr));
+    granada::http::controller::Controller* browser_controller = new granada::http::controller::BrowserController(addr,session_factory);
     browser_controller->open().wait();
-    g_controllers.push_back(std::move(browser_controller));
+    g_controllers.push_back(std::unique_ptr<granada::http::controller::Controller>(browser_controller));
     ucout << "Browser Controller: Initialized... Listening for requests at: " << addr << std::endl;
   }
-
 
   uri_builder test_uri(address);
   test_uri.append_path(U("test"));
   auto addr = test_uri.to_uri().to_string();
-  std::unique_ptr<granada::http::controller::TestController> test_controller(new granada::http::controller::TestController(addr));
+  std::unique_ptr<granada::http::controller::TestController> test_controller(new granada::http::controller::TestController(addr,session_factory));
   test_controller->open().wait();
   g_controllers.push_back(std::move(test_controller));
   ucout << "Test Controller: Initialized... Listening for requests at: " << addr << std::endl;
-
-  ////
-  // Plugin Controller
-  // Activates the controller that permits the comunication of the client
-  // with the server plugins.
-
-  // get property "plugin_module" from the server configuration file
-  // If this property equals "on" we will use plugin controller.
-  /*std::string plugin_module = granada::util::application::GetProperty("plugin_controller");
-  if(!plugin_module.empty() && plugin_module=="on"){
-    uri_builder uri(address);
-    uri.append_path(U("api/plugin/"));
-    auto addr = uri.to_uri().to_string();
-    granada::http::controller::Controller* plugin_controller = new granada::http::controller::PluginController(addr);
-    plugin_controller->open().wait();
-    g_controllers.push_back(plugin_controller);
-    ucout << "Plugin Controller: Initialized... Listening for requests at: " << addr << std::endl;
-  }*/
 
   return;
 }
@@ -87,6 +70,7 @@ void on_shutdown()
   for(auto const& controller : g_controllers){
     controller->close().wait();
   }
+  g_controllers.clear();
   return;
 }
 
@@ -98,7 +82,7 @@ int main(int argc, char *argv[])
 #endif
 {
 
-  std::cout << "------------------- granada -------------------" << std::endl;
+  std::cout << "------------------- TEST SESSIONS DATA -------------------" << std::endl;
 
   std::string port_str = granada::util::application::GetProperty("port");
   if (port_str.empty()){
@@ -128,6 +112,8 @@ int main(int argc, char *argv[])
   std::getline(std::cin, line);
 
   on_shutdown();
+
+  std::cout << "bye,bye.\n\n";
 
   return 0;
 }

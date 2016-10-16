@@ -167,6 +167,15 @@ namespace granada{
 
         /**
          * Set the iterator, useful to reuse it.
+         * @param expression Filter pattern/expression.
+         *                   Example:
+         *                              session:*TOKEN46464* => will SCAN or KEYS keys that match the given expression.
+         */
+        virtual void set(const std::string& expression) override;
+
+
+        /**
+         * Set the iterator, useful to reuse it.
          * @param type       SCAN or KEYS command.
          * @param expression Filter pattern/expression.
          *                   Example:
@@ -180,14 +189,14 @@ namespace granada{
          * if there is not.
          * @return True | False
          */
-        const bool has_next();
+        virtual const bool has_next() override;
 
 
         /**
          * Returns the next key found with the given pattern.
          * @return next key in the keys_ vector.
          */
-        const std::string next();
+        virtual const std::string next() override;
 
 
       protected:
@@ -197,6 +206,7 @@ namespace granada{
          * the data stored.
          */
         static std::unique_ptr<granada::cache::RedisCacheDriver> cache_;
+
 
         /**
          * Results of the SCAN or KEYS search.
@@ -261,7 +271,7 @@ namespace granada{
          * Checks if a key exist in the cache.
          * @param  key  Key to check.
          */
-        const bool Exists(const std::string& key);
+        virtual const bool Exists(const std::string& key) override;
 
 
         /**
@@ -270,7 +280,7 @@ namespace granada{
          * @param  key  Key of the value
          * @return      True if exist, false if it does not.
          */
-        const bool Exists(const std::string& hash,const std::string& key);
+        virtual const bool Exists(const std::string& hash,const std::string& key) override;
 
 
         /**
@@ -278,7 +288,7 @@ namespace granada{
          * @param  key Key associated with the value.
          * @return     Value.
          */
-        const std::string Read(const std::string& key);
+        virtual const std::string Read(const std::string& key) override;
 
 
         /**
@@ -287,7 +297,7 @@ namespace granada{
          * @param  key  Key associated with the value.
          * @return      Value.
          */
-        const std::string Read(const std::string& hash, const std::string& key);
+        virtual const std::string Read(const std::string& hash, const std::string& key) override;
 
 
         /**
@@ -295,7 +305,7 @@ namespace granada{
          * @param key   Key to identify the value.
          * @param value Value
          */
-        void Write(const std::string& key,const std::string& value);
+        virtual void Write(const std::string& key,const std::string& value) override;
 
 
         /**
@@ -305,14 +315,14 @@ namespace granada{
          * @param key   Key to identify the value inside the set.
          * @param value Value
          */
-        void Write(const std::string& hash,const std::string& key,const std::string& value);
+        virtual void Write(const std::string& hash,const std::string& key,const std::string& value) override;
 
 
         /**
          * Destroys a key-value pair or a set of values.
          * @param key Key of the value or name of the set to destroy.
          */
-        void Destroy(const std::string& key);
+        virtual void Destroy(const std::string& key) override;
 
 
         /**
@@ -320,7 +330,7 @@ namespace granada{
          * @param hash Name of the set where the key-value pair is stored.
          * @param key  Key associated with the value.
          */
-        void Destroy(const std::string& hash,const std::string& key);
+        virtual void Destroy(const std::string& hash,const std::string& key) override;
 
 
         /**
@@ -372,9 +382,10 @@ namespace granada{
          *          Example: "user*" => we will iterate over all the keys that start with "user"
          * @return  Iterator.
          */
-        std::shared_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
-          return std::make_shared<granada::cache::RedisIterator>(expression);
+        virtual std::unique_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression) override{
+          return granada::util::memory::make_unique<granada::cache::RedisIterator>(expression);
         };
+
 
       protected:
 
@@ -382,6 +393,7 @@ namespace granada{
          * Redis client.
          */
         static std::unique_ptr<RedisSyncClientWrapper> redis_;
+
 
         /**
          * Mutex for thread safety.

@@ -90,7 +90,7 @@ namespace granada{
      * 
      * 
      * // 2) Retrieving the plug-in by its id:
-     * std::shared_ptr<granada::plugin::Plugin> plugin = plugin_handler->GetPluginById("product.tax");
+     * std::unique_ptr<granada::plugin::Plugin> plugin = plugin_handler->GetPluginById("product.tax");
      * 
      * web::json::value parameters = web::json::value::parse("{\"price\":24,\"currency\":\"USD\"}");
      * 
@@ -145,8 +145,8 @@ namespace granada{
          * script paths as well as plug-ins global values. Needs to be overridden.
          * @return  Pointer to the Cache Handler.
          */
-        virtual std::shared_ptr<granada::cache::CacheHandler> cache(){
-          return RedisSpidermonkeyPluginHandler::cache_;
+        virtual granada::cache::CacheHandler* cache() override{
+          return RedisSpidermonkeyPluginHandler::cache_.get();
         };
 
 
@@ -154,8 +154,8 @@ namespace granada{
          * Returns a pointer to a Plug-in Factory. Used to create PluginHandlers and Plugins.
          * @return Pointer to a plug-in Factory.
          */
-        virtual std::shared_ptr<granada::plugin::PluginFactory> plugin_factory(){
-          return RedisSpidermonkeyPluginHandler::plugin_factory_;
+        virtual granada::plugin::PluginFactory* plugin_factory() override{
+          return RedisSpidermonkeyPluginHandler::plugin_factory_.get();
         };
 
 
@@ -164,8 +164,8 @@ namespace granada{
          * plug-in scripts/executables.
          * @return Pointer to the scripts/executables runner.
          */
-        virtual std::shared_ptr<granada::runner::Runner> runner(){
-          return RedisSpidermonkeyPluginHandler::runner_;
+        virtual granada::runner::Runner* runner() override{
+          return RedisSpidermonkeyPluginHandler::runner_.get();
         };
 
 
@@ -176,20 +176,20 @@ namespace granada{
          * Pointer to the Cache Handler. Used to cache plug-ins headers, loaders,
          * configuration and script paths as well as plug-ins global values.
          */
-        static std::shared_ptr<granada::cache::CacheHandler> cache_;
+        static std::unique_ptr<granada::cache::CacheHandler> cache_;
 
 
         /**
          * Pointer to a Plug-in Factory. Used to create PluginHandlers and Plugins.
          */
-        static std::shared_ptr<granada::plugin::PluginFactory> plugin_factory_;
+        static std::unique_ptr<granada::plugin::PluginFactory> plugin_factory_;
 
 
         /**
          * Pointer to the responsible of running or executing the
          * plug-in scripts/executables.
          */
-        static std::shared_ptr<granada::runner::Runner> runner_;
+        static std::unique_ptr<granada::runner::Runner> runner_;
 
     };
 
@@ -308,7 +308,7 @@ namespace granada{
          * @return  Plug-in Handler that manages the
          *          lifecycle of the plug-in.
          */
-        virtual granada::plugin::PluginHandler* plugin_handler(){
+        virtual granada::plugin::PluginHandler* plugin_handler() override {
           return plugin_handler_;
         }; 
 
@@ -316,34 +316,52 @@ namespace granada{
 
 
     /**
-     * Plug-in Factory, used to instanciate RedisSpidermonkeyPlugins and RedisSpidermonkeyPluginHandlers.
+     * Plug-in Factory, used to instanciate Plugins and PluginHandlers.
      */
     class RedisSpidermonkeyPluginFactory : public SpidermonkeyPluginFactory{
 
       public:
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin(){
-          return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::RedisSpidermonkeyPlugin());
+
+        virtual std::unique_ptr<granada::plugin::Plugin>Plugin_unique_ptr() override {
+          return granada::util::memory::make_unique<granada::plugin::RedisSpidermonkeyPlugin>();
         };
 
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin(granada::plugin::PluginHandler* plugin_handler,const std::string& id){
-          return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::RedisSpidermonkeyPlugin(plugin_handler,id));
+        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr() override {
+          return std::make_shared<granada::plugin::RedisSpidermonkeyPlugin>();
         };
 
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script){
-          return std::shared_ptr<granada::plugin::Plugin>(new granada::plugin::RedisSpidermonkeyPlugin(plugin_handler,header,configuration,script));
+        virtual std::unique_ptr<granada::plugin::Plugin>Plugin_unique_ptr(granada::plugin::PluginHandler* plugin_handler,const std::string& id) override {
+          return granada::util::memory::make_unique<granada::plugin::RedisSpidermonkeyPlugin>(plugin_handler,id);
         };
 
-        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler(){
-          return std::shared_ptr<granada::plugin::PluginHandler>(new granada::plugin::RedisSpidermonkeyPluginHandler());
+        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr(granada::plugin::PluginHandler* plugin_handler,const std::string& id) override {
+          return std::make_shared<granada::plugin::RedisSpidermonkeyPlugin>(plugin_handler,id);
         };
 
-        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler(const std::string& id){
-          return std::shared_ptr<granada::plugin::PluginHandler>(new granada::plugin::RedisSpidermonkeyPluginHandler(id));
+        virtual std::unique_ptr<granada::plugin::Plugin>Plugin_unique_ptr(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script) override {
+          return granada::util::memory::make_unique<granada::plugin::RedisSpidermonkeyPlugin>(plugin_handler,header,configuration,script);
         };
 
-        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler(granada::plugin::PluginHandler* plugin_handler){
-          return std::shared_ptr<granada::plugin::PluginHandler>(plugin_handler);
+        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script) override {
+          return std::make_shared<granada::plugin::RedisSpidermonkeyPlugin>(plugin_handler,header,configuration,script);
         };
+
+        virtual std::unique_ptr<granada::plugin::PluginHandler>PluginHandler_unique_ptr() override {
+          return granada::util::memory::make_unique<granada::plugin::RedisSpidermonkeyPluginHandler>();
+        };
+
+        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler_shared_ptr() override {
+          return std::make_shared<granada::plugin::RedisSpidermonkeyPluginHandler>();
+        };
+
+        virtual std::unique_ptr<granada::plugin::PluginHandler>PluginHandler_unique_ptr(const std::string& id) override {
+          return granada::util::memory::make_unique<granada::plugin::RedisSpidermonkeyPluginHandler>(id);
+        };
+
+        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler_shared_ptr(const std::string& id) override {
+          return std::make_shared<granada::plugin::RedisSpidermonkeyPluginHandler>(id);
+        };
+
     };
   }
 }

@@ -64,33 +64,35 @@ namespace granada{
       // OAuth2 Client
       ////
 
-      OAuth2Client::OAuth2Client(){
-        LoadProperties();
-      }
-
-      OAuth2Client::OAuth2Client(const std::string& id){
-        LoadProperties();
-        id_ = id;
-        Load();
-      }
+      std::mutex OAuth2Client::oauth2_client_creation_mtx_;
+      std::string OAuth2Client::cache_namespace_;
+      int OAuth2Client::client_id_length_;
 
       void OAuth2Client::Load(){
+
         if (!id_.empty() && Exists()){
-          std::string hash = this->hash();
+
+          const std::string& hash(this->hash());
+          
           // load client properties.
           key_.assign(cache()->Read(hash, entity_keys::oauth2_client_key));
           type_.assign(cache()->Read(hash, entity_keys::oauth2_client_client_type));
           application_name_.assign(cache()->Read(hash,entity_keys::oauth2_client_application_name));
-          std::string redirect_uris_str = cache()->Read(hash, entity_keys::oauth2_client_redirect_uris);
+
+          const std::string& redirect_uris_str(cache()->Read(hash, entity_keys::oauth2_client_redirect_uris));
           granada::util::string::split(redirect_uris_str, ',', redirect_uris_);
-          std::string roles_str(cache()->Read(hash, entity_keys::oauth2_client_roles));
+          
+          const std::string& roles_str(cache()->Read(hash, entity_keys::oauth2_client_roles));
           granada::util::string::split(roles_str, ',', roles_);
-          std::string creation_time_str(cache()->Read(hash, entity_keys::oauth2_client_creation_time));
+
+          const std::string& creation_time_str(cache()->Read(hash, entity_keys::oauth2_client_creation_time));
           creation_time_ = granada::util::time::parse(creation_time_str);
+
         }else{
           id_.assign("");
         }
       }
+
 
       void OAuth2Client::Load(const std::string& identifier){
         if (!identifier.empty()){
@@ -99,21 +101,28 @@ namespace granada{
         }
       }
 
+
       void OAuth2Client::Create(const std::string& type, const std::vector<std::string>& redirect_uris, const std::string& application_name, const std::vector<std::string>& roles, std::string& secret){
+        
         id_.assign(nonce_generator()->generate(client_id_length_));
-        std::string hash = this->hash();
+
+        const std::string& hash(this->hash());
 
         // save with unique id,
         // check if it does not already exist one client with the same id.
-        mtx.lock();
+        oauth2_client_creation_mtx_.lock();
+
         if (Exists()){
-          mtx.unlock();
+
+          oauth2_client_creation_mtx_.unlock();
           Create(type,redirect_uris,application_name,roles,secret);
         }else{
+
           // client with that id does not already exist,
           // save it.
           cache()->Write(hash, entity_keys::oauth2_client_id, id_);
-          mtx.unlock();
+
+          oauth2_client_creation_mtx_.unlock();
 
           // save the client's properties.
           key_.assign(cryptograph()->Encrypt(id_,secret));
@@ -121,16 +130,20 @@ namespace granada{
           redirect_uris_ = redirect_uris;
           roles_ = roles;
           application_name_ = application_name;
+
           cache()->Write(hash, entity_keys::oauth2_client_key, key_);
           cache()->Write(hash, entity_keys::oauth2_client_client_type, type_);
           cache()->Write(hash, entity_keys::oauth2_client_application_name, application_name_);
           cache()->Write(hash, entity_keys::oauth2_client_redirect_uris, granada::util::vector::stringify(redirect_uris,","));
           cache()->Write(hash, entity_keys::oauth2_client_roles, granada::util::vector::stringify(roles,","));
           cache()->Write(hash, entity_keys::oauth2_client_creation_time, granada::util::time::stringify(std::time(nullptr)));
+
         }
       }
 
+
       bool OAuth2Client::Delete(const std::string& secret){
+
         if (cryptograph()->Decrypt(key_,secret) == id_){
           cache()->Destroy(hash());
           return true;
@@ -139,7 +152,8 @@ namespace granada{
       }
 
 
-      bool OAuth2Client::CorrectCredentials(std::string& secret){
+      bool OAuth2Client::CorrectCredentials(std::string secret){
+
         std::string decrypted_key = cryptograph()->Decrypt(key_,secret);
         if (decrypted_key.length()>id_.length()){
           decrypted_key.erase(decrypted_key.begin()+id_.length(),decrypted_key.end());
@@ -150,16 +164,19 @@ namespace granada{
         return false;
       }
 
+
       void OAuth2Client::LoadProperties(){
+
         // try to get the properties from the server configuration file first.
 
         // get the length of the client id.
-        std::string oauth2_client_id_length_str = granada::util::application::GetProperty(entity_keys::oauth2_client_id_length);
+        const std::string& oauth2_client_id_length_str = granada::util::application::GetProperty(entity_keys::oauth2_client_id_length);
         if (oauth2_client_id_length_str.empty()){
           client_id_length_ = nonce_lengths::oauth2_client_id;
         }else{
           try{
-            client_id_length_ = std::stoi(oauth2_client_id_length_str);
+            //client_id_length_ = std::stoi(oauth2_client_id_length_str);
+            client_id_length_ = nonce_lengths::oauth2_client_id;
           }catch(const std::logic_error& e){
             client_id_length_ = nonce_lengths::oauth2_client_id;
           }
@@ -172,38 +189,34 @@ namespace granada{
         }
       }
 
+
+
       //////////////////////////////////////////////////
       // OAuth2 User
       ////
 
-      OAuth2User::OAuth2User(){
-        LoadProperties();
-      };
-
-      OAuth2User::OAuth2User(const std::string& username){
-        LoadProperties();
-        username_ = username;
-        Load();
-      };
+      std::mutex OAuth2User::oauth2_user_creation_mtx_;
+      std::string OAuth2User::cache_namespace_;
 
       bool OAuth2User::Create(const std::string& username, std::string& password, const web::json::value& roles){
         username_.assign(username);
-        std::string hash = this->hash();
+        
+        const std::string& hash(this->hash());
 
         // save with unique username,
         // check if it does not already exist one user with the same username.
-        mtx.lock();
+        oauth2_user_creation_mtx_.lock();
         if (Exists()){
-          mtx.unlock();
+          oauth2_user_creation_mtx_.unlock();
           return false;
         }else{
           // user with that username does not already exist,
           // save it.
           cache()->Write(hash, entity_keys::oauth2_user_username, username);
-          mtx.unlock();
+          oauth2_user_creation_mtx_.unlock();
 
           // save user properties.
-          std::string key = cryptograph()->Encrypt(username,password);
+          const std::string& key = cryptograph()->Encrypt(username,password);
           key_.assign(key);
           cache()->Write(hash, entity_keys::oauth2_user_key, key);
           std::string roles_str;
@@ -222,7 +235,7 @@ namespace granada{
 
       void OAuth2User::Load(){
         if (!username_.empty() && Exists()){
-          std::string hash = this->hash();
+          const std::string& hash(this->hash());
 
           // load user's properties.
           key_.assign(cache()->Read(hash, entity_keys::oauth2_user_key));
@@ -235,7 +248,7 @@ namespace granada{
             roles_ = web::json::value::parse(roles_str);
           }
 
-          std::string creation_time_str(cache()->Read(hash, entity_keys::oauth2_user_creation_time));
+          const std::string& creation_time_str(cache()->Read(hash, entity_keys::oauth2_user_creation_time));
           creation_time_ = granada::util::time::parse(creation_time_str);
         }else{
           username_.assign("");
@@ -250,7 +263,7 @@ namespace granada{
       }
 
 
-      bool OAuth2User::CorrectCredentials(std::string& password){
+      bool OAuth2User::CorrectCredentials(std::string password){
         std::string decrypted_key = cryptograph()->Decrypt(key_,password);
         if (decrypted_key.length()>username_.length()){
           decrypted_key.erase(decrypted_key.begin()+username_.length(),decrypted_key.end());
@@ -285,15 +298,9 @@ namespace granada{
       // OAuth2 Code
       ////
 
-      OAuth2Code::OAuth2Code(){
-        LoadProperties();
-      };
-
-      OAuth2Code::OAuth2Code(const std::string& code){
-        LoadProperties();
-        code_ = code;
-        Load();
-      };
+      std::mutex OAuth2Code::oauth2_code_creation_mtx_;
+      std::string OAuth2Code::cache_namespace_;
+      int OAuth2Code::code_length_;
 
       void OAuth2Code::Load(){
         if (!code_.empty() && Exists()){
@@ -324,15 +331,15 @@ namespace granada{
 
         // save with unique code,
         // check if it does not already exist one code with the same code.
-        mtx.lock();
+        oauth2_code_creation_mtx_.lock();
         if (Exists()){
-          mtx.unlock();
+          oauth2_code_creation_mtx_.unlock();
           Create(client_id,roles,username);
         }else{
 
           // code does not exists, store it.
           cache()->Write(hash, entity_keys::oauth2_code_code, code_);
-          mtx.unlock();
+          oauth2_code_creation_mtx_.unlock();
 
           client_id_.assign(client_id);
           username_.assign(username);
@@ -378,20 +385,8 @@ namespace granada{
       // OAuth2 Authorization
       ////
 
-      OAuth2Authorization::OAuth2Authorization(){
-        LoadProperties();
-      };
-
-
-      OAuth2Authorization::OAuth2Authorization(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
-                                               std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint,
-                                               std::shared_ptr<granada::http::oauth2::OAuth2Factory>& oauth2_factory){
-        oauth2_parameters_ = oauth2_parameters;
-        session_checkpoint_ = session_checkpoint;
-        oauth2_factory_ = oauth2_factory;
-        LoadProperties();
-      };
-
+      std::string OAuth2Authorization::cache_namespace_;
+      bool OAuth2Authorization::oauth2_use_refresh_token_;
 
       void OAuth2Authorization::LoadProperties(){
         // retrieve if we have to generate refresh_token when generating access_token.
@@ -425,7 +420,7 @@ namespace granada{
           }
 
           // check client application validity.
-          std::shared_ptr<granada::http::oauth2::OAuth2Client> oauth2_client;
+          std::unique_ptr<granada::http::oauth2::OAuth2Client> oauth2_client;
           CheckClient(oauth2_client,oauth2_response);
 
           if (oauth2_response.error.empty()){
@@ -444,13 +439,13 @@ namespace granada{
             // provided credentials.
 
             // user, owner of the resources.
-            std::shared_ptr<granada::http::oauth2::OAuth2User> oauth2_user;
+            std::unique_ptr<granada::http::oauth2::OAuth2User> oauth2_user;
             // used in case the user provided a code as grant.
-            std::shared_ptr<granada::http::oauth2::OAuth2Code> oauth2_code;
+            std::unique_ptr<granada::http::oauth2::OAuth2Code> oauth2_code;
             // session of the user in the authorization server.
-            std::shared_ptr<granada::http::session::Session> oauth2_user_session;
+            std::unique_ptr<granada::http::session::Session> oauth2_user_session;
 
-            CheckCredentials(oauth2_client,oauth2_user,oauth2_code,oauth2_user_session,oauth2_response,request,response);
+            CheckCredentials(oauth2_client.get(),oauth2_user,oauth2_code,oauth2_user_session,oauth2_response,request,response);
 
             if (oauth2_response.error.empty()){
 
@@ -473,15 +468,15 @@ namespace granada{
               }
 
               // check if client is allowed to have the demanded scope/roles.
-              if (CheckRoleAllowance(roles, oauth2_client, oauth2_user)){
+              if (CheckRoleAllowance(roles, oauth2_client.get(), oauth2_user.get())){
                 if (oauth2_parameters_.response_type == oauth2_strings::code){
                   // respond with the requested code.
-                  CreateCode(oauth2_user_session, oauth2_code, oauth2_user,oauth2_response,request,response);
+                  CreateCode(oauth2_user_session, oauth2_code, oauth2_user.get(),oauth2_response,request,response);
                   oauth2_parameters_.code = oauth2_code->GetCode();
                   oauth2_parameters_.username = oauth2_code->GetUsername();
                 }else{
                   // respond with an access tokrn.
-                  CreateAccessToken(roles,oauth2_user_session,oauth2_user,oauth2_code,oauth2_response,request,response);
+                  CreateAccessToken(roles,oauth2_user_session,oauth2_user.get(),oauth2_code,oauth2_response,request,response);
                 }
 
                 if (oauth2_response.error.empty()){
@@ -503,11 +498,11 @@ namespace granada{
       }
 
 
-      void OAuth2Authorization::CheckClient(std::shared_ptr<granada::http::oauth2::OAuth2Client>& oauth2_client,
+      void OAuth2Authorization::CheckClient(std::unique_ptr<granada::http::oauth2::OAuth2Client>& oauth2_client,
                                             granada::http::oauth2::OAuth2Parameters& oauth2_response){
 
         // check if client is registered
-        oauth2_client = oauth2_factory_->OAuth2Client(oauth2_parameters_.client_id);
+        oauth2_client = factory()->OAuth2Client_unique_ptr(oauth2_parameters_.client_id);
         if (oauth2_client->GetId().empty()){
           // Authorization error client is not valid.
           // Take the uri in the referer as the redirect uri.
@@ -546,10 +541,10 @@ namespace granada{
       }
 
 
-      void OAuth2Authorization::CheckCredentials(std::shared_ptr<granada::http::oauth2::OAuth2Client>& oauth2_client,
-                                                 std::shared_ptr<granada::http::oauth2::OAuth2User>& oauth2_user,
-                                                 std::shared_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
-                                                 std::shared_ptr<granada::http::session::Session>& oauth2_user_session,
+      void OAuth2Authorization::CheckCredentials(granada::http::oauth2::OAuth2Client* oauth2_client,
+                                                 std::unique_ptr<granada::http::oauth2::OAuth2User>& oauth2_user,
+                                                 std::unique_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
+                                                 std::unique_ptr<granada::http::session::Session>& oauth2_user_session,
                                                  granada::http::oauth2::OAuth2Parameters& oauth2_response,
                                                  web::http::http_request& request,
                                                  web::http::http_response& response){
@@ -561,13 +556,13 @@ namespace granada{
             oauth2_response.error_description = oauth2_errors_description::access_denied;
             return;
           }
-          oauth2_code = oauth2_factory_->OAuth2Code(oauth2_parameters_.code);
+          oauth2_code = factory()->OAuth2Code_unique_ptr(oauth2_parameters_.code);
           if (oauth2_code->GetCode().empty()){
             oauth2_response.error = oauth2_errors::access_denied;
             oauth2_response.error_description = oauth2_errors_description::access_denied;
             return;
           }
-          oauth2_user = oauth2_factory_->OAuth2User(oauth2_code->GetUsername());
+          oauth2_user = factory()->OAuth2User_unique_ptr(oauth2_code->GetUsername());
           if (oauth2_user->GetUsername().empty()){
             oauth2_response.error = oauth2_errors::access_denied;
             oauth2_response.error_description = oauth2_errors_description::access_denied;
@@ -582,7 +577,7 @@ namespace granada{
           }else{
             // check auth session credentials.
             if (!oauth2_parameters_.authorize.empty() && oauth2_parameters_.authorize == oauth2_strings_2::authorize){
-              oauth2_user_session = session_checkpoint_->check(request,response);
+              oauth2_user_session = session_factory()->Session_unique_ptr(request,response);
               // a session will only be retrieved if it's valid.
               oauth2_parameters_.username = oauth2_user_session->roles()->GetProperty(entity_keys::oauth2_session_role,entity_keys::oauth2_session_role_username);
               if (oauth2_parameters_.username.empty()){
@@ -592,7 +587,7 @@ namespace granada{
                 return;
               }else{
                 // if user provided check if it exists.
-                oauth2_user = oauth2_factory_->OAuth2User(oauth2_parameters_.username);
+                oauth2_user = factory()->OAuth2User_unique_ptr(oauth2_parameters_.username);
                 if (oauth2_user->GetUsername().empty()){
                   // the user provided a username but the
                   // user with that username does not exists, do not continue.
@@ -609,7 +604,7 @@ namespace granada{
                 return;
               }else{
                 // if user provided check if it exists.
-                oauth2_user = oauth2_factory_->OAuth2User(oauth2_parameters_.username);
+                oauth2_user = factory()->OAuth2User_unique_ptr(oauth2_parameters_.username);
                 if (oauth2_user->GetUsername().empty() || !oauth2_user->CorrectCredentials(oauth2_parameters_.password)){
                   // the user provided a username but the
                   // user with that username does not exists, do not continue.
@@ -625,39 +620,39 @@ namespace granada{
 
 
 
-      void OAuth2Authorization::CreateCode(std::shared_ptr<granada::http::session::Session>& oauth2_user_session,
-                                           std::shared_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
-                                           std::shared_ptr<granada::http::oauth2::OAuth2User>& oauth2_user,
+      void OAuth2Authorization::CreateCode(std::unique_ptr<granada::http::session::Session>& oauth2_user_session,
+                                           std::unique_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
+                                           granada::http::oauth2::OAuth2User* oauth2_user,
                                            granada::http::oauth2::OAuth2Parameters& oauth2_response,
                                            web::http::http_request& request,
                                            web::http::http_response& response){
         // Authorization Code Grant
-        oauth2_code = oauth2_factory_->OAuth2Code();
+        oauth2_code = factory()->OAuth2Code_unique_ptr();
         oauth2_code->Create(oauth2_parameters_.client_id,oauth2_parameters_.scope,oauth2_parameters_.username);
-        std::string code = oauth2_code->GetCode();
+        const std::string& code = oauth2_code->GetCode();
         if ( code.empty() ){
           // problem with credentials
           oauth2_response.error = oauth2_errors::server_error;
           oauth2_response.error_description = oauth2_errors_description::server_error;
         }else{
           oauth2_response.code = code;
-          AssignRolesToOAuth2UserSession(oauth2_user_session, oauth2_user,request,response);
+          AssignRolesToOAuth2UserSession(oauth2_user_session, oauth2_user->GetRoles(),request,response);
         }
       }
 
       void OAuth2Authorization::CreateAccessToken(std::vector<std::string>& roles,
-                                                  std::shared_ptr<granada::http::session::Session>& oauth2_user_session,
-                                                  std::shared_ptr<granada::http::oauth2::OAuth2User>& oauth2_user,
-                                                  std::shared_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
+                                                  std::unique_ptr<granada::http::session::Session>& oauth2_user_session,
+                                                  granada::http::oauth2::OAuth2User* oauth2_user,
+                                                  std::unique_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
                                                   granada::http::oauth2::OAuth2Parameters& oauth2_response,
                                                   web::http::http_request& request,
                                                   web::http::http_response& response){
         // Client session. Resource access session.
-        std::shared_ptr<granada::http::session::Session> oauth2_client_session = session_checkpoint_->check();
+        std::unique_ptr<granada::http::session::Session> oauth2_client_session = session_factory()->Session_unique_ptr();
         oauth2_client_session->Open();
 
         // set session roles
-        AssignRolesToClientSession(roles,oauth2_user,oauth2_client_session);
+        AssignRolesToClientSession(roles,oauth2_user->GetRoles(),oauth2_client_session.get());
         oauth2_response.access_token = oauth2_client_session->GetToken();
         oauth2_response.token_type = oauth2_strings::bearer;
         oauth2_response.scope = oauth2_parameters_.scope;
@@ -671,18 +666,18 @@ namespace granada{
             // create refresh token
             // The refresh token can be used to obtain new access tokens using the same
             // authorization grant.
-            CreateRefreshToken(oauth2_client_session, oauth2_code, oauth2_response);
+            CreateRefreshToken(oauth2_client_session.get(), oauth2_code, oauth2_response);
           }
         }else{
-          AssignRolesToOAuth2UserSession(oauth2_user_session, oauth2_user,request,response);
+          AssignRolesToOAuth2UserSession(oauth2_user_session, oauth2_user->GetRoles(),request,response);
         }
       }
 
-      void OAuth2Authorization::CreateRefreshToken(std::shared_ptr<granada::http::session::Session>& oauth2_client_session,
-                                                   std::shared_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
+      void OAuth2Authorization::CreateRefreshToken(granada::http::session::Session* oauth2_client_session,
+                                                   std::unique_ptr<granada::http::oauth2::OAuth2Code>& oauth2_code,
                                                    granada::http::oauth2::OAuth2Parameters& oauth2_response){
 
-        long session_timeout = oauth2_client_session->GetSessionTimeout();
+        const long& session_timeout = oauth2_client_session->GetSessionTimeout();
         try{
           oauth2_response.expires_in.assign(std::to_string(session_timeout));
         }catch(const std::exception& e){
@@ -691,7 +686,7 @@ namespace granada{
 
         // generate a refresh token,
         // for us it's the same as generating an OAuth 2.0 code.
-        oauth2_code = oauth2_factory_->OAuth2Code();
+        oauth2_code = factory()->OAuth2Code_unique_ptr();
         oauth2_code->Create(oauth2_parameters_.client_id,oauth2_parameters_.scope,oauth2_parameters_.username);
         std::string refresh_token = oauth2_code->GetCode();
         if ( !refresh_token.empty() ){
@@ -700,8 +695,8 @@ namespace granada{
       }
 
       bool OAuth2Authorization::CheckRoleAllowance(std::vector<std::string>& roles,
-                                                   std::shared_ptr<granada::http::oauth2::OAuth2Client>& oauth2_client,
-                                                   std::shared_ptr<granada::http::oauth2::OAuth2User>& oauth2_user){
+                                                   granada::http::oauth2::OAuth2Client* oauth2_client,
+                                                   granada::http::oauth2::OAuth2User* oauth2_user){
         // check if the client session can have the asked roles
         // or if it is not allowed to have them. Check in the
         // registered client roles and in the user roles.
@@ -716,9 +711,8 @@ namespace granada{
       }
 
       void OAuth2Authorization::AssignRolesToClientSession(std::vector<std::string>& roles,
-                                                           std::shared_ptr<granada::http::oauth2::OAuth2User>& oauth2_user,
-                                                           std::shared_ptr<granada::http::session::Session>& oauth2_client_session){
-        web::json::value user_roles = oauth2_user->GetRoles();
+                                                           const web::json::value& user_roles,
+                                                           granada::http::session::Session* oauth2_client_session){
         std::string role;
         web::json::value role_properties;
         if (!user_roles.is_null()){
@@ -741,19 +735,16 @@ namespace granada{
         }
       }
 
-      void OAuth2Authorization::AssignRolesToOAuth2UserSession(std::shared_ptr<granada::http::session::Session>& oauth2_user_session,
-                                                                        std::shared_ptr<granada::http::oauth2::OAuth2User>& oauth2_user,
-                                                                        web::http::http_request& request,
-                                                                        web::http::http_response& response){
+      void OAuth2Authorization::AssignRolesToOAuth2UserSession(std::unique_ptr<granada::http::session::Session>& oauth2_user_session,
+                                                               const web::json::value& user_roles,
+                                                                web::http::http_request& request,
+                                                                web::http::http_response& response){
         if (oauth2_user_session.get() == nullptr){
-          oauth2_user_session = session_checkpoint_->check(request,response);
+          oauth2_user_session = session_factory()->Session_unique_ptr(request,response);
         }
 
         oauth2_user_session->roles()->Add(entity_keys::oauth2_session_role);
         oauth2_user_session->roles()->SetProperty(entity_keys::oauth2_session_role,entity_keys::oauth2_session_role_username,oauth2_parameters_.username);
-
-        // Set session roles
-        web::json::value user_roles = oauth2_user->GetRoles();
 
         if(!user_roles.is_null()){
           for(auto it = user_roles.as_object().cbegin(); it != user_roles.as_object().cend(); ++it){
@@ -781,8 +772,8 @@ namespace granada{
         if (oauth2_parameters_.client_id.empty()){
           // give information about all the clients authorized by the user.
           std::vector<std::string> clients_ids;
-          std::string expression = cache_namespace_ + oauth2_parameters_.username + ":*:*:*";
-          std::shared_ptr<granada::cache::CacheHandlerIterator> cache_iterator = cache()->make_iterator(expression);
+          const std::string& expression = cache_namespace_ + oauth2_parameters_.username + ":*:*:*";
+          std::unique_ptr<granada::cache::CacheHandlerIterator> cache_iterator = cache()->make_iterator(expression);
           std::string key;
           std::string client_id;
           while(cache_iterator->has_next()){
@@ -794,7 +785,7 @@ namespace granada{
               if (!client_id.empty()){
                 if (std::find(clients_ids.begin(), clients_ids.end(), client_id) == clients_ids.end()){
                   // client not already reported, retrieve its application name and report it.
-                  std::shared_ptr<granada::http::oauth2::OAuth2Client> oauth2_client = oauth2_factory_->OAuth2Client(client_id);
+                  const std::unique_ptr<granada::http::oauth2::OAuth2Client>& oauth2_client = factory()->OAuth2Client_unique_ptr(client_id);
                   json_str += ",{\"client_id\":\"" + client_id + "\",\"application_name\":\"" + oauth2_client->GetApplicationName() + "\"}";
                   clients_ids.push_back(client_id);
                 }
@@ -803,13 +794,13 @@ namespace granada{
           }
         }else{
           // give information about the client with the given id authorized to the user.
-          std::shared_ptr<granada::http::oauth2::OAuth2Client> oauth2_client = oauth2_factory_->OAuth2Client();
+          std::unique_ptr<granada::http::oauth2::OAuth2Client> oauth2_client = factory()->OAuth2Client_unique_ptr();
           oauth2_client->SetId(oauth2_parameters_.client_id);
           if (oauth2_client->Exists()){
             // get all the codes and the access_tokens linked to that client and user.
             std::vector<std::string> codes;
-            std::string expression = cache_namespace_ + oauth2_parameters_.username + ":" + oauth2_parameters_.client_id + ":*:*";
-            std::shared_ptr<granada::cache::CacheHandlerIterator> cache_iterator = cache()->make_iterator(expression);
+            const std::string& expression = cache_namespace_ + oauth2_parameters_.username + ":" + oauth2_parameters_.client_id + ":*:*";
+            std::unique_ptr<granada::cache::CacheHandlerIterator> cache_iterator = cache()->make_iterator(expression);
             std::string key;
             std::string code;
             while(cache_iterator->has_next()){
@@ -854,19 +845,19 @@ namespace granada{
       web::json::value OAuth2Authorization::Delete(){
         web::json::value json;
 
-        std::shared_ptr<granada::http::oauth2::OAuth2Client> oauth2_client = oauth2_factory_->OAuth2Client();
+        std::unique_ptr<granada::http::oauth2::OAuth2Client> oauth2_client = factory()->OAuth2Client_unique_ptr();
         oauth2_client->SetId(oauth2_parameters_.client_id);
         if (oauth2_client->Exists()){
           // remove all codes and access_token from a client.
           std::vector<std::string> keys;
           std::vector<std::string> codes;
           std::vector<std::string> access_tokens;
-          std::string expression = cache_namespace_ + oauth2_parameters_.username + ":" + oauth2_parameters_.client_id + ":*:*";
-          std::shared_ptr<granada::cache::CacheHandlerIterator> cache_iterator = cache()->make_iterator(expression);
+          const std::string& expression = cache_namespace_ + oauth2_parameters_.username + ":" + oauth2_parameters_.client_id + ":*:*";
+          std::unique_ptr<granada::cache::CacheHandlerIterator> cache_iterator = cache()->make_iterator(expression);
           std::string key;
           std::string code;
           std::string access_token;
-          std::shared_ptr<granada::http::oauth2::OAuth2Code> oauth2_code = oauth2_factory_->OAuth2Code();
+          std::unique_ptr<granada::http::oauth2::OAuth2Code> oauth2_code = factory()->OAuth2Code_unique_ptr();
           while(cache_iterator->has_next()){
             key = cache_iterator->next();
             // a key is formed with namespace + username + client_id + code + access_token
@@ -890,7 +881,7 @@ namespace granada{
               access_token = splitted_key[4];
               if (!access_token.empty()){
                 if (std::find(access_tokens.begin(), access_tokens.end(), access_token) == access_tokens.end()){
-                  std::shared_ptr<granada::http::session::Session> session = session_checkpoint_->check(access_token);
+                  std::unique_ptr<granada::http::session::Session> session = session_factory()->Session_unique_ptr(access_token);
                   session->Close();
                   access_tokens.push_back(access_token);
                 }

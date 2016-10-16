@@ -58,11 +58,18 @@ namespace granada{
            * Constructor.
            * 
            * @param   url                 URI the controller listens to.
-           * @param   session_checkpoint  Session checkpoint. Allows to have a unique point for
+           * @param   session_factory  Session factory. Allows to have a unique point for
            *                              checking and setting sessions. Used to create a new
            *                              session if it does not exist or if it is timed out.
            */
-          PluginController(utility::string_t url,std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint, std::shared_ptr<granada::plugin::PluginFactory> plugin_factory);
+          PluginController(utility::string_t url,std::shared_ptr<granada::http::session::SessionFactory> session_factory, std::shared_ptr<granada::plugin::PluginFactory> plugin_factory);
+
+
+          /**
+           * Destructor
+           */
+          virtual ~PluginController(){};
+          
 
         protected:
           
@@ -170,7 +177,7 @@ namespace granada{
            * 
            * @param session Session.
            */
-          virtual void PluginHandlerInitialization(const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler, const std::shared_ptr<granada::http::session::Session>& session);
+          virtual void PluginHandlerInitialization(granada::plugin::PluginHandler* plugin_handler, granada::http::session::Session* session);
 
 
           /**
@@ -180,7 +187,7 @@ namespace granada{
            * 
            * @param plugin_handler Plug-in Handler.
            */
-          virtual void PluginHandlerLock(const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler);
+          virtual void PluginHandlerLock(granada::plugin::PluginHandler* plugin_handler);
 
 
           /**
@@ -218,7 +225,7 @@ namespace granada{
            *                              }
            *                            }@endcode
            */
-          virtual web::json::value FireEvent(const web::json::value& request_json, const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler);
+          virtual web::json::value FireEvent(const web::json::value& request_json, granada::plugin::PluginHandler* plugin_handler);
 
 
           /**
@@ -262,7 +269,7 @@ namespace granada{
            *                              }
            *                            }@endcode
            */
-          virtual web::json::value RunPlugin(const web::json::value& request_json, const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler);
+          virtual web::json::value RunPlugin(const web::json::value& request_json, granada::plugin::PluginHandler* plugin_handler);
 
 
           /**
@@ -277,7 +284,7 @@ namespace granada{
            *                        Example:@code
            *                            {"data":{"math.sum":{"data":{"response":"Hello I'm the sum plug-in!!!"}}}}@endcode
            */
-          virtual web::json::value SendMessage(const web::json::value& request_json, const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler);
+          virtual web::json::value SendMessage(const web::json::value& request_json, granada::plugin::PluginHandler* plugin_handler);
           
 
           /**
@@ -290,7 +297,7 @@ namespace granada{
            * 
            * @return                Command Response.
            */
-          virtual web::json::value RunCommand(const web::json::value& request_json, const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler);
+          virtual web::json::value RunCommand(const web::json::value& request_json, granada::plugin::PluginHandler* plugin_handler);
 
 
           /**
@@ -304,7 +311,7 @@ namespace granada{
           /**
            * Object for creating a session if it does not exist or if it is timed out.
            */
-          std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint_;
+          std::shared_ptr<granada::http::session::SessionFactory> session_factory_;
 
 
           /**

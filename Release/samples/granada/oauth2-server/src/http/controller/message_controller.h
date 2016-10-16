@@ -47,7 +47,7 @@ namespace granada{
           /**
            * Constructor
            */
-          MessageController(utility::string_t url, std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint, std::shared_ptr<granada::cache::CacheHandler>& cache);
+          MessageController(utility::string_t url, std::shared_ptr<granada::http::session::SessionFactory>& session_factory, std::shared_ptr<granada::cache::CacheHandler>& cache);
 
         private:
 
@@ -63,7 +63,7 @@ namespace granada{
            * Allows to have a unique point for checking and setting sessions.
            * Can be used to create a new session if it does not exist.
            */
-          std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint_;
+          std::shared_ptr<granada::http::session::SessionFactory> session_factory_;
 
 
           /**
@@ -92,7 +92,7 @@ namespace granada{
           void handle_delete(web::http::http_request request);
 
 
-          void MessageApplicationSessionCheckpoint(std::shared_ptr<granada::http::session::Session>& session, web::http::http_request request, web::http::http_response response);
+          void MessageApplicationSessionFactory(std::unique_ptr<granada::http::session::Session>& session, web::http::http_request request, web::http::http_response response);
       };
     }
   }

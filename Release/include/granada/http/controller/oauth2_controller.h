@@ -31,6 +31,7 @@
 #include <fstream>
 #include "cpprest/json.h"
 #include "granada/util/string.h"
+#include "granada/util/file.h"
 #include "granada/http/parser.h"
 #include "granada/http/http_msg.h"
 #include "granada/http/session/session.h"
@@ -46,17 +47,76 @@ namespace granada{
           /**
            * Constructor
            * @param url                   Adress of the controller.
-           * @param session_checkpoint    Allows to have a unique point for checking and setting sessions.
+           * @param session_factory    Allows to have a unique point for checking and setting sessions.
            *                              Can be used to create a new session if it does not exist.
            * @param oauth2_factory        Used to instanciate OAuth 2.0 clients, users and codes.
            */
           OAuth2Controller(
             utility::string_t url,
-            std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint,
+            std::shared_ptr<granada::http::session::SessionFactory>& session_factory,
             std::shared_ptr<granada::http::oauth2::OAuth2Factory>& oauth2_factory);
 
 
+          /**
+           * Destructor
+           */
+          virtual ~OAuth2Controller(){};
+
+
         private:
+
+          /**
+           * Once flag for loading properties only once.
+           */
+          static std::once_flag properties_flag_;
+
+
+          /**
+           * Sub URI address for the authorization page.
+           */
+          static std::string oauth2_authorize_uri_;
+
+
+          /**
+           * Sub URI address for loggin out users.
+           */
+          static std::string oauth2_logout_uri_;
+
+
+          /**
+           * Sub URI address to obtain information about the authorized
+           * clients of a user.
+           */
+          static std::string oauth2_info_uri_;
+
+
+          /**
+           * HTML of the authorizing login page to show when the user
+           * is not already logged.
+           */
+          static std::string oauth2_authorizing_login_template_;
+
+
+          /**
+           * HTML of the authorizing login page to show when the user
+           * is already logged.
+           */
+          static std::string oauth2_authorizing_message_template_;
+
+
+          /**
+           * HTML of the page to show when a user loggout from the
+           * authorization server.
+           */
+          static std::string oauth2_logout_template_;
+
+
+          /**
+           * HTML of the page to show when a user tries to access a wrong
+           * URL.
+           */
+          static std::string oauth2_authorizing_error_template_;
+
 
           /**
            * URL of the controller.
@@ -68,7 +128,7 @@ namespace granada{
            * Allows to have a unique point for checking and setting sessions.
            * Can be used to create a new session if it does not exist.
            */
-          std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint_;
+          std::shared_ptr<granada::http::session::SessionFactory> session_factory_;
 
 
           /**
@@ -76,53 +136,6 @@ namespace granada{
            * Used to instanciate OAuth 2.0 clients, users and codes.
            */
           std::shared_ptr<granada::http::oauth2::OAuth2Factory> oauth2_factory_;
-
-
-          /**
-           * Sub URI address for the authorization page.
-           */
-          std::string oauth2_authorize_uri_;
-
-
-          /**
-           * Sub URI address for loggin out users.
-           */
-          std::string oauth2_logout_uri_;
-
-
-          /**
-           * Sub URI address to obtain information about the authorized
-           * clients of a user.
-           */
-          std::string oauth2_info_uri_;
-
-
-          /**
-           * HTML of the authorizing login page to show when the user
-           * is not already logged.
-           */
-          std::shared_ptr<std::string> oauth2_authorizing_login_template_;
-
-
-          /**
-           * HTML of the authorizing login page to show when the user
-           * is already logged.
-           */
-          std::shared_ptr<std::string> oauth2_authorizing_message_template_;
-
-
-          /**
-           * HTML of the page to show when a user loggout from the
-           * authorization server.
-           */
-          std::shared_ptr<std::string> oauth2_logout_template_;
-
-
-          /**
-           * HTML of the page to show when a user tries to access a wrong
-           * URL.
-           */
-          std::shared_ptr<std::string> oauth2_authorizing_error_template_;
 
 
           /**
@@ -186,7 +199,7 @@ namespace granada{
            * @param default_template HTML to use in case no path is given in the server configuration file.
            * @param html_template    Pointer of the string to fill with the HTML of the template.
            */
-          void LoadHTMLTemplate(const std::string& property_name, const std::string& default_template, std::shared_ptr<std::string>& html_template);
+          void LoadHTMLTemplate(const std::string& property_name, const std::string& default_template, std::string& html_template);
 
 
           /**

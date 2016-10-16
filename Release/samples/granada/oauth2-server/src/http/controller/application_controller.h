@@ -48,7 +48,7 @@ namespace granada{
           /**
            * Constructor
            */
-          ApplicationController(utility::string_t url, std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint);
+          ApplicationController(utility::string_t url, std::shared_ptr<granada::http::session::SessionFactory>& session_factory);
 
         private:
 
@@ -72,7 +72,7 @@ namespace granada{
            * Allows to have a unique point for checking and setting sessions.
            * Can be used to create a new session if it does not exist.
            */
-          std::shared_ptr<granada::http::session::SessionCheckpoint> session_checkpoint_;
+          std::shared_ptr<granada::http::session::SessionFactory> session_factory_;
 
 
           /**
@@ -102,7 +102,7 @@ namespace granada{
           void handle_delete(web::http::http_request request);
 
 
-          void MessageApplicationSessionCheckpoint(std::shared_ptr<granada::http::session::Session>& redis_storage_session, web::http::http_request request, web::http::http_response response);
+          void MessageApplicationSessionFactory(std::unique_ptr<granada::http::session::Session>& redis_storage_session, web::http::http_request request, web::http::http_response response);
 
           std::string GetClientId(const std::string& name);
 
@@ -110,7 +110,7 @@ namespace granada{
 
           std::string GetClientSecret(const std::string& name);
 
-          std::string GetAccessToken(const std::string& name, std::shared_ptr<granada::http::session::Session>& redis_storage_session);
+          std::string GetAccessToken(const std::string& name, std::unique_ptr<granada::http::session::Session>& redis_storage_session);
 
           std::string GetRoles(const std::string& name);
 

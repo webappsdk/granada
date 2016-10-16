@@ -305,10 +305,10 @@ namespace granada{
           if (load_and_add){
 
             // eager load. Load and add the plug-in now.
-            const std::shared_ptr<granada::plugin::Plugin>& plugin = plugin_factory()->Plugin(this,plugin_id);
-            if (!plugin->Exists() && Load(plugin,loader)){
+            const std::unique_ptr<granada::plugin::Plugin>& plugin = plugin_factory()->Plugin_unique_ptr(this,plugin_id);
+            if (!plugin->Exists() && Load(plugin.get(),loader)){
 
-              Add(plugin);
+              Add(plugin.get());
 
               // remove plug-in loader to prevent plug-in from being added again.
               RemovePluginLoader(plugin_id);
@@ -352,12 +352,12 @@ namespace granada{
 
         // instanciate a plug-in with the header, the configuration and the script, and
         // add it so it can be run.
-        return Add(plugin_factory()->Plugin(this,header,configuration,script));
+        return Add(plugin_factory()->Plugin_unique_ptr(this,header,configuration,script).get());
       }      
     }
 
 
-    bool PluginHandler::Add(const std::shared_ptr<granada::plugin::Plugin>& plugin){
+    bool PluginHandler::Add(granada::plugin::Plugin* plugin){
 
       // create empty parameters.
       web::json::value parameters = web::json::value::object();
@@ -367,7 +367,7 @@ namespace granada{
     }
 
 
-    bool PluginHandler::Add(const std::shared_ptr<granada::plugin::Plugin>& plugin, web::json::value& parameters){
+    bool PluginHandler::Add(granada::plugin::Plugin* plugin, web::json::value& parameters){
 
       if (plugin->Exists()){
 
@@ -484,8 +484,8 @@ namespace granada{
     }
 
 
-    void PluginHandler::Extend(const std::shared_ptr<granada::plugin::Plugin>& plugin){
-      if (plugin.get()!=nullptr){
+    void PluginHandler::Extend(granada::plugin::Plugin* plugin){
+      if (plugin!=nullptr){
         const web::json::value& extends = granada::util::json::as_array(plugin->GetHeader(),entity_keys::plugin_header_extends);
         Extend(extends.as_array(),plugin);
       }
@@ -493,8 +493,8 @@ namespace granada{
     }
 
 
-    void PluginHandler::Extend(const std::shared_ptr<granada::plugin::Plugin>& extended_plugin, const std::shared_ptr<granada::plugin::Plugin>& plugin){
-      if (extended_plugin.get()!=nullptr && plugin.get()!=nullptr){
+    void PluginHandler::Extend(granada::plugin::Plugin* extended_plugin, granada::plugin::Plugin* plugin){
+      if (extended_plugin!=nullptr && plugin!=nullptr){
         web::json::value extends = web::json::value::array(1);
         extends[0] = web::json::value::string(extended_plugin->GetId());
         Extend(extends.as_array(),plugin);
@@ -533,7 +533,7 @@ namespace granada{
     }
 
 
-    bool PluginHandler::ApplyExtensions(const std::shared_ptr<granada::plugin::Plugin>& plugin){
+    bool PluginHandler::ApplyExtensions(granada::plugin::Plugin* plugin){
       
       bool is_extended = false;
 
@@ -545,13 +545,13 @@ namespace granada{
         std::vector<std::string> plugin_ids;
         granada::util::string::split(plugin_ids_str,',',plugin_ids);
         for (auto it = plugin_ids.begin(); it != plugin_ids.end(); ++it){
-          const std::shared_ptr<granada::plugin::Plugin>& extension_plugin = GetPluginById(*it);
+          const std::unique_ptr<granada::plugin::Plugin>& extension_plugin = GetPluginById(*it);
 
           // check if extension plug-in has been added.
           if (extension_plugin.get()!=nullptr){
 
             // extend plug-in
-            Extend(plugin,extension_plugin);
+            Extend(plugin,extension_plugin.get());
             is_extended = true;
           }
         }
@@ -679,14 +679,13 @@ namespace granada{
 
     void PluginHandler::RemoveEventListeners(const std::string& plugin_id){
       if (!plugin_id.empty()){
-        const std::shared_ptr<granada::plugin::Plugin>& plugin = GetPluginById(plugin_id);
-        RemoveEventListeners(plugin);
+        RemoveEventListeners(GetPluginById(plugin_id).get());
       }
     }
 
 
-    void PluginHandler::RemoveEventListeners(const std::shared_ptr<granada::plugin::Plugin>& plugin){
-      if (plugin.get()!=nullptr){
+    void PluginHandler::RemoveEventListeners(granada::plugin::Plugin* plugin){
+      if (plugin!=nullptr){
         const web::json::value& header = plugin->GetHeader();
         const web::json::value& events = granada::util::json::as_array(header,entity_keys::plugin_header_events);
         for (auto it = events.as_array().cbegin(); it != events.as_array().cend(); ++it){
@@ -725,7 +724,7 @@ namespace granada{
             error = default_errors::plugin_malformed_parameters;
             error_description = default_error_descriptions::plugin_malformed_parameters;
           }else{
-            const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler(plugin_handler_id_str);
+            const std::unique_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler_unique_ptr(plugin_handler_id_str);
             plugin_handler->RemoveEventListeners(plugin_id_str);
           }
         }else{
@@ -754,7 +753,7 @@ namespace granada{
     }
 
 
-    std::shared_ptr<granada::plugin::Plugin> PluginHandler::GetPluginById(const std::string& plugin_id){
+    std::unique_ptr<granada::plugin::Plugin> PluginHandler::GetPluginById(const std::string& plugin_id){
 
       const bool& malformed_parameters = plugin_id.empty() || id_.empty();
 
@@ -775,14 +774,14 @@ namespace granada{
           const web::json::value& configuration = granada::util::string::to_json(configuration_str);
 
           // instanciate a plug-in and return its pointer
-          return plugin_factory()->Plugin(this,header,configuration,script);
+          return plugin_factory()->Plugin_unique_ptr(this,header,configuration,script);
         }
       }
 
       // plug-in does not exist with the provided id
       // or its values are malformed,
       // return null pointer plugin. 
-      return std::shared_ptr<granada::plugin::Plugin>(nullptr);
+      return std::unique_ptr<granada::plugin::Plugin>(nullptr);
     }
 
 
@@ -791,7 +790,7 @@ namespace granada{
     void PluginHandler::Run(const std::string& plugin_id, web::json::value& parameters, const std::string& event_name, function_void_json success, function_void_json failure){
       
       // retrieve added plug-in with given id.
-      const std::shared_ptr<granada::plugin::Plugin>& plugin = GetPluginById(plugin_id);
+      const std::unique_ptr<granada::plugin::Plugin>& plugin = GetPluginById(plugin_id);
       
       if (plugin.get() == nullptr){
 
@@ -804,12 +803,12 @@ namespace granada{
       }else{
 
         // plug-in exists, run it.
-        Run(plugin,parameters,event_name,success,failure);
+        Run(plugin.get(),parameters,event_name,success,failure);
       }
     }
 
 
-    void PluginHandler::Run(const std::shared_ptr<granada::plugin::Plugin>& plugin, web::json::value& parameters,const std::string& event_name, function_void_json success, function_void_json failure){
+    void PluginHandler::Run(granada::plugin::Plugin* plugin, web::json::value& parameters,const std::string& event_name, function_void_json success, function_void_json failure){
       web::json::value response = web::json::value::object();
       response[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_server_error);
       response[default_strings::plugin_error_description] = web::json::value::string(default_error_descriptions::plugin_server_error);
@@ -853,9 +852,9 @@ namespace granada{
           }else{
 
             // retrieve the plug-in using a plug-in handler.
-            std::shared_ptr<granada::plugin::Plugin> plugin;
+            std::unique_ptr<granada::plugin::Plugin> plugin;
             {
-              const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler(plugin_handler_id_str);
+              const std::unique_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler_unique_ptr(plugin_handler_id_str);
               plugin = plugin_handler->GetPluginById(plugin_id_str);
             }
 
@@ -871,7 +870,7 @@ namespace granada{
 
               // plug-in with given id exists,
               // run plug-in
-              Run(plugin,run_parameters,plugin_id_str,[&plugin_id_str,&response](const web::json::value& data){
+              Run(plugin.get(),run_parameters,plugin_id_str,[&plugin_id_str,&response](const web::json::value& data){
                 
                 web::json::value response_data = web::json::value::object();
                 response_data[plugin_id_str] = std::move(data);
@@ -977,7 +976,7 @@ namespace granada{
           }else{
             
             // use a plug-in handler to remove the plug-in with given id.
-            const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler(plugin_handler_id_str);
+            const std::unique_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler_unique_ptr(plugin_handler_id_str);
             plugin_handler->Remove(id_str);
           }
         }else{
@@ -1089,7 +1088,7 @@ namespace granada{
             error = default_errors::plugin_malformed_parameters;
             error_description = default_error_descriptions::plugin_malformed_parameters;
           }else{
-            const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler(plugin_handler_id_str);
+            const std::unique_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler_unique_ptr(plugin_handler_id_str);
 
             plugin_handler->Fire(event_name_str, fire_parameters, [&response](const web::json::value& data){
               response[entity_keys::plugin_parameter_data] = std::move(data);
@@ -1148,7 +1147,8 @@ namespace granada{
         if (to_ids.size() == 0){
 
           // destination ids are not specified, send message to ALL plug-ins except the sender.
-          const std::shared_ptr<granada::cache::CacheHandlerIterator>& cache_iterator = cache()->make_iterator(plugin_value_hash("*"));
+
+          const std::unique_ptr<granada::cache::CacheHandlerIterator>& cache_iterator = cache()->make_iterator(plugin_value_hash("*"));
           int i = 0;
           while (cache_iterator->has_next()){
 
@@ -1161,7 +1161,7 @@ namespace granada{
               const std::string& destination_plugin_id = cache()->Read(plugin_hash,entity_keys::plugin_header_id);
               
               // do not send message to the entity that is writing it.
-              if (destination_plugin_id != from){
+              if (!destination_plugin_id.empty() && destination_plugin_id != from){
                 destination_ids.push_back(destination_plugin_id);
                 i++;
 
@@ -1175,7 +1175,7 @@ namespace granada{
                   for (auto it = partial_message_responses.as_object().cbegin(); it != partial_message_responses.as_object().cend(); ++it){
                     message_responses[it->first] = it->second;
                   }
-                  destination_ids.erase(destination_ids.begin(),destination_ids.end());
+                  destination_ids.clear();
                   i = 0;
                 }
               }
@@ -1252,7 +1252,7 @@ namespace granada{
             error = default_errors::plugin_malformed_parameters;
             error_description = default_error_descriptions::plugin_malformed_parameters;
           }else{
-            const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler(plugin_handler_id_str);
+            const std::unique_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler_unique_ptr(plugin_handler_id_str);
             response = plugin_handler->SendMessage(plugin_id_str,to_ids,message_parameters);
           }
 
@@ -1842,13 +1842,13 @@ namespace granada{
       // not already added.
       for(auto it = event_loaders.as_object().cbegin(); it != event_loaders.as_object().cend(); ++it){
         const std::string& plugin_id = it->first;
-        const std::shared_ptr<granada::plugin::Plugin>& plugin = plugin_factory()->Plugin(this,plugin_id);
-        if (!plugin->Exists() && Load(plugin,it->second)){
+        const std::unique_ptr<granada::plugin::Plugin>& plugin = plugin_factory()->Plugin_unique_ptr(this,plugin_id);
+        if (!plugin->Exists() && Load(plugin.get(),it->second)){
 
           // add plug-in, but tell to not run plug-in
           // even if it does not have "run" events.
           plugin->IsRunnable(false);
-          Add(plugin);
+          Add(plugin.get());
           // remove plug-in loader to prevent plug-in from being added.
           RemovePluginLoader(plugin_id);
         }
@@ -1860,7 +1860,7 @@ namespace granada{
     void PluginHandler::AddFunctionsToRunner(){
 
       // add c++ functions so they can be called in the script or executable.
-      const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler();
+      const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler_shared_ptr();
 
       plugin_handler->runner()->functions()->Add(entity_keys::plugin_script_function_send_message, [plugin_handler](const web::json::value& parameters){
         return plugin_handler->SendMessage(parameters);

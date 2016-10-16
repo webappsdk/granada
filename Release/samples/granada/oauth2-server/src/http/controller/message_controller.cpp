@@ -34,14 +34,14 @@ using namespace web::http::oauth2::details;
 namespace granada{
   namespace http{
     namespace controller{
-      MessageController::MessageController(utility::string_t url, std::shared_ptr<granada::http::session::SessionCheckpoint>& session_checkpoint, std::shared_ptr<granada::cache::CacheHandler>& cache)
+      MessageController::MessageController(utility::string_t url, std::shared_ptr<granada::http::session::SessionFactory>& session_factory, std::shared_ptr<granada::cache::CacheHandler>& cache)
       {
         n_generator_ = std::unique_ptr<utility::nonce_generator>(new utility::nonce_generator(32));
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));
         m_listener_->support(methods::PUT, std::bind(&MessageController::handle_put, this, std::placeholders::_1));
         m_listener_->support(methods::POST, std::bind(&MessageController::handle_post, this, std::placeholders::_1));
         m_listener_->support(methods::DEL, std::bind(&MessageController::handle_delete, this, std::placeholders::_1));
-        session_checkpoint_ = session_checkpoint;
+        session_factory_ = session_factory;
         cache_ = cache;
       }
 
@@ -69,7 +69,7 @@ namespace granada{
         }else{
 
           // retrieve session if it already exists.
-          std::shared_ptr<granada::http::session::Session> session = session_checkpoint_->check(token);
+          std::unique_ptr<granada::http::session::Session> session = session_factory_->Session_unique_ptr(token);
 
           // insert the message if the user has the permission,
           if(session->roles()->Is("msg.insert")){
@@ -134,7 +134,7 @@ namespace granada{
             json_str.assign("{\"error\":\"invalid_token\",\"error_description\":\"The request is missing a valid token.\"}");
           }else{
             // retrieve session if it already exists.
-            std::shared_ptr<granada::http::session::Session> session = session_checkpoint_->check(token);
+            std::unique_ptr<granada::http::session::Session> session = session_factory_->Session_unique_ptr(token);
 
             if(name == "list"){
 
@@ -226,7 +226,7 @@ namespace granada{
         }else{
 
           // Retrieves session if it exists
-          std::shared_ptr<granada::http::session::Session> session = session_checkpoint_->check(token);
+          std::unique_ptr<granada::http::session::Session> session = session_factory_->Session_unique_ptr(token);
 
           // Delete message if the user has the permission.
           if(session->roles()->Is("msg.delete")){
@@ -259,17 +259,17 @@ namespace granada{
       }
 
 
-      void MessageController::MessageApplicationSessionCheckpoint(std::shared_ptr<granada::http::session::Session>& session, web::http::http_request request, web::http::http_response response){
+      void MessageController::MessageApplicationSessionFactory(std::unique_ptr<granada::http::session::Session>& session, web::http::http_request request, web::http::http_response response){
         std::unordered_map<std::string, std::string> cookies = granada::http::parser::ParseCookies(request);
         const std::string token_label = "message_token";
         auto it = cookies.find(token_label);
         if (it == cookies.end()){
-          session = session_checkpoint_->check();
+          session = session_factory_->Session_unique_ptr();
           session->Open();
           response.headers().add(U("Set-Cookie"), token_label + "=" + session->GetToken() + "; path=/");
         }else{
           std::string token = it->second;
-          session = session_checkpoint_->check(token);
+          session = session_factory_->Session_unique_ptr(token);
           if (session->GetToken().empty() || session->IsGarbage()){
             session->Open();
             response.headers().add(U("Set-Cookie"), token_label + "=" + session->GetToken() + "; path=/");

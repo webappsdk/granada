@@ -187,6 +187,27 @@ namespace granada{
     }
 
 
+    bool SharedMapCacheDriver::Rename(const std::string& old_key, const std::string& new_key){
+      mtx.lock();
+      auto it = data_->find(old_key);
+      if (it != data_->end()) {
+        // insert new key and value
+        std::map<std::string,std::string> properties;
+        (*data_)[new_key] = properties;
+
+        // swap
+        std::swap((*data_)[new_key], it->second);
+
+        // erase old entry
+        data_->erase(it);
+        mtx.unlock();
+        return true;
+      }
+      mtx.unlock();
+      return false;
+    }
+
+
     void SharedMapCacheDriver::Keys(const std::string& expression, std::vector<std::string>& keys){
       keys.clear();
       std::string key;

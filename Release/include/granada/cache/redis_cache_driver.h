@@ -189,14 +189,14 @@ namespace granada{
          * if there is not.
          * @return True | False
          */
-        virtual const bool has_next() override;
+        virtual const bool has_next();
 
 
         /**
          * Returns the next key found with the given pattern.
          * @return next key in the keys_ vector.
          */
-        virtual const std::string next() override;
+        virtual const std::string next();
 
 
       protected:
@@ -271,7 +271,7 @@ namespace granada{
          * Checks if a key exist in the cache.
          * @param  key  Key to check.
          */
-        virtual const bool Exists(const std::string& key) override;
+        virtual const bool Exists(const std::string& key);
 
 
         /**
@@ -280,15 +280,15 @@ namespace granada{
          * @param  key  Key of the value
          * @return      True if exist, false if it does not.
          */
-        virtual const bool Exists(const std::string& hash,const std::string& key) override;
+        virtual const bool Exists(const std::string& hash,const std::string& key);
 
 
         /**
-         * Override. Returns the value associated with the given key.
+         * Returns the value associated with the given key.
          * @param  key Key associated with the value.
          * @return     Value.
          */
-        virtual const std::string Read(const std::string& key) override;
+        virtual const std::string Read(const std::string& key);
 
 
         /**
@@ -297,15 +297,15 @@ namespace granada{
          * @param  key  Key associated with the value.
          * @return      Value.
          */
-        virtual const std::string Read(const std::string& hash, const std::string& key) override;
+        virtual const std::string Read(const std::string& hash, const std::string& key);
 
 
         /**
-         * Override. Inserts a key-value pair, rewrites it if it already exists.
+         * Inserts a key-value pair, rewrites it if it already exists.
          * @param key   Key to identify the value.
          * @param value Value
          */
-        virtual void Write(const std::string& key,const std::string& value) override;
+        virtual void Write(const std::string& key,const std::string& value);
 
 
         /**
@@ -315,22 +315,34 @@ namespace granada{
          * @param key   Key to identify the value inside the set.
          * @param value Value
          */
-        virtual void Write(const std::string& hash,const std::string& key,const std::string& value) override;
+        virtual void Write(const std::string& hash,const std::string& key,const std::string& value);
 
 
         /**
          * Destroys a key-value pair or a set of values.
          * @param key Key of the value or name of the set to destroy.
          */
-        virtual void Destroy(const std::string& key) override;
+        virtual void Destroy(const std::string& key);
 
 
         /**
-         * Destroy a key-value pair stored in a set.
+         * Destroys a key-value pair stored in a set.
          * @param hash Name of the set where the key-value pair is stored.
          * @param key  Key associated with the value.
          */
-        virtual void Destroy(const std::string& hash,const std::string& key) override;
+        virtual void Destroy(const std::string& hash,const std::string& key);
+
+
+        /**
+         * Renames a key if it does not already exists.
+         * 
+         * @param old_key Old key to rename.
+         * @param new_key New key.
+         * 
+         * @return        True if the key could be renamed, false if not, for
+         *                example it will return false if the new key already existed.
+         */
+        virtual bool Rename(const std::string& old_key, const std::string& new_key);
 
 
         /**
@@ -382,7 +394,7 @@ namespace granada{
          *          Example: "user*" => we will iterate over all the keys that start with "user"
          * @return  Iterator.
          */
-        virtual std::unique_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression) override{
+        virtual std::unique_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
           return granada::util::memory::make_unique<granada::cache::RedisIterator>(expression);
         };
 

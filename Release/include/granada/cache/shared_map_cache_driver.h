@@ -101,14 +101,14 @@ namespace granada{
          * if there is not.
          * @return True | False
          */
-        virtual const bool has_next() override;
+        virtual const bool has_next();
 
 
         /**
          * Return the next key found with the given pattern.
          * @return [description]
          */
-        virtual const std::string next() override;
+        virtual const std::string next();
 
 
       protected:
@@ -165,7 +165,7 @@ namespace granada{
          * Checks if a key exist in the cache.
          * @param  key  Key to check.
          */
-        virtual const bool Exists(const std::string& key) override;
+        virtual const bool Exists(const std::string& key);
 
 
         /**
@@ -174,7 +174,7 @@ namespace granada{
          * @param  key  Key of the value
          * @return      True if exist, false if it does not.
          */
-        virtual const bool Exists(const std::string& hash,const std::string& key) override;
+        virtual const bool Exists(const std::string& hash,const std::string& key);
 
 
         /**
@@ -182,7 +182,7 @@ namespace granada{
          * @param  key Key of the value.
          * @return     Value
          */
-        virtual const std::string Read(const std::string& key) override;
+        virtual const std::string Read(const std::string& key);
 
 
         /**
@@ -192,7 +192,7 @@ namespace granada{
          * @param  key  Key to identify the value.
          * @return      Value.
          */
-        virtual const std::string Read(const std::string& hash,const std::string& key) override;
+        virtual const std::string Read(const std::string& hash,const std::string& key);
 
 
         /**
@@ -200,7 +200,7 @@ namespace granada{
          * @param key   Key of the value.
          * @param value Value.
          */
-        virtual void Write(const std::string& key,const std::string& value) override;
+        virtual void Write(const std::string& key,const std::string& value);
 
 
         /**
@@ -210,22 +210,34 @@ namespace granada{
          * @param  key  Key to identify the value.
          * @param       Value.
          */
-        virtual void Write(const std::string& hash,const std::string& key,const std::string& value) override;
+        virtual void Write(const std::string& hash,const std::string& key,const std::string& value);
 
 
         /**
          * Destroys a set of key-value pairs with the given name.
          * @param hash Name of the unordered map containing the key-value pairs
          */
-        virtual void Destroy(const std::string& key) override;
+        virtual void Destroy(const std::string& key);
 
 
         /**
-         * Destroy a key value pair of a given set.
+         * Destroys a key value pair of a given set.
          * @param hash Name of the unordered map containing the key-value pair to destroy.
          * @param key  Key associated with the value to destroy.
          */
-        virtual void Destroy(const std::string& hash,const std::string& key) override;
+        virtual void Destroy(const std::string& hash,const std::string& key);
+
+
+        /**
+         * Renames a key if it does not already exists.
+         * 
+         * @param old_key Old key to rename.
+         * @param new_key New key.
+         * 
+         * @return        True if the key could be renamed, false if not, for
+         *                example it will return false if the new key already existed.
+         */
+        virtual bool Rename(const std::string& old_key, const std::string& new_key);
 
 
         /**
@@ -255,7 +267,7 @@ namespace granada{
          *          Example: "user*" => we will iterate over all the keys that start with "user"
          * @return  Iterator.
          */
-        virtual std::unique_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression) override{
+        virtual std::unique_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
           return granada::util::memory::make_unique<granada::cache::SharedMapIterator>(expression,this);
         };
 

@@ -90,14 +90,14 @@ namespace granada{
          * if thereis not.
          * @return True | False
          */
-        virtual const bool has_next(){ return false; };
+        virtual const bool has_next() = 0;
 
 
         /**
          * Return the next key found with the given pattern.
          * @return found Key
          */
-        virtual const std::string next(){ return std::string(); };
+        virtual const std::string next() = 0;
 
 
       protected:
@@ -148,7 +148,7 @@ namespace granada{
          * @param  key Key.
          * @return     True if key exists, false if it does not.
          */
-        virtual const bool Exists(const std::string& key){ return false; };
+        virtual const bool Exists(const std::string& key) = 0;
 
 
         /**
@@ -157,7 +157,7 @@ namespace granada{
          * @param  key  Key of the value
          * @return      True if exist, false if it does not.
          */
-        virtual const bool Exists(const std::string& hash,const std::string& key){ return false; };
+        virtual const bool Exists(const std::string& hash,const std::string& key) = 0;
 
 
         /**
@@ -165,7 +165,7 @@ namespace granada{
          * @param  key Key of the value.
          * @return     Value
          */
-        virtual const std::string Read(const std::string& key){ return std::string(); };
+        virtual const std::string Read(const std::string& key) = 0;
 
 
         /**
@@ -174,7 +174,7 @@ namespace granada{
          * @param  key  Key associated with the value.
          * @return      Value.
          */
-        virtual const std::string Read(const std::string& hash, const std::string& key){ return std::string(); };
+        virtual const std::string Read(const std::string& hash, const std::string& key) = 0;
 
 
         /**
@@ -201,11 +201,11 @@ namespace granada{
 
 
         /**
-         * Set a value in the cache associated with a given key.
+         * Sets a value in the cache associated with a given key.
          * @param key   Key of the value.
          * @param value Value.
          */
-        virtual void Write(const std::string& key,const std::string& value){};
+        virtual void Write(const std::string& key,const std::string& value) = 0;
 
 
         /**
@@ -215,30 +215,41 @@ namespace granada{
          * @param key   Key to identify the value inside the set.
          * @param value Value
          */
-        virtual void Write(const std::string& hash,const std::string& key,const std::string& value){};
+        virtual void Write(const std::string& hash,const std::string& key,const std::string& value) = 0;
 
 
         /**
          * Removes a key-value pair from the cache.
          * @param key
          */
-        virtual void Destroy(const std::string& key){};
+        virtual void Destroy(const std::string& key) = 0;
 
 
         /**
-         * Destroy a key-value pair stored in a set.
+         * Destroys a key-value pair stored in a set.
          * @param hash Name of the set where the key-value pair is stored.
          * @param key  Key associated with the value.
          */
-        virtual void Destroy(const std::string& hash,const std::string& key){};
+        virtual void Destroy(const std::string& hash,const std::string& key) = 0;
+
+
+        /**
+         * Renames a key if it does not already exists.
+         * 
+         * @param old_key Old key to rename.
+         * @param new_key New key.
+         * 
+         * @return        True if the key could be renamed, false if not, for
+         *                example it will return false if the new key already existed
+         *                or the old_key does not exist.
+         */
+        virtual bool Rename(const std::string& old_key, const std::string& new_key) = 0;
 
 
         /**
          * Returns an iterator to iterate over keys with an expression.
          */
-        virtual std::unique_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression){
-          return granada::util::memory::make_unique<granada::cache::CacheHandlerIterator>(expression);
-        };
+        virtual std::unique_ptr<granada::cache::CacheHandlerIterator> make_iterator(const std::string& expression) = 0;
         
     };
   }

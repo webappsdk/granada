@@ -275,6 +275,18 @@ namespace granada{
       mtx_.unlock();
     }
 
+    
+    bool RedisCacheDriver::Rename(const std::string& old_key, const std::string& new_key){
+      mtx_.lock();
+      redisclient::RedisValue result = redis_->get()->command("RENAMENX", {old_key, new_key});
+      mtx_.unlock();
+      if( result.isOk() )
+      {
+        return true;
+      }
+      return false;
+    }
+
 
     redisclient::RedisValue RedisCacheDriver::Scan(const std::string& cursor, const std::string& expression_){
       mtx_.lock();

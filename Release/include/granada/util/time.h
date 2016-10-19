@@ -45,13 +45,11 @@ namespace granada{
        * @return          Parsed time.
        */
       static std::time_t parse(const std::string& time_str){
-        long int _time = 0;
         try{
-          _time = std::stol(time_str);
+          return std::stol(time_str);
         }catch(const std::logic_error& e){
-          _time = 0;
+          return 0;
         }
-        return _time;
       }
 
 
@@ -108,8 +106,7 @@ namespace granada{
       static int get_milliseconds(){
         timeb tb;
         ftime(&tb);
-        int count = tb.millitm + (tb.time & 0xfffff) * 1000;
-        return count;
+        return tb.millitm + (tb.time & 0xfffff) * 1000;
       }
 
 
@@ -121,8 +118,9 @@ namespace granada{
        */
       static int get_milliseconds_span(int start){
         int span = get_milliseconds() - start;
-        if(span < 0)
+        if(span < 0){
           span += 0x100000 * 1000;
+        }
         return span;
       }
 

@@ -50,12 +50,11 @@ namespace granada{
        */
       static const std::string GetExtension(const std::string& filename){
         // extract the extension of the file from the filename.
-        std::size_t found = filename.find_last_of(".");
+        const std::size_t& found = filename.find_last_of(".");
         if (found != std::string::npos){
-          std::string extension = filename.substr(found,filename.length());
+          const std::string& extension = filename.substr(found,filename.length());
           if (!extension.empty()){
-            extension = extension.substr(1);
-            return extension;
+            return extension.substr(1);
           }
         }
         return std::string();
@@ -70,8 +69,7 @@ namespace granada{
         if (!file_path.empty()){
           std::ifstream ifs(file_path);
           if (ifs.good()){
-            std::string content((std::istreambuf_iterator<char>(ifs)),(std::istreambuf_iterator<char>()));
-            return content;
+            return std::string((std::istreambuf_iterator<char>(ifs)),(std::istreambuf_iterator<char>()));
           }
         }
         return std::string();
@@ -86,8 +84,7 @@ namespace granada{
         if (!file_path.empty()){
           std::ifstream ifs(file_path);
           if (ifs.good()){
-            std::string content((std::istreambuf_iterator<char>(ifs)),(std::istreambuf_iterator<char>()));
-            return granada::util::string::to_json(content);
+            return granada::util::string::to_json(std::string((std::istreambuf_iterator<char>(ifs)),(std::istreambuf_iterator<char>())));
           }
         }
         return web::json::value::object();

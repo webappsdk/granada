@@ -59,8 +59,7 @@ namespace granada{
        */
       static inline std::string as_string(const web::json::value& json, const std::string& key){
         if (!json.is_null() && json.is_object() && json.has_field(key)){
-          web::json::value str_json = json.at(key);
-          return as_string(str_json);
+          return as_string(json.at(key));
         }
         return std::string();
       };
@@ -109,7 +108,7 @@ namespace granada{
        * @return        First element, JSON value.
        */
       static web::json::value first(const web::json::value& json){
-        if (json.size() > 0){
+        if (!json.is_null() && json.size() > 0){
           if (json.is_object()){
             for(auto it = json.as_object().cbegin(); it != json.as_object().cend(); ++it){
               return it->second;

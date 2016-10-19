@@ -206,8 +206,7 @@ namespace granada{
       if( result.isOk() )
       {
         if (result.toInt() == 1){
-          std::string value = Read(hash,key);
-          exists = !value.empty();
+          exists = !Read(hash,key).empty();
         }
       }
       return exists;

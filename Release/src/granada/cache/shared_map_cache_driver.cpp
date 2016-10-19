@@ -210,10 +210,9 @@ namespace granada{
 
     void SharedMapCacheDriver::Keys(const std::string& expression, std::vector<std::string>& keys){
       keys.clear();
-      std::string key;
       mtx.lock();
       for(auto it = data_->begin(); it != data_->end(); ++it) {
-        key = it->first;
+        const std::string& key = it->first;
         if (std::regex_match(key, std::regex(expression))){
           keys.push_back(it->first);
         }

@@ -1601,40 +1601,20 @@ namespace granada{
           return granada::util::memory::make_unique<granada::plugin::Plugin>();
         };
 
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr(){
-          return std::make_shared<granada::plugin::Plugin>();
-        };
-
         virtual std::unique_ptr<granada::plugin::Plugin>Plugin_unique_ptr(granada::plugin::PluginHandler* plugin_handler,const std::string& id){
           return granada::util::memory::make_unique<granada::plugin::Plugin>(plugin_handler,id);
-        };
-
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr(granada::plugin::PluginHandler* plugin_handler,const std::string& id){
-          return std::make_shared<granada::plugin::Plugin>(plugin_handler,id);
         };
 
         virtual std::unique_ptr<granada::plugin::Plugin>Plugin_unique_ptr(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script){
           return granada::util::memory::make_unique<granada::plugin::Plugin>(plugin_handler,header,configuration,script);
         };
 
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script){
-          return std::make_shared<granada::plugin::Plugin>(plugin_handler,header,configuration,script);
-        };
-
         virtual std::unique_ptr<granada::plugin::PluginHandler>PluginHandler_unique_ptr(){
           return granada::util::memory::make_unique<granada::plugin::PluginHandler>();
         };
 
-        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler_shared_ptr(){
-          return std::make_shared<granada::plugin::PluginHandler>();
-        };
-
         virtual std::unique_ptr<granada::plugin::PluginHandler>PluginHandler_unique_ptr(const std::string& id){
           return granada::util::memory::make_unique<granada::plugin::PluginHandler>(id);
-        };
-
-        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler_shared_ptr(const std::string& id){
-          return std::make_shared<granada::plugin::PluginHandler>(id);
         };
 
     };

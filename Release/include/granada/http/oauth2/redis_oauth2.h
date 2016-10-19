@@ -308,66 +308,33 @@ namespace granada{
             return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2Client>();
           };
 
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2Client>OAuth2Client_shared_ptr(){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2Client>();
-          };
-
           virtual std::unique_ptr<granada::http::oauth2::OAuth2Client>OAuth2Client_unique_ptr(const std::string& client_id){
             return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2Client>(client_id);
-          };
-
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2Client>OAuth2Client_shared_ptr(const std::string& client_id){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2Client>(client_id);
           };
 
           virtual std::unique_ptr<granada::http::oauth2::OAuth2User>OAuth2User_unique_ptr(){
             return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2User>();
           };
 
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2User>OAuth2User_shared_ptr(){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2User>();
-          };
-
           virtual std::unique_ptr<granada::http::oauth2::OAuth2User>OAuth2User_unique_ptr(const std::string& username){
             return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2User>(username);
-          };
-
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2User>OAuth2User_shared_ptr(const std::string& username){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2User>(username);
           };
 
           virtual std::unique_ptr<granada::http::oauth2::OAuth2Code>OAuth2Code_unique_ptr(){
             return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2Code>();
           };
 
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2Code>OAuth2Code_shared_ptr(){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2Code>();
-          };
-
           virtual std::unique_ptr<granada::http::oauth2::OAuth2Code>OAuth2Code_unique_ptr(const std::string& code){
             return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2Code>(code);
-          };
-
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2Code>OAuth2Code_shared_ptr(const std::string& code){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2Code>(code);
           };
 
           virtual std::unique_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization_unique_ptr(){
             return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2Authorization>();
           };
 
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization_shared_ptr(){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2Authorization>();
-          };
-
           virtual std::unique_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization_unique_ptr(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
                                                                                                  granada::http::session::SessionFactory* session_factory){
             return granada::util::memory::make_unique<granada::http::oauth2::RedisOAuth2Authorization>(oauth2_parameters,session_factory);
-          };
-
-          virtual std::shared_ptr<granada::http::oauth2::OAuth2Authorization>OAuth2Authorization_shared_ptr(const granada::http::oauth2::OAuth2Parameters& oauth2_parameters,
-                                                                                                 granada::http::session::SessionFactory* session_factory){
-            return std::make_shared<granada::http::oauth2::RedisOAuth2Authorization>(oauth2_parameters,session_factory);
           };
 
       };

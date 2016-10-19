@@ -1860,7 +1860,7 @@ namespace granada{
     void PluginHandler::AddFunctionsToRunner(){
 
       // add c++ functions so they can be called in the script or executable.
-      const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler_shared_ptr();
+      const std::shared_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler_unique_ptr();
 
       plugin_handler->runner()->functions()->Add(entity_keys::plugin_script_function_send_message, [plugin_handler](const web::json::value& parameters){
         return plugin_handler->SendMessage(parameters);

@@ -326,40 +326,20 @@ namespace granada{
           return granada::util::memory::make_unique<granada::plugin::RedisSpidermonkeyPlugin>();
         };
 
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr() override {
-          return std::make_shared<granada::plugin::RedisSpidermonkeyPlugin>();
-        };
-
         virtual std::unique_ptr<granada::plugin::Plugin>Plugin_unique_ptr(granada::plugin::PluginHandler* plugin_handler,const std::string& id) override {
           return granada::util::memory::make_unique<granada::plugin::RedisSpidermonkeyPlugin>(plugin_handler,id);
-        };
-
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr(granada::plugin::PluginHandler* plugin_handler,const std::string& id) override {
-          return std::make_shared<granada::plugin::RedisSpidermonkeyPlugin>(plugin_handler,id);
         };
 
         virtual std::unique_ptr<granada::plugin::Plugin>Plugin_unique_ptr(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script) override {
           return granada::util::memory::make_unique<granada::plugin::RedisSpidermonkeyPlugin>(plugin_handler,header,configuration,script);
         };
 
-        virtual std::shared_ptr<granada::plugin::Plugin>Plugin_shared_ptr(granada::plugin::PluginHandler* plugin_handler, const web::json::value& header, const web::json::value& configuration, const std::string& script) override {
-          return std::make_shared<granada::plugin::RedisSpidermonkeyPlugin>(plugin_handler,header,configuration,script);
-        };
-
         virtual std::unique_ptr<granada::plugin::PluginHandler>PluginHandler_unique_ptr() override {
           return granada::util::memory::make_unique<granada::plugin::RedisSpidermonkeyPluginHandler>();
         };
 
-        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler_shared_ptr() override {
-          return std::make_shared<granada::plugin::RedisSpidermonkeyPluginHandler>();
-        };
-
         virtual std::unique_ptr<granada::plugin::PluginHandler>PluginHandler_unique_ptr(const std::string& id) override {
           return granada::util::memory::make_unique<granada::plugin::RedisSpidermonkeyPluginHandler>(id);
-        };
-
-        virtual std::shared_ptr<granada::plugin::PluginHandler>PluginHandler_shared_ptr(const std::string& id) override {
-          return std::make_shared<granada::plugin::RedisSpidermonkeyPluginHandler>(id);
         };
 
     };

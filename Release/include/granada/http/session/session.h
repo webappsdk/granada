@@ -776,16 +776,6 @@ namespace granada{
            * Checks if session is open / valid.
            * Can be used in case we want to open a session in case it does not exist,
            * or in case it is timed out.
-           */
-          virtual std::shared_ptr<granada::http::session::Session> Session_shared_ptr(){
-            return std::make_shared<granada::http::session::Session>();
-          };
-
-
-          /**
-           * Checks if session is open / valid.
-           * Can be used in case we want to open a session in case it does not exist,
-           * or in case it is timed out.
            * @param request   HTTP request.
            * @param response  HTTP response.
            */
@@ -799,32 +789,9 @@ namespace granada{
            * Can be used in case we want to open a session in case it does not exist,
            * or in case it is timed out.
            * @param request   HTTP request.
-           * @param response  HTTP response.
-           */
-          virtual std::shared_ptr<granada::http::session::Session> Session_shared_ptr(const web::http::http_request &request,web::http::http_response &response){
-            return std::make_shared<granada::http::session::Session>(request,response);
-          };
-
-
-          /**
-           * Checks if session is open / valid.
-           * Can be used in case we want to open a session in case it does not exist,
-           * or in case it is timed out.
-           * @param request   HTTP request.
            */
           virtual std::unique_ptr<granada::http::session::Session> Session_unique_ptr(const web::http::http_request &request){
             return granada::util::memory::make_unique<granada::http::session::Session>(request);
-          };
-
-
-          /**
-           * Checks if session is open / valid.
-           * Can be used in case we want to open a session in case it does not exist,
-           * or in case it is timed out.
-           * @param request   HTTP request.
-           */
-          virtual std::shared_ptr<granada::http::session::Session> Session_shared_ptr(const web::http::http_request &request){
-            return std::make_shared<granada::http::session::Session>(request);
           };
 
 

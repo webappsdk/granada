@@ -275,24 +275,12 @@ namespace granada{
             return granada::util::memory::make_unique<granada::http::session::MapSession>();
           };
 
-          virtual std::shared_ptr<granada::http::session::Session> Session_shared_ptr() override {
-            return std::make_shared<granada::http::session::MapSession>();
-          };
-
           virtual std::unique_ptr<granada::http::session::Session> Session_unique_ptr(const web::http::http_request &request,web::http::http_response &response) override {
             return granada::util::memory::make_unique<granada::http::session::MapSession>(request,response);
           };
 
-          virtual std::shared_ptr<granada::http::session::Session> Session_shared_ptr(const web::http::http_request &request,web::http::http_response &response) override {
-            return std::make_shared<granada::http::session::MapSession>(request,response);
-          };
-
           virtual std::unique_ptr<granada::http::session::Session> Session_unique_ptr(const web::http::http_request &request) override {
             return granada::util::memory::make_unique<granada::http::session::MapSession>(request);
-          };
-
-          virtual std::shared_ptr<granada::http::session::Session> Session_shared_ptr(const web::http::http_request &request) override {
-            return std::make_shared<granada::http::session::MapSession>(request);
           };
 
           virtual std::unique_ptr<granada::http::session::Session> Session_unique_ptr(const std::string& token) override {

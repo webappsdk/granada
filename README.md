@@ -11,3 +11,5 @@ Granada is a structured layer on top of C++ REST SDK for building server applica
 [Event-Driven C++ Plug-in Framework](https://github.com/webappsdk/granada/wiki/Event-Driven-Cpp-Plug-in-Framework)
 
 [Cache Drivers: Data storage access](https://github.com/webappsdk/granada/wiki/Cache-Drivers)
+
+[Utils](https://github.com/webappsdk/granada/wiki/Utils)

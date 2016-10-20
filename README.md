@@ -2,6 +2,8 @@ Granada is a structured layer on top of C++ REST SDK for building server applica
 
 [Reference Documentation](https://cookinapps.io/documents/granada/doc/html/annotated.html)
 
+[Build for Linux and MacOS](https://github.com/webappsdk/granada/wiki/Build-for-Linux-and-MacOS)
+
 [Standard structure for C++ REST SDK servers](https://cookinapps.io/2016/04/standard-structure-for-c++-rest-sdk-servers/)
 
 [Sessions in C++ REST SDK](https://cookinapps.io/2016/04/c++-rest-sdk-sessions/)

@@ -26,6 +26,7 @@
 
 #pragma once
 #include <string>
+#include "cpprest/details/basic_types.h"
 #include "cpprest/json.h"
 
 namespace granada{
@@ -45,7 +46,7 @@ namespace granada{
        */
       static inline std::string as_string(const web::json::value& json){
         if (!json.is_null() && json.is_string()){
-          return json.as_string();
+			return utility::conversions::to_utf8string(json.as_string());
         }
         return std::string();
       };
@@ -58,8 +59,8 @@ namespace granada{
        * @return        String or empty string.
        */
       static inline std::string as_string(const web::json::value& json, const std::string& key){
-        if (!json.is_null() && json.is_object() && json.has_field(key)){
-          return as_string(json.at(key));
+        if (!json.is_null() && json.is_object() && json.has_field(utility::conversions::to_string_t(key))){
+			return as_string(json.at(utility::conversions::to_string_t(key)));
         }
         return std::string();
       };
@@ -73,8 +74,8 @@ namespace granada{
        * @return        JSON object or empty JSON object.
        */
       static inline web::json::value as_object(const web::json::value& json, const std::string& key){
-        if (!json.is_null() && json.is_object() && json.has_field(key)){
-          web::json::value json_object = json.at(key);
+		  if (!json.is_null() && json.is_object() && json.has_field(utility::conversions::to_string_t(key))){
+			  web::json::value json_object = json.at(utility::conversions::to_string_t(key));
           if (json_object.is_object()){
             return json_object;
           }
@@ -91,8 +92,8 @@ namespace granada{
        * @return        JSON array or empty JSON array.
        */
       static inline web::json::value as_array(const web::json::value& json, const std::string& key){
-        if (!json.is_null() && json.is_object() && json.has_field(key)){
-          web::json::value json_array = json.at(key);
+		  if (!json.is_null() && json.is_object() && json.has_field(utility::conversions::to_string_t(key))){
+			  web::json::value json_array = json.at(utility::conversions::to_string_t(key));
           if (json_array.is_array()){
             return json_array;
           }

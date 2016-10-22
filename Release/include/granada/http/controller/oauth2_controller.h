@@ -29,6 +29,7 @@
 #include <deque>
 #include <unordered_map>
 #include <fstream>
+#include "cpprest/details/basic_types.h"
 #include "cpprest/json.h"
 #include "granada/util/string.h"
 #include "granada/util/file.h"

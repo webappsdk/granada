@@ -37,7 +37,7 @@ namespace granada{
     int PluginHandler::SEND_MESSAGE_PLUGIN_GROUP_SIZE_ = 100;
     int PluginHandler::RUNNER_USE_FREQUENCY_LIMIT_ = 0;
     unsigned long long PluginHandler::uid_ = 0;
-    std::mutex PluginHandler::PluginHandler::uid_mtx_;
+    std::mutex PluginHandler::uid_mtx_;
     std::once_flag PluginHandler::properties_flag_;
     std::once_flag PluginHandler::functions_to_runner_flag_;
 //
@@ -63,8 +63,8 @@ namespace granada{
 
         // Byte limit exceeded, inform through the parameters of the
         // "ph-init-after" event that will be fired after.
-        response[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_bytes_limit_exceeded);
-        response[default_strings::plugin_error_description] = web::json::value::string(default_error_descriptions::plugin_bytes_limit_exceeded);
+		  response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_bytes_limit_exceeded));
+		  response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(default_error_descriptions::plugin_bytes_limit_exceeded));
       }
 
       // cache plug-in handler id, now plug-in handler exists.
@@ -135,14 +135,14 @@ namespace granada{
           // the plug-in does not have an id, so assign
           // an unique number as id.
           plugin_id = GetUID();
-          header[entity_keys::plugin_header_id] = web::json::value::string(plugin_id);
+		  header[utility::conversions::to_string_t(entity_keys::plugin_header_id)] = web::json::value::string(utility::conversions::to_string_t(plugin_id));
         }
 
         // store plug-in loader values in the cache.
         {
           const std::string& plugin_loader_hash = plugin_loader_value_hash(plugin_id);
           cache()->Write(plugin_loader_hash,entity_keys::plugin_header_id,plugin_id);
-          cache()->Write(plugin_loader_hash,entity_keys::plugin_header,header.serialize());
+		  cache()->Write(plugin_loader_hash, entity_keys::plugin_header, utility::conversions::to_utf8string(header.serialize()));
           cache()->Write(plugin_loader_hash,entity_keys::plugin_configuration,configuration);
           cache()->Write(plugin_loader_hash,entity_keys::plugin_script,script);
         }
@@ -174,10 +174,10 @@ namespace granada{
         web::json::value cached_event_loaders = granada::util::string::to_json(cache()->Read(event_hash,entity_keys::plugin_event_loader));
 
         // add the plug-in event loader to the loaders.
-        cached_event_loaders[plugin_id] = plugin_loader;
+		cached_event_loaders[utility::conversions::to_string_t(plugin_id)] = plugin_loader;
 
         // store the loaders again in the cache.
-        cache()->Write(event_hash,entity_keys::plugin_event_loader,cached_event_loaders.serialize());
+		cache()->Write(event_hash, entity_keys::plugin_event_loader, utility::conversions::to_utf8string(cached_event_loaders.serialize()));
       }
     }
 
@@ -221,7 +221,7 @@ namespace granada{
 
                   // add loader event so when the event is fired
                   // the plug-in is loaded.
-                  AddLoadEvent(it->as_string(),plugin_id,loader);
+				  AddLoadEvent(utility::conversions::to_utf8string(it->as_string()), plugin_id, loader);
                   one_load_event_added = true;
                 }
               }
@@ -278,7 +278,7 @@ namespace granada{
 
                 // add loader event so when the event is fired
                 // the plug-in is loaded.
-                AddLoadEvent(it->as_string(),plugin_id,loader);
+				AddLoadEvent(utility::conversions::to_utf8string(it->as_string()), plugin_id, loader);
                 one_load_event_added = true;
               }
             }
@@ -388,7 +388,7 @@ namespace granada{
           // assign one based in a sequence
           plugin_id = GetUID();
           header = plugin->GetHeader();
-          header[entity_keys::plugin_header_id] = web::json::value::string(plugin_id);
+		  header[utility::conversions::to_string_t(entity_keys::plugin_header_id)] = web::json::value::string(utility::conversions::to_string_t(plugin_id));
 
           id_assigned = true;
         }
@@ -411,8 +411,8 @@ namespace granada{
         }
 
         web::json::value event_parameters = web::json::value::object();
-        event_parameters[entity_keys::plugin_parameter_id] = web::json::value::string(plugin_id);
-        event_parameters[entity_keys::plugin_parameter_data] = parameters;
+		event_parameters[utility::conversions::to_string_t(entity_keys::plugin_parameter_id)] = web::json::value::string(utility::conversions::to_string_t(plugin_id));
+		event_parameters[utility::conversions::to_string_t(entity_keys::plugin_parameter_data)] = parameters;
 
         const std::string& plugin_add_after_event = default_strings::plugin_add_event + "-" + default_strings::plugin_after;
 
@@ -434,9 +434,9 @@ namespace granada{
             header = plugin->GetHeader();
           }
           
-          if (header.has_field(entity_keys::plugin_header_events)){
+		  if (header.has_field(utility::conversions::to_string_t(entity_keys::plugin_header_events))){
 
-            const web::json::value& events = header.at(entity_keys::plugin_header_events);
+			const web::json::value& events = header.at(utility::conversions::to_string_t(entity_keys::plugin_header_events));
             if (events.is_array() && events.size() > 0){
 
               // retrieve the way we are going to load the plugin for
@@ -447,7 +447,7 @@ namespace granada{
 
                   // add the plug-in to event plug-in list so the plug-in is executed
                   // when event is fired.
-                  AddEventListener(it->as_string(),plugin_id);
+				  AddEventListener(utility::conversions::to_utf8string(it->as_string()), plugin_id);
 
                 }
               }
@@ -467,8 +467,8 @@ namespace granada{
             const std::string& plugin_hash = plugin_value_hash(plugin_id);
             cache()->Write(plugin_hash,entity_keys::plugin_header_id,plugin_id);
             cache()->Write(plugin_hash,entity_keys::plugin_script,plugin->GetScript());
-            cache()->Write(plugin_hash,entity_keys::plugin_header,header.serialize());
-            cache()->Write(plugin_hash,entity_keys::plugin_configuration,plugin->GetConfiguration().serialize());
+			cache()->Write(plugin_hash, entity_keys::plugin_header, utility::conversions::to_utf8string(header.serialize()));
+			cache()->Write(plugin_hash, entity_keys::plugin_configuration, utility::conversions::to_utf8string(plugin->GetConfiguration().serialize()));
           }
 
           // fire plug-in add after event.
@@ -480,6 +480,7 @@ namespace granada{
             Run(plugin,parameters,"",[](const web::json::value& data){},[](const web::json::value& data){});
           }
         }
+		return true;
       }
     }
 
@@ -496,7 +497,7 @@ namespace granada{
     void PluginHandler::Extend(granada::plugin::Plugin* extended_plugin, granada::plugin::Plugin* plugin){
       if (extended_plugin!=nullptr && plugin!=nullptr){
         web::json::value extends = web::json::value::array(1);
-        extends[0] = web::json::value::string(extended_plugin->GetId());
+		extends[0] = web::json::value::string(utility::conversions::to_string_t(extended_plugin->GetId()));
         Extend(extends.as_array(),plugin);
       }
     }
@@ -690,7 +691,7 @@ namespace granada{
         const web::json::value& events = granada::util::json::as_array(header,entity_keys::plugin_header_events);
         for (auto it = events.as_array().cbegin(); it != events.as_array().cend(); ++it){
           if (it->is_string()){
-            RemoveEventListener(it->as_string(), plugin->GetId());
+			  RemoveEventListener(utility::conversions::to_utf8string(it->as_string()), plugin->GetId());
           }
         }
       }
@@ -705,18 +706,18 @@ namespace granada{
 
       // check if all needed parameters are present.
       if (!parameters.is_null()
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_handler_id)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_id)){
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id))){
 
-        const web::json::value& plugin_handler_id = parameters.at(entity_keys::plugin_parameter_plugin_handler_id);
-        const web::json::value& plugin_id = parameters.at(entity_keys::plugin_parameter_plugin_id);
+		const web::json::value& plugin_handler_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id));
+		const web::json::value& plugin_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id));
 
         // check if the needed parameters are of the correct type
         if (plugin_handler_id.is_string()
             && plugin_id.is_string()){
 
-          const std::string& plugin_handler_id_str = plugin_handler_id.as_string();
-          const std::string& plugin_id_str = plugin_id.as_string();
+			const std::string& plugin_handler_id_str = utility::conversions::to_utf8string(plugin_handler_id.as_string());
+			const std::string& plugin_id_str = utility::conversions::to_utf8string(plugin_id.as_string());
 
           if (plugin_handler_id_str.empty() || plugin_id_str.empty()){
 
@@ -745,8 +746,8 @@ namespace granada{
 
         // respond with a JSON with an error code and an error_description like:
         // { "error" : "missing_parameter", "error_description" : "One or more of the given parameters is missing."}
-        response[default_strings::plugin_error] = web::json::value::string(error);
-        response[default_strings::plugin_error_description] = web::json::value::string(error_description); 
+		  response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(error));
+		  response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(error_description));
       }
 
       return response;
@@ -797,8 +798,8 @@ namespace granada{
         // plug-in with given id not found, call failure callback
         // with undefined plug-in error and error description.
         web::json::value response = web::json::value::object();
-        response[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_undefined_plugin);
-        response[default_strings::plugin_error_description] = web::json::value::string(default_error_descriptions::plugin_undefined_plugin);
+		response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_undefined_plugin));
+		response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(default_error_descriptions::plugin_undefined_plugin));
         failure(response);
       }else{
 
@@ -810,8 +811,8 @@ namespace granada{
 
     void PluginHandler::Run(granada::plugin::Plugin* plugin, web::json::value& parameters,const std::string& event_name, function_void_json success, function_void_json failure){
       web::json::value response = web::json::value::object();
-      response[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_server_error);
-      response[default_strings::plugin_error_description] = web::json::value::string(default_error_descriptions::plugin_server_error);
+	  response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_server_error));
+	  response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(default_error_descriptions::plugin_server_error));
       failure(response);
     }
 
@@ -824,25 +825,25 @@ namespace granada{
 
       // check if all needed parameters are present.
       if (!parameters.is_null()
-          && parameters.has_field(entity_keys::plugin_parameter_id)
-          && parameters.has_field(entity_keys::plugin_parameters)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_handler_id)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_id)){
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_id))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameters))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id))){
 
-        const web::json::value& id = parameters.at(entity_keys::plugin_parameter_id);
-        web::json::value run_parameters = parameters.at(entity_keys::plugin_parameters);
-        const web::json::value& plugin_handler_id = parameters.at(entity_keys::plugin_parameter_plugin_handler_id);
-        const web::json::value& plugin_id = parameters.at(entity_keys::plugin_parameter_plugin_id);
+		  const web::json::value& id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_id));
+		  web::json::value run_parameters = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameters));
+		  const web::json::value& plugin_handler_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id));
+		  const web::json::value& plugin_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id));
 
         // check if the needed parameters are of the correct type
         if (id.is_string()
             && run_parameters.is_object()
             && plugin_handler_id.is_string()
             && plugin_id.is_string()){
-
-          const std::string& id_str = id.as_string();
-          const std::string& plugin_handler_id_str = plugin_handler_id.as_string();
-          const std::string& plugin_id_str = plugin_id.as_string();
+			
+			const std::string& id_str = utility::conversions::to_utf8string(id.as_string());
+			const std::string& plugin_handler_id_str = utility::conversions::to_utf8string(plugin_handler_id.as_string());
+			const std::string& plugin_id_str = utility::conversions::to_utf8string(plugin_id.as_string());
 
           if (id_str.empty() || plugin_id_str.empty() || plugin_handler_id_str.empty()){
 
@@ -864,8 +865,8 @@ namespace granada{
               // it does not exists, return an
               // undefined plug-in error.
               response = web::json::value::object();
-              response[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_undefined_plugin);
-              response[default_strings::plugin_error_description] = web::json::value::string(default_error_descriptions::plugin_undefined_plugin);
+			  response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_undefined_plugin));
+			  response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(default_error_descriptions::plugin_undefined_plugin));
             }else{
 
               // plug-in with given id exists,
@@ -873,9 +874,9 @@ namespace granada{
               Run(plugin.get(),run_parameters,plugin_id_str,[&plugin_id_str,&response](const web::json::value& data){
                 
                 web::json::value response_data = web::json::value::object();
-                response_data[plugin_id_str] = std::move(data);
+				response_data[utility::conversions::to_string_t(plugin_id_str)] = std::move(data);
                 response = web::json::value::object();
-                response[entity_keys::plugin_parameter_data] = std::move(response_data);
+				response[utility::conversions::to_string_t(entity_keys::plugin_parameter_data)] = std::move(response_data);
 
               },[&response](const web::json::value& data){
 
@@ -903,8 +904,8 @@ namespace granada{
         // respond with a JSON with an error code and an error_description like:
         // { "error" : "missing_parameter", "error_description" : "One or more of the given parameters is missing."}
         response = web::json::value::object();
-        response[default_strings::plugin_error] = web::json::value::string(error);
-        response[default_strings::plugin_error_description] = web::json::value::string(error_description); 
+		response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(error));
+		response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(error_description));
       }
 
       return response;
@@ -916,7 +917,7 @@ namespace granada{
       if (!plugin_id.empty()){
 
         web::json::value parameters = web::json::value::object();
-        parameters[entity_keys::plugin_id] = web::json::value::string(plugin_id);
+		parameters[utility::conversions::to_string_t(entity_keys::plugin_id)] = web::json::value::string(utility::conversions::to_string_t(plugin_id));
 
         const std::string& plugin_remove_before_event = default_strings::plugin_remove_event + "-" + default_strings::plugin_before;
         Fire(plugin_remove_before_event,parameters);
@@ -953,20 +954,20 @@ namespace granada{
 
       // check if all needed parameters are present.
       if (!parameters.is_null()
-          && parameters.has_field(entity_keys::plugin_parameter_id)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_handler_id)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_id)){
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_id))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id))){
 
-        const web::json::value& id = parameters.at(entity_keys::plugin_parameter_id);
-        const web::json::value& plugin_handler_id = parameters.at(entity_keys::plugin_parameter_plugin_handler_id);
-        const web::json::value& plugin_id = parameters.at(entity_keys::plugin_parameter_plugin_id);
+		const web::json::value& id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_id));
+		const web::json::value& plugin_handler_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id));
+		const web::json::value& plugin_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id));
 
         // check if the needed parameters are of the correct type
         if (id.is_string() && plugin_handler_id.is_string() && plugin_id.is_string()){
-
-          const std::string& plugin_handler_id_str = plugin_handler_id.as_string();
-          const std::string& plugin_id_str = plugin_id.as_string();
-          const std::string& id_str = id.as_string();
+			
+		  const std::string& plugin_handler_id_str = utility::conversions::to_utf8string(plugin_handler_id.as_string());
+		  const std::string& plugin_id_str = utility::conversions::to_utf8string(plugin_id.as_string());
+		  const std::string& id_str = utility::conversions::to_utf8string(id.as_string());
 
           if (id_str.empty() || plugin_id_str.empty() || plugin_handler_id_str.empty()){
             
@@ -997,8 +998,8 @@ namespace granada{
 
         // respond with a JSON with an error code and an error_description like:
         // { "error" : "missing_parameter", "error_description" : "One or more of the given parameters is missing."}
-        response[default_strings::plugin_error] = web::json::value::string(error);
-        response[default_strings::plugin_error_description] = web::json::value::string(error_description); 
+		  response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(error));
+		  response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(error_description));
       }
 
       return response;
@@ -1022,8 +1023,8 @@ namespace granada{
       web::json::value response = web::json::value::object();
 
       if (event_name.empty()){
-        response[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_malformed_parameters);
-        response[default_strings::plugin_error_description] = web::json::value::string(default_error_descriptions::plugin_malformed_parameters);
+		response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_malformed_parameters));
+		response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(default_error_descriptions::plugin_malformed_parameters));
         failure(response);
       }else{
         // lazy load plug-ins
@@ -1047,7 +1048,7 @@ namespace granada{
 
         }
 
-        response[entity_keys::plugin_parameter_data] = response_data;
+		response[utility::conversions::to_string_t(entity_keys::plugin_parameter_data)] = response_data;
         success(response);
         
       }
@@ -1062,25 +1063,25 @@ namespace granada{
 
       // check if all needed parameters are present.
       if (!parameters.is_null()
-          && parameters.has_field(entity_keys::plugin_parameter_event_name)
-          && parameters.has_field(entity_keys::plugin_parameters)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_handler_id)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_id)){
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_event_name))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameters))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id))){
 
-        const web::json::value event_name = parameters.at(entity_keys::plugin_parameter_event_name);
-        web::json::value fire_parameters = parameters.at(entity_keys::plugin_parameters);
-        const web::json::value plugin_handler_id = parameters.at(entity_keys::plugin_parameter_plugin_handler_id);
-        const web::json::value plugin_id = parameters.at(entity_keys::plugin_parameter_plugin_id);
+	    const web::json::value event_name = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_event_name));
+		web::json::value fire_parameters = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameters));
+		const web::json::value plugin_handler_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id));
+		const web::json::value plugin_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id));
 
         // check if the needed parameters are of the correct type
         if (event_name.is_string()
             && fire_parameters.is_object()
             && plugin_handler_id.is_string()
             && plugin_id.is_string()){
-
-          const std::string& event_name_str = event_name.as_string();
-          const std::string& plugin_handler_id_str = plugin_handler_id.as_string();
-          const std::string& plugin_id_str = plugin_id.as_string();
+			
+		  const std::string& event_name_str = utility::conversions::to_utf8string(event_name.as_string());
+		  const std::string& plugin_handler_id_str = utility::conversions::to_utf8string(plugin_handler_id.as_string());
+		  const std::string& plugin_id_str = utility::conversions::to_utf8string(plugin_id.as_string());
 
           if (event_name_str.empty() || plugin_handler_id_str.empty() || plugin_id_str.empty()){
 
@@ -1091,7 +1092,7 @@ namespace granada{
             const std::unique_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory()->PluginHandler_unique_ptr(plugin_handler_id_str);
 
             plugin_handler->Fire(event_name_str, fire_parameters, [&response](const web::json::value& data){
-              response[entity_keys::plugin_parameter_data] = std::move(data);
+			  response[utility::conversions::to_string_t(entity_keys::plugin_parameter_data)] = std::move(data);
             }, [&response](const web::json::value& data){
               response = std::move(data);
             });
@@ -1114,8 +1115,8 @@ namespace granada{
 
         // respond with a JSON with an error code and an error_description like:
         // { "error" : "missing_parameter", "error_description" : "One or more of the given parameters is missing."}
-        response[default_strings::plugin_error] = web::json::value::string(error);
-        response[default_strings::plugin_error_description] = web::json::value::string(error_description); 
+		response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(error));
+		response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(error_description));
       }
 
       return response;
@@ -1195,14 +1196,14 @@ namespace granada{
           // destination ids are specified, send message ONLY to specified plugins.
           for(auto it = to_ids.as_array().cbegin(); it != to_ids.as_array().cend(); ++it){
             if (it->is_string()){
-              destination_ids.push_back(it->as_string());
+				destination_ids.push_back(utility::conversions::to_utf8string(it->as_string()));
             }
           }
           message_responses = SendMessage(from,destination_ids,message_data);
         }
 
         // if there is no error respond with a JSON with the value.
-        response[entity_keys::plugin_parameter_data] = message_responses;
+		response[utility::conversions::to_string_t(entity_keys::plugin_parameter_data)] = message_responses;
 
       }
 
@@ -1211,8 +1212,8 @@ namespace granada{
 
         // respond with a JSON with an error code and an error_description like:
         // { "error" : "missing_parameter", "error_description" : "One or more of the given parameters is missing."}
-        response[default_strings::plugin_error] = web::json::value::string(error);
-        response[default_strings::plugin_error_description] = web::json::value::string(error_description); 
+		response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(error));
+		response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(error_description));
       }
       
       return response;
@@ -1227,15 +1228,15 @@ namespace granada{
 
       // check if all needed parameters are present.
       if (!parameters.is_null()
-          && parameters.has_field(entity_keys::plugin_parameter_to_ids)
-          && parameters.has_field(entity_keys::plugin_parameters)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_handler_id)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_id)){
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_to_ids))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameters))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id))){
 
-        const web::json::value& to_ids = parameters.at(entity_keys::plugin_parameter_to_ids);
-        web::json::value message_parameters = parameters.at(entity_keys::plugin_parameters);
-        const web::json::value& plugin_handler_id = parameters.at(entity_keys::plugin_parameter_plugin_handler_id);
-        const web::json::value& plugin_id = parameters.at(entity_keys::plugin_parameter_plugin_id);
+		const web::json::value& to_ids = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_to_ids));
+		web::json::value message_parameters = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameters));
+		const web::json::value& plugin_handler_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id));
+		const web::json::value& plugin_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id));
 
         // check if the needed parameters are of the correct type
         if (to_ids.is_array()
@@ -1243,8 +1244,8 @@ namespace granada{
             && plugin_handler_id.is_string()
             && plugin_id.is_string()){
 
-          const std::string& plugin_handler_id_str = plugin_handler_id.as_string();
-          const std::string& plugin_id_str = plugin_id.as_string();
+	      const std::string& plugin_handler_id_str = utility::conversions::to_utf8string(plugin_handler_id.as_string());
+		  const std::string& plugin_id_str = utility::conversions::to_utf8string(plugin_id.as_string());
 
           if (plugin_handler_id_str.empty() || plugin_id_str.empty()){
 
@@ -1274,8 +1275,8 @@ namespace granada{
       if (!error.empty()){
         // respond with a JSON with an error code and an error_description like:
         // { "error" : "missing_parameter", "error_description" : "One or more of the given parameters is missing."}
-        response[default_strings::plugin_error] = web::json::value::string(error);
-        response[default_strings::plugin_error_description] = web::json::value::string(error_description); 
+		response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(error));
+		response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(error_description));
       }
 
       return response;
@@ -1289,15 +1290,15 @@ namespace granada{
 
       // check if all needed parameters are present.
       if (!parameters.is_null()
-          && parameters.has_field(entity_keys::plugin_parameter_key)
-          && parameters.has_field(entity_keys::plugin_parameter_value)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_handler_id)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_id)){
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_key))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_value))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id))){
 
-        const web::json::value& key = parameters.at(entity_keys::plugin_parameter_key);
-        const web::json::value& value = parameters.at(entity_keys::plugin_parameter_value);
-        const web::json::value& plugin_handler_id = parameters.at(entity_keys::plugin_parameter_plugin_handler_id);
-        const web::json::value& plugin_id = parameters.at(entity_keys::plugin_parameter_plugin_id);
+		const web::json::value& key = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_key));
+		const web::json::value& value = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_value));
+		const web::json::value& plugin_handler_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id));
+		const web::json::value& plugin_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id));
 
         // check all the needed parameters are of the correct type.
         if (key.is_string()
@@ -1305,10 +1306,10 @@ namespace granada{
             && plugin_handler_id.is_string()
             && plugin_id.is_string()){
 
-          const std::string& plugin_handler_id_str = plugin_handler_id.as_string();
-          const std::string& plugin_id_str = plugin_id.as_string();
-          const std::string& key_str = key.as_string();
-          const std::string& value_str = value.as_string();
+		  const std::string& plugin_handler_id_str = utility::conversions::to_utf8string(plugin_handler_id.as_string());
+		  const std::string& plugin_id_str = utility::conversions::to_utf8string(plugin_id.as_string());
+		  const std::string& key_str = utility::conversions::to_utf8string(key.as_string());
+		  const std::string& value_str = utility::conversions::to_utf8string(value.as_string());
 
           if (key_str.empty()
               || value_str.empty()
@@ -1343,8 +1344,8 @@ namespace granada{
 
         // respond with a JSON with an error code and an error_description like:
         // { "error" : "missing_parameter", "error_description" : "One or more of the given parameters is missing."}
-        response[default_strings::plugin_error] = web::json::value::string(error);
-        response[default_strings::plugin_error_description] = web::json::value::string(error_description);
+		response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(error));
+		response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(error_description));
       }
 
       // if there is no error, respond with an empty JSON object {}
@@ -1362,22 +1363,22 @@ namespace granada{
 
       // check if all needed parameters are present.
       if (!parameters.is_null()
-          && parameters.has_field(entity_keys::plugin_parameter_key)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_handler_id)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_id)){
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_key))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id))){
 
-        const web::json::value& key = parameters.at(entity_keys::plugin_parameter_key);
-        const web::json::value& plugin_handler_id = parameters.at(entity_keys::plugin_parameter_plugin_handler_id);
-        const web::json::value& plugin_id = parameters.at(entity_keys::plugin_parameter_plugin_id);
+		const web::json::value& key = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_key));
+		const web::json::value& plugin_handler_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id));
+		const web::json::value& plugin_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id));
 
         // check all the needed parameters are of the correct type.
         if (key.is_string()
             && plugin_handler_id.is_string()
             && plugin_id.is_string()){
 
-          const std::string& key_str = key.as_string();
-          const std::string& plugin_handler_id_str = plugin_handler_id.as_string();
-          const std::string& plugin_id_str = plugin_id.as_string();
+	      const std::string& key_str = utility::conversions::to_utf8string(key.as_string());
+		  const std::string& plugin_handler_id_str = utility::conversions::to_utf8string(plugin_handler_id.as_string());
+		  const std::string& plugin_id_str = utility::conversions::to_utf8string(plugin_id.as_string());
 
           if (key_str.empty() || plugin_handler_id_str.empty() || plugin_id_str.empty()){
 
@@ -1405,15 +1406,14 @@ namespace granada{
       web::json::value response = web::json::value::object();
 
       if (error.empty()){
-
         // if there is no error respond with a JSON with the value.
-        response[default_strings::plugin_value] = web::json::value::string(value);
+		  response[utility::conversions::to_string_t(default_strings::plugin_value)] = web::json::value::string(utility::conversions::to_string_t(value));
       }else{
 
         // respond with a JSON with an error code and an error_description like:
         // { "error" : "missing_parameter", "error_description" : "One or more of the given parameters is missing."}
-        response[default_strings::plugin_error] = web::json::value::string(error);
-        response[default_strings::plugin_error_description] = web::json::value::string(error_description);
+		  response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(error));
+		  response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(error_description));
       }
 
       return response;
@@ -1427,22 +1427,22 @@ namespace granada{
 
       // check if all needed parameters are present.
       if (!parameters.is_null()
-          && parameters.has_field(entity_keys::plugin_parameter_key)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_handler_id)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_id)){
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_key))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id))){
 
-        const web::json::value& key = parameters.at(entity_keys::plugin_parameter_key);
-        const web::json::value& plugin_handler_id = parameters.at(entity_keys::plugin_parameter_plugin_handler_id);
-        const web::json::value& plugin_id = parameters.at(entity_keys::plugin_parameter_plugin_id);
+		const web::json::value& key = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_key));
+		const web::json::value& plugin_handler_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id));
+		const web::json::value& plugin_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id));
 
         // check all the needed parameters are of the correct type.
         if (key.is_string()
             && plugin_handler_id.is_string()
             && plugin_id.is_string()){
 
-          const std::string& key_str = key.as_string();
-          const std::string& plugin_handler_id_str = plugin_handler_id.as_string();
-          const std::string& plugin_id_str = plugin_id.as_string();
+		  const std::string& key_str = utility::conversions::to_utf8string(key.as_string());
+		  const std::string& plugin_handler_id_str = utility::conversions::to_utf8string(plugin_handler_id.as_string());
+		  const std::string& plugin_id_str = utility::conversions::to_utf8string(plugin_id.as_string());
 
           if (key_str.empty() || plugin_handler_id_str.empty() || plugin_id_str.empty()){
 
@@ -1472,8 +1472,8 @@ namespace granada{
       if (!error.empty()){
         // respond with a JSON with an error code and an error_description like:
         // { "error" : "missing_parameter", "error_description" : "One or more of the given parameters is missing."}
-        response[default_strings::plugin_error] = web::json::value::string(error);
-        response[default_strings::plugin_error_description] = web::json::value::string(error_description);
+		  response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(error));
+		  response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(error_description));
       }
 
       return response;
@@ -1487,18 +1487,18 @@ namespace granada{
 
       // check if all needed parameters are present.
       if (!parameters.is_null()
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_handler_id)
-          && parameters.has_field(entity_keys::plugin_parameter_plugin_id)){
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id))
+		  && parameters.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id))){
 
-        const web::json::value& plugin_handler_id = parameters.at(entity_keys::plugin_parameter_plugin_handler_id);
-        const web::json::value& plugin_id = parameters.at(entity_keys::plugin_parameter_plugin_id);
+		  const web::json::value& plugin_handler_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_handler_id));
+		  const web::json::value& plugin_id = parameters.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_plugin_id));
 
         // check all the needed parameters are of the correct type.
         if (plugin_handler_id.is_string()
             && plugin_id.is_string()){
 
-          const std::string& plugin_handler_id_str = plugin_handler_id.as_string();
-          const std::string& plugin_id_str = plugin_id.as_string();
+			const std::string& plugin_handler_id_str = utility::conversions::to_utf8string(plugin_handler_id.as_string());
+			const std::string& plugin_id_str = utility::conversions::to_utf8string(plugin_id.as_string());
 
           if (plugin_handler_id_str.empty() || plugin_id_str.empty()){
 
@@ -1529,8 +1529,8 @@ namespace granada{
       if (!error.empty()){
         // respond with a JSON with an error code and an error_description like:
         // { "error" : "missing_parameter", "error_description" : "One or more of the given parameters is missing."}
-        response[default_strings::plugin_error] = web::json::value::string(error);
-        response[default_strings::plugin_error_description] = web::json::value::string(error_description);
+		  response[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(error));
+		  response[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(error_description));
       }
 
       return response;
@@ -1561,7 +1561,7 @@ namespace granada{
               RunnerLock();
 
             }
-          }catch(const std::logic_error& e){}
+          }catch(const std::logic_error e){}
         }
 
         if (cache_time){
@@ -1584,7 +1584,7 @@ namespace granada{
       }else{
         try{
           PluginHandler::PLUGIN_BYTES_LIMIT_ = std::stoi(plugin_bytes_limit_str);
-        }catch(const std::logic_error& e){
+        }catch(const std::logic_error e){
           PluginHandler::PLUGIN_BYTES_LIMIT_ = default_numbers::plugin_bytes_limit;
         }
       }
@@ -1597,7 +1597,7 @@ namespace granada{
       }else{
         try{
           PluginHandler::RUNNER_USE_FREQUENCY_LIMIT_ = std::stoi(runner_use_frequency_limit_str);
-        }catch(const std::logic_error& e){
+        }catch(const std::logic_error e){
           PluginHandler::RUNNER_USE_FREQUENCY_LIMIT_ = default_numbers::plugin_runner_use_frequency_limit;
         }
       }
@@ -1785,8 +1785,8 @@ namespace granada{
                     // check if plug-in is active or not,
                     // only preload plug-in if it is active.
                     bool active = true;
-                    if(header.has_field(entity_keys::plugin_header_active)){
-                      const web::json::value& active_json = header.at(entity_keys::plugin_header_active);
+					if (header.has_field(utility::conversions::to_string_t(entity_keys::plugin_header_active))){
+					  const web::json::value& active_json = header.at(utility::conversions::to_string_t(entity_keys::plugin_header_active));
                       if (active_json.is_boolean()){
                         active = active_json.as_bool();
                       }
@@ -1841,7 +1841,7 @@ namespace granada{
       // loop through the plug-in loaders and add the plug-ins if they are
       // not already added.
       for(auto it = event_loaders.as_object().cbegin(); it != event_loaders.as_object().cend(); ++it){
-        const std::string& plugin_id = it->first;
+		  const std::string& plugin_id = utility::conversions::to_utf8string(it->first);
         const std::unique_ptr<granada::plugin::Plugin>& plugin = plugin_factory()->Plugin_unique_ptr(this,plugin_id);
         if (!plugin->Exists() && Load(plugin.get(),it->second)){
 
@@ -1917,7 +1917,7 @@ namespace granada{
         const web::json::value& events = granada::util::json::as_array(header_,entity_keys::plugin_header_events);
         for (auto it = events.as_array().cbegin(); it != events.as_array().cend(); ++it){
           if (it->is_string()){
-            plugin_handler()->RemoveEventListener(it->as_string(),id_);
+			  plugin_handler()->RemoveEventListener(utility::conversions::to_utf8string(it->as_string()), id_);
           }
         }
       }else{
@@ -1927,7 +1927,7 @@ namespace granada{
         const web::json::value& events = granada::util::json::as_array(header_,entity_keys::plugin_header_events);
         for (auto it = events.as_array().cbegin(); it != events.as_array().cend(); ++it){
           if (it->is_string()){
-            plugin_handler()->AddEventListener(it->as_string(),id_);
+			  plugin_handler()->AddEventListener(utility::conversions::to_utf8string(it->as_string()), id_);
           }
         }
       }

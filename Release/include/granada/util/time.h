@@ -28,6 +28,7 @@
 #include <thread>
 #include <string>
 #include <sstream>
+#include <ctime>
 #include <chrono>
 #include <sys/timeb.h>
 
@@ -47,7 +48,7 @@ namespace granada{
       static std::time_t parse(const std::string& time_str){
         try{
           return std::stol(time_str);
-        }catch(const std::logic_error& e){
+        }catch(const std::logic_error e){
           return 0;
         }
       }
@@ -77,7 +78,7 @@ namespace granada{
       static bool is_timedout(const std::time_t& _time, const long int& timeout, const long int& extra_seconds){
         if (timeout > -1){
           std::time_t now = std::time(nullptr);
-          long int seconds = std::difftime(now,_time);
+          long int seconds = (long int)std::difftime(now,_time);
           if (seconds > timeout + extra_seconds){
             return true;
           }

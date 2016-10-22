@@ -59,13 +59,13 @@ namespace granada{
           std::string default_file_path;
 
           for(auto it = default_files_.as_array().cbegin(); it != default_files_.as_array().cend(); ++it){
-            default_file_path = it->as_string();
+			default_file_path = utility::conversions::to_utf8string(it->as_string());
             extension = granada::util::file::GetExtension(default_file_path);
 
             if (GetExtensionContentEncoding(extension) == "gzip"){
-              default_file_path = root_path_ + "/" + file_path + it->as_string() + ".gz";
+              default_file_path = root_path_ + "/" + file_path + utility::conversions::to_utf8string(it->as_string()) + ".gz";
             }else{
-              default_file_path = root_path_ + "/" + file_path + it->as_string();
+				default_file_path = root_path_ + "/" + file_path + utility::conversions::to_utf8string(it->as_string());
             }
 
             // if file exists, then take it as the one to get content from.
@@ -77,14 +77,14 @@ namespace granada{
             }
           }
 
-          if (error_paths_.has_field("404")){
+          if (error_paths_.has_field(U("404"))){
             try{
-              const web::json::value &error_404_file_path_json = error_paths_.at("404");
-              std::string error_404_file_path = error_404_file_path_json.as_string();
+              const web::json::value &error_404_file_path_json = error_paths_.at(U("404"));
+			  std::string error_404_file_path = utility::conversions::to_utf8string(error_404_file_path_json.as_string());
               if (file_path == error_404_file_path || file_path == error_404_file_path + "/"){
                 return granada::cache::Resource();
               }
-            }catch(const web::json::json_exception& e){
+            }catch(const web::json::json_exception e){
               return granada::cache::Resource();
             }
           }else{
@@ -103,12 +103,12 @@ namespace granada{
 
       if (file_path.empty() || !boost::filesystem::exists(file_path)){
         // return 404 file content if it exists..
-        if (error_paths_.has_field("404")){
+        if (error_paths_.has_field(U("404"))){
           try{
-            const web::json::value &error_404_file_path_json = error_paths_.at("404");
-            std::string error_404_file_path = error_404_file_path_json.as_string();
+            const web::json::value &error_404_file_path_json = error_paths_.at(U("404"));
+			std::string error_404_file_path = utility::conversions::to_utf8string(error_404_file_path_json.as_string());
             return GetFile(error_404_file_path);
-          }catch(const web::json::json_exception& e){}
+          }catch(const web::json::json_exception e){}
         }
       }else{
         // read the file and assign content to content string variable
@@ -177,7 +177,7 @@ namespace granada{
             maximum_cache_memory = std::stoi(maximum_cache_memory_str);
             // convert to bytes
             maximum_cache_memory = maximum_cache_memory * 1024 * 1024;
-          }catch(const std::exception& e){}
+          }catch(const std::exception e){}
         }
 
         // load all files in memory.
@@ -194,23 +194,23 @@ namespace granada{
       if (!content_types_str.empty()){
         try{
           // parse the json with the content types and files extensions into the unordered_map content_types_ .
-          web::json::value obj = web::json::value::parse(content_types_str); //content_types_str.c_str()
+		  web::json::value obj = web::json::value::parse(utility::conversions::to_string_t(content_types_str));
           std::string content_type;
           std::string extension;
           // loop through the keys of the json. The keys are the content types.
           for(auto it = obj.as_object().cbegin(); it != obj.as_object().cend(); ++it){
-              const std::string& content_type = it->first;
+			  const std::string& content_type = utility::conversions::to_utf8string(it->first);
               const web::json::value& extensions_json = it->second;
 
               // loop through the extensions related to the extracted content type.
               for(auto it2 = extensions_json.as_array().cbegin(); it2 != extensions_json.as_array().cend(); ++it2){
-                extension = it2->as_string();
+				  extension = utility::conversions::to_utf8string(it2->as_string());
                 // insert pair of content type and extension in the unordered_map.
                 content_types_.insert(std::make_pair(extension,content_type));
               }
 
           }
-        }catch(const web::json::json_exception& e){}
+        }catch(const web::json::json_exception e){}
       }
 
       ////
@@ -220,8 +220,8 @@ namespace granada{
       std::string default_files_str = granada::util::application::GetProperty("default_files");
       if (!default_files_str.empty()){
         try{
-          default_files_ = web::json::value::parse(default_files_str);
-        }catch(const web::json::json_exception& e){
+          default_files_ = web::json::value::parse(utility::conversions::to_string_t(default_files_str));
+        }catch(const web::json::json_exception e){
           default_files_ = web::json::value::array();
         }
       }
@@ -232,8 +232,8 @@ namespace granada{
       std::string error_paths_str = granada::util::application::GetProperty("error_paths");
       if (!error_paths_str.empty()){
         try{
-          error_paths_ = web::json::value::parse(error_paths_str);
-        }catch(const web::json::json_exception& e){
+          error_paths_ = web::json::value::parse(utility::conversions::to_string_t(error_paths_str));
+        }catch(const web::json::json_exception e){
           error_paths_ = web::json::value::object(false);
         }
       }
@@ -245,8 +245,8 @@ namespace granada{
       std::string gzip_extensions_str = granada::util::application::GetProperty("gzip_extensions");
       if (!gzip_extensions_str.empty()){
         try{
-          gzip_extensions_ = web::json::value::parse(gzip_extensions_str);
-        }catch(const web::json::json_exception& e){
+		  gzip_extensions_ = web::json::value::parse(utility::conversions::to_string_t(gzip_extensions_str));
+        }catch(const web::json::json_exception e){
           gzip_extensions_ = web::json::value::array();
         }
       }
@@ -319,7 +319,7 @@ namespace granada{
           if (!extensions.empty()){
             extensions += "|";
           }
-          extensions += "\\." + (std::string)it->as_string() + "$";
+		  extensions += "\\." + utility::conversions::to_utf8string(it->as_string()) + "$";
         }
 
         // gzip
@@ -353,7 +353,7 @@ namespace granada{
           }else{
             // cache the file.
             // but only if its inside the cache memory usage limits
-            auto file_size = boost::filesystem::file_size(path);
+            int file_size = boost::filesystem::file_size(path);
             maximum_cache_memory -= file_size;
 
             if (maximum_cache_memory > 0){
@@ -396,7 +396,7 @@ namespace granada{
               // we store two additional possible client requests for this file:
               // these are path/to/file/, path/to/file.
               for(auto it = default_files_.as_array().cbegin(); it != default_files_.as_array().cend(); ++it){
-                if (filename == it->as_string()){
+				  if (filename == utility::conversions::to_utf8string(it->as_string())){
                   // store path/to/file/
 
                   CacheRecord(relative_path,resource);
@@ -441,7 +441,7 @@ namespace granada{
     std::string WebResourceCache::GetExtensionContentEncoding(const std::string& extension){
       if (gzip_content_){
         for(auto it = gzip_extensions_.as_array().cbegin(); it != gzip_extensions_.as_array().cend(); ++it){
-          if ((std::string)it->as_string() == extension){
+			if (utility::conversions::to_utf8string(it->as_string()) == extension){
             return "gzip";
           }
         }
@@ -451,10 +451,20 @@ namespace granada{
 
 
     std::string WebResourceCache::FormatLastModified(const std::time_t date){
-      std::tm * ptm = std::localtime(&date);
-      char buffer[32];
-      // Format: Tue, 15 Nov 1994 12:45:26 GMT
-      std::strftime(buffer, 32, "%a %d %b %Y %H:%M:%S %Z", ptm);
+      #ifdef _WIN32
+        std::tm ptm;
+        localtime_s(&ptm,&date);
+        char buffer[32];
+        // Format: Tue, 15 Nov 1994 12:45:26 GMT
+        std::strftime(buffer, 32, "%a %d %b %Y %H:%M:%S %Z", &ptm);
+      #else
+	      std::tm* ptm = std::localtime(&date);
+        char buffer[32];
+        // Format: Tue, 15 Nov 1994 12:45:26 GMT
+        std::strftime(buffer, 32, "%a %d %b %Y %H:%M:%S %Z", ptm);
+        delete ptm;
+      #endif
+      
       return buffer;
     }
 

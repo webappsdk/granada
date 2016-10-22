@@ -50,7 +50,7 @@ namespace granada{
       //
       void BrowserController::handle_get(http_request request){
 
-        std::string relative_uri_path = request.relative_uri().path();
+		std::string relative_uri_path = utility::conversions::to_utf8string(request.relative_uri().path());
 
         http_response response;
         
@@ -62,9 +62,9 @@ namespace granada{
 
         // check if this resource version has already been used by the client,
         // Tell the client if so using ETag.
-        std::string if_none_match = request.headers()[header_names::if_none_match];
+        std::string if_none_match = utility::conversions::to_utf8string(request.headers()[header_names::if_none_match]);
 
-        response.headers().add(U(header_names::etag), resource.ETag);
+        response.headers().add(header_names::etag, resource.ETag);
 
         if (!if_none_match.empty() && if_none_match==resource.ETag){
           response.set_status_code(status_codes::NotModified);
@@ -79,7 +79,7 @@ namespace granada{
 
             response.headers().add(header_names::content_type, resource.content_type);
             response.set_body(resource.content);
-          }catch(const std::exception& e){
+          }catch(const std::exception e){
             response.set_status_code(status_codes::NotFound);
           }
         }

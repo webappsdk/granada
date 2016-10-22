@@ -26,7 +26,7 @@
   *
   */
 #pragma once
-
+#include "cpprest/details/basic_types.h"
 #include "granada/cache/web_resource_cache.h"
 #include "granada/http/controller/controller.h"
 #include "granada/http/session/session.h"

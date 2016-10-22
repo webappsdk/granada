@@ -33,6 +33,7 @@
 #include <string>
 #include <deque>
 #include <unordered_map>
+#include "cpprest/details/basic_types.h"
 #include "cpprest/json.h"
 #include "cpprest/http_msg.h"
 #include "cpprest/oauth2.h"
@@ -50,45 +51,45 @@
 /**
  * OAuth 2.0 authorization errors.
  */
-typedef utility::string_t oauth2_error;
+typedef std::string oauth2_error;
 class oauth2_errors
 {
 public:
 #define _OAUTH2_ERRORS
-#define DAT(a_, b_) _ASYNCRTIMP static const oauth2_error a_;
+#define HTTP_CONSTANT(a_, b_) static const oauth2_error a_;
 #include "granada/http/http_constants.dat"
 #undef _OAUTH2_ERRORS
-#undef DAT
+#undef HTTP_CONSTANT
 };
 
 
 /**
  * OAuth 2.0 authorization errors descriptions.
  */
-typedef utility::string_t oauth2_error_description;
+typedef std::string oauth2_error_description;
 class oauth2_errors_description
 {
 public:
 #define _OAUTH2_ERRORS_DESCRIPTION
-#define DAT(a_, b_) _ASYNCRTIMP static const oauth2_error_description a_;
+#define HTTP_CONSTANT(a_, b_) static const oauth2_error_description a_;
 #include "granada/http/http_constants.dat"
 #undef _OAUTH2_ERRORS_DESCRIPTION
-#undef DAT
+#undef HTTP_CONSTANT
 };
 
 
 /**
  * OAuth 2.0 client types
  */
-typedef utility::string_t oauth2_client_type;
+typedef std::string oauth2_client_type;
 class oauth2_client_types
 {
 public:
 #define _OAUTH2_CLIENT_TYPES
-#define DAT(a_, b_) _ASYNCRTIMP static const oauth2_client_type a_;
+#define HTTP_CONSTANT(a_, b_) static const oauth2_client_type a_;
 #include "granada/http/http_constants.dat"
 #undef _OAUTH2_CLIENT_TYPES
-#undef DAT
+#undef HTTP_CONSTANT
 };
 
 
@@ -96,27 +97,27 @@ public:
  * Extension of the OAuth 2.0 strings. Includes the
  * useful server authorization constants.
  */
-typedef utility::string_t oauth2_string_2;
+typedef std::string oauth2_string_2;
 class oauth2_strings_2
 {
 public:
 #define _OAUTH2_STRINGS_2
-#define DAT(a_, b_) _ASYNCRTIMP static const oauth2_string_2 a_;
+#define HTTP_CONSTANT(a_, b_) static const oauth2_string_2 a_;
 #include "granada/http/http_constants.dat"
 #undef _OAUTH2_STRINGS_2
-#undef DAT
+#undef HTTP_CONSTANT
 };
 
 /**
  * OAuth 2.0 HTML templates, this templates are used in case
  * the user does not provide custom ones.
  */
-typedef utility::string_t oauth2_template;
+typedef std::string oauth2_template;
 class oauth2_templates
 {
 public:
 #define _TEMPLATES
-#define TEMPLATES(a_, b_) _ASYNCRTIMP static const oauth2_template a_;
+#define TEMPLATES(a_, b_) static const oauth2_template a_;
 #include "granada/http/oauth2/oauth2.templates"
 #undef _TEMPLATES
 #undef TEMPLATES
@@ -156,22 +157,22 @@ namespace granada{
               std::unordered_map<std::string, std::string>  parsed_data =	granada::http::parser::ParseQueryString(query_string);
               username.assign(parsed_data[oauth2_strings_2::username]);
               password.assign(parsed_data[oauth2_strings_2::password]);
-              code.assign(parsed_data[oauth2_strings::code]);
+			  code.assign(parsed_data[utility::conversions::to_utf8string(oauth2_strings::code)]);
               authorize.assign(parsed_data[oauth2_strings_2::authorize]);
-              access_token.assign(parsed_data[oauth2_strings::access_token]);
-              expires_in.assign(parsed_data[oauth2_strings::expires_in]);
-              refresh_token.assign(parsed_data[oauth2_strings::refresh_token]);
-              token_type.assign(parsed_data[oauth2_strings::token_type]);
-              grant_type.assign(parsed_data[oauth2_strings::grant_type]);
-              response_type.assign(parsed_data[oauth2_strings::response_type]);
-              client_id.assign(parsed_data[oauth2_strings::client_id]);
-              client_secret.assign(parsed_data[oauth2_strings::client_secret]);
-              redirect_uri.assign(parsed_data[oauth2_strings::redirect_uri]);
-              scope.assign(parsed_data[oauth2_strings::scope]);
-              state.assign(parsed_data[oauth2_strings::state]);
+			  access_token.assign(parsed_data[utility::conversions::to_utf8string(oauth2_strings::access_token)]);
+			  expires_in.assign(parsed_data[utility::conversions::to_utf8string(oauth2_strings::expires_in)]);
+			  refresh_token.assign(parsed_data[utility::conversions::to_utf8string(oauth2_strings::refresh_token)]);
+			  token_type.assign(parsed_data[utility::conversions::to_utf8string(oauth2_strings::token_type)]);
+			  grant_type.assign(parsed_data[utility::conversions::to_utf8string(oauth2_strings::grant_type)]);
+			  response_type.assign(parsed_data[utility::conversions::to_utf8string(oauth2_strings::response_type)]);
+			  client_id.assign(parsed_data[utility::conversions::to_utf8string(oauth2_strings::client_id)]);
+			  client_secret.assign(parsed_data[utility::conversions::to_utf8string(oauth2_strings::client_secret)]);
+			  redirect_uri.assign(parsed_data[utility::conversions::to_utf8string(oauth2_strings::redirect_uri)]);
+			  scope.assign(parsed_data[utility::conversions::to_utf8string(oauth2_strings::scope)]);
+			  state.assign(parsed_data[utility::conversions::to_utf8string(oauth2_strings::state)]);
               error.assign(parsed_data[oauth2_errors::error]);
               error_description.assign(parsed_data[oauth2_errors::error_description]);
-            }catch(const std::exception& e){}
+            }catch(const std::exception e){}
           };
 
 
@@ -182,17 +183,17 @@ namespace granada{
            */
           std::unordered_map<std::string,std::string> to_unordered_map(){
             std::unordered_map<std::string,std::string> map;
-            if (!code.empty()){ map.insert(std::make_pair(oauth2_strings::code,code)); }
-            if (!access_token.empty()){ map.insert(std::make_pair(oauth2_strings::access_token,access_token)); }
-            if (!expires_in.empty()){ map.insert(std::make_pair(oauth2_strings::expires_in,expires_in)); }
-            if (!refresh_token.empty()){ map.insert(std::make_pair(oauth2_strings::refresh_token,refresh_token)); }
-            if (!token_type.empty()){ map.insert(std::make_pair(oauth2_strings::token_type,token_type)); }
-            if (!grant_type.empty()){ map.insert(std::make_pair(oauth2_strings::grant_type,grant_type)); }
-            if (!response_type.empty()){ map.insert(std::make_pair(oauth2_strings::response_type,response_type)); }
-            if (!client_id.empty()){ map.insert(std::make_pair(oauth2_strings::client_id,client_id)); }
-            if (!redirect_uri.empty()){ map.insert(std::make_pair(oauth2_strings::redirect_uri,redirect_uri)); }
-            if (!scope.empty()){ map.insert(std::make_pair(oauth2_strings::scope,scope)); }
-            if (!state.empty()){ map.insert(std::make_pair(oauth2_strings::state,state)); }
+			if (!code.empty()){ map.insert(std::make_pair(utility::conversions::to_utf8string(oauth2_strings::code), code)); }
+			if (!access_token.empty()){ map.insert(std::make_pair(utility::conversions::to_utf8string(oauth2_strings::access_token), access_token)); }
+			if (!expires_in.empty()){ map.insert(std::make_pair(utility::conversions::to_utf8string(oauth2_strings::expires_in), expires_in)); }
+			if (!refresh_token.empty()){ map.insert(std::make_pair(utility::conversions::to_utf8string(oauth2_strings::refresh_token), refresh_token)); }
+			if (!token_type.empty()){ map.insert(std::make_pair(utility::conversions::to_utf8string(oauth2_strings::token_type), token_type)); }
+			if (!grant_type.empty()){ map.insert(std::make_pair(utility::conversions::to_utf8string(oauth2_strings::grant_type), grant_type)); }
+			if (!response_type.empty()){ map.insert(std::make_pair(utility::conversions::to_utf8string(oauth2_strings::response_type), response_type)); }
+			if (!client_id.empty()){ map.insert(std::make_pair(utility::conversions::to_utf8string(oauth2_strings::client_id), client_id)); }
+			if (!redirect_uri.empty()){ map.insert(std::make_pair(utility::conversions::to_utf8string(oauth2_strings::redirect_uri), redirect_uri)); }
+			if (!scope.empty()){ map.insert(std::make_pair(utility::conversions::to_utf8string(oauth2_strings::scope), scope)); }
+			if (!state.empty()){ map.insert(std::make_pair(utility::conversions::to_utf8string(oauth2_strings::state), state)); }
             if (!error.empty()){ map.insert(std::make_pair(oauth2_errors::error,error)); }
             if (!error_description.empty()){ map.insert(std::make_pair(oauth2_errors::error_description,error_description)); }
             return map;
@@ -208,17 +209,17 @@ namespace granada{
            */
           std::string to_query_string(){
             std::string query_string = "";
-            if (!code.empty()){ query_string+="&"+oauth2_strings::code+"="+code; }
-            if (!access_token.empty()){ query_string+="&"+oauth2_strings::access_token+"="+access_token; }
-            if (!expires_in.empty()){ query_string+="&"+oauth2_strings::expires_in+"="+expires_in; }
-            if (!refresh_token.empty()){ query_string+="&"+oauth2_strings::refresh_token+"="+refresh_token; }
-            if (!token_type.empty()){ query_string+="&"+oauth2_strings::token_type+"="+token_type; }
-            if (!grant_type.empty()){ query_string+="&"+oauth2_strings::grant_type+"="+grant_type; }
-            if (!response_type.empty()){ query_string+="&"+oauth2_strings::response_type+"="+response_type; }
-            if (!client_id.empty()){ query_string+="&"+oauth2_strings::client_id+"="+client_id; }
-            if (!redirect_uri.empty()){ query_string+="&"+oauth2_strings::redirect_uri+"="+redirect_uri; }
-            if (!scope.empty()){ query_string+="&"+oauth2_strings::scope+"="+scope; }
-            if (!state.empty()){ query_string+="&"+oauth2_strings::state+"="+state; }
+			if (!code.empty()){ query_string += "&" + utility::conversions::to_utf8string(oauth2_strings::code) + "=" + code; }
+			if (!access_token.empty()){ query_string += "&" + utility::conversions::to_utf8string(oauth2_strings::access_token) + "=" + access_token; }
+			if (!expires_in.empty()){ query_string += "&" + utility::conversions::to_utf8string(oauth2_strings::expires_in) + "=" + expires_in; }
+			if (!refresh_token.empty()){ query_string += "&" + utility::conversions::to_utf8string(oauth2_strings::refresh_token) + "=" + refresh_token; }
+			if (!token_type.empty()){ query_string += "&" + utility::conversions::to_utf8string(oauth2_strings::token_type) + "=" + token_type; }
+			if (!grant_type.empty()){ query_string += "&" + utility::conversions::to_utf8string(oauth2_strings::grant_type) + "=" + grant_type; }
+			if (!response_type.empty()){ query_string += "&" + utility::conversions::to_utf8string(oauth2_strings::response_type) + "=" + response_type; }
+			if (!client_id.empty()){ query_string += "&" + utility::conversions::to_utf8string(oauth2_strings::client_id) + "=" + client_id; }
+			if (!redirect_uri.empty()){ query_string += "&" + utility::conversions::to_utf8string(oauth2_strings::redirect_uri) + "=" + redirect_uri; }
+			if (!scope.empty()){ query_string += "&" + utility::conversions::to_utf8string(oauth2_strings::scope) + "=" + scope; }
+			if (!state.empty()){ query_string += "&" + utility::conversions::to_utf8string(oauth2_strings::state) + "=" + state; }
             if (!error.empty()){ query_string+="&"+oauth2_errors::error+"="+error; }
             if (!error_description.empty()){ query_string+="&"+oauth2_errors::error_description+"="+error_description; }
             if (!query_string.empty()){
@@ -243,17 +244,17 @@ namespace granada{
            */
           web::json::value to_json(){
             std::string json_str = "";
-            if (!code.empty()){ json_str+=",\""+oauth2_strings::code+"\":\""+code+"\""; }
-            if (!access_token.empty()){ json_str+=",\""+oauth2_strings::access_token+"\":\""+access_token+"\""; }
-            if (!expires_in.empty()){ json_str+=",\""+oauth2_strings::expires_in+"\":\""+expires_in+"\""; }
-            if (!refresh_token.empty()){ json_str+=",\""+oauth2_strings::refresh_token+"\":\""+refresh_token+"\""; }
-            if (!token_type.empty()){ json_str+=",\""+oauth2_strings::token_type+"\":\""+token_type+"\""; }
-            if (!grant_type.empty()){ json_str+=",\""+oauth2_strings::grant_type+"\":\""+grant_type+"\""; }
-            if (!response_type.empty()){ json_str+=",\""+oauth2_strings::response_type+"\":\""+response_type+"\""; }
-            if (!client_id.empty()){ json_str+=",\""+oauth2_strings::client_id+"\":\""+client_id+"\""; }
-            if (!redirect_uri.empty()){ json_str+=",\""+oauth2_strings::redirect_uri+"\":\""+redirect_uri+"\""; }
-            if (!scope.empty()){ json_str+=",\""+oauth2_strings::scope+"\":\""+scope+"\""; }
-            if (!state.empty()){ json_str+=",\""+oauth2_strings::state+"\":\""+state+"\""; }
+			if (!code.empty()){ json_str += ",\"" + utility::conversions::to_utf8string(oauth2_strings::code) + "\":\"" + code + "\""; }
+			if (!access_token.empty()){ json_str += ",\"" + utility::conversions::to_utf8string(oauth2_strings::access_token) + "\":\"" + access_token + "\""; }
+			if (!expires_in.empty()){ json_str += ",\"" + utility::conversions::to_utf8string(oauth2_strings::expires_in) + "\":\"" + expires_in + "\""; }
+			if (!refresh_token.empty()){ json_str += ",\"" + utility::conversions::to_utf8string(oauth2_strings::refresh_token) + "\":\"" + refresh_token + "\""; }
+			if (!token_type.empty()){ json_str += ",\"" + utility::conversions::to_utf8string(oauth2_strings::token_type) + "\":\"" + token_type + "\""; }
+			if (!grant_type.empty()){ json_str += ",\"" + utility::conversions::to_utf8string(oauth2_strings::grant_type) + "\":\"" + grant_type + "\""; }
+			if (!response_type.empty()){ json_str += ",\"" + utility::conversions::to_utf8string(oauth2_strings::response_type) + "\":\"" + response_type + "\""; }
+			if (!client_id.empty()){ json_str += ",\"" + utility::conversions::to_utf8string(oauth2_strings::client_id) + "\":\"" + client_id + "\""; }
+			if (!redirect_uri.empty()){ json_str += ",\"" + utility::conversions::to_utf8string(oauth2_strings::redirect_uri) + "\":\"" + redirect_uri + "\""; }
+			if (!scope.empty()){ json_str += ",\"" + utility::conversions::to_utf8string(oauth2_strings::scope) + "\":\"" + scope + "\""; }
+			if (!state.empty()){ json_str += ",\"" + utility::conversions::to_utf8string(oauth2_strings::state) + "\":\"" + state + "\""; }
             if (!error.empty()){ json_str+=",\""+oauth2_errors::error+"\":\""+error+"\""; }
             if (!error_description.empty()){ json_str+=",\""+oauth2_errors::error_description+"\":\""+error_description+"\""; }
             if (json_str.empty()){
@@ -262,7 +263,7 @@ namespace granada{
               json_str[0] = '{';
               json_str += "}";
             }
-            return web::json::value::parse(json_str);
+			return web::json::value::parse(utility::conversions::to_string_t(json_str));
           }
 
 
@@ -684,7 +685,7 @@ namespace granada{
            * @return      True if user has the given role in its collection, false if it does not.
            */
           virtual const bool HasRole(const std::string& role){
-            return roles_.is_null()? false : roles_.has_field(role);
+			  return roles_.is_null() ? false : roles_.has_field(utility::conversions::to_string_t(role));
           };
 
 

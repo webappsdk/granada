@@ -29,6 +29,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include "cpprest/details/basic_types.h"
 #include "cpprest/json.h"
 #include "cpprest/http_listener.h"
 #include "granada/defaults.h"

@@ -73,7 +73,7 @@ namespace granada{
         if (session_token_support_ == entity_keys::session_cookie){
 
           // add cookie with token
-          response.headers().add(entity_keys::session_set_cookie, token_label() + "=" + token_ + "; path=/");
+			response.headers().add(utility::conversions::to_string_t(entity_keys::session_set_cookie), token_label() + "=" + token_ + "; path=/");
         }
       }
 
@@ -159,9 +159,9 @@ namespace granada{
 
       web::json::value Session::to_json(){
         web::json::value json = web::json::value::object();
-        json[entity_keys::session_token] = web::json::value::string(token_);
-        json[entity_keys::session_json_update_time] = web::json::value::string(granada::util::time::stringify(GetUpdateTime()));
-        json[entity_keys::session_timeout] = web::json::value::string(granada::util::time::stringify(GetSessionTimeout()));
+		json[utility::conversions::to_string_t(entity_keys::session_token)] = web::json::value::string(utility::conversions::to_string_t(token_));
+		json[utility::conversions::to_string_t(entity_keys::session_json_update_time)] = web::json::value::string(utility::conversions::to_string_t(granada::util::time::stringify(GetUpdateTime())));
+		json[utility::conversions::to_string_t(entity_keys::session_timeout)] = web::json::value::string(utility::conversions::to_string_t(granada::util::time::stringify(GetSessionTimeout())));
         return json;
       }
 
@@ -173,7 +173,7 @@ namespace granada{
         }else{
           try{
             session_garbage_extra_timeout_ = std::stol(session_garbage_extra_timeout_str);
-          }catch(const std::logic_error& e){
+          }catch(const std::logic_error e){
             session_garbage_extra_timeout_ = default_numbers::session_session_garbage_extra_timeout;
           }
         }
@@ -191,7 +191,7 @@ namespace granada{
         }else{
           try{
             Session::application_session_timeout_ = std::stol(application_session_timeout_str);
-          }catch(const std::logic_error& e){
+          }catch(const std::logic_error e){
             Session::application_session_timeout_ = default_numbers::session_timeout;
           }
         }
@@ -242,16 +242,16 @@ namespace granada{
             const web::json::value& obj = request.extract_json().get();
             const std::string& token = granada::util::json::as_string(obj,token_label());
             return LoadSession(token);
-          }catch(const std::exception& e){}
+          }catch(const std::exception e){}
         }else{
           // retrieve token from query string.
           if (session_token_support_ == entity_keys::session_query){
-            const std::string& query_string = request.request_uri().query();
+			const std::string& query_string = utility::conversions::to_utf8string(request.request_uri().query());
             try{
               std::unordered_map<std::string, std::string> parsed_query = granada::http::parser::ParseQueryString(query_string);
               const std::string& token = parsed_query[token_label()];
               return LoadSession(token);
-            }catch(const std::exception& e){
+            }catch(const std::exception e){
               return false;
             }
           }
@@ -408,7 +408,7 @@ namespace granada{
         }else{
           try{
             SessionHandler::clean_sessions_frequency_ = std::stod(clean_sessions_frequency_str);
-          }catch(const std::exception& e){
+          }catch(const std::exception e){
             SessionHandler::clean_sessions_frequency_ = default_numbers::session_clean_sessions_frequency;
           }
         }
@@ -418,7 +418,7 @@ namespace granada{
         }else{
           try{
             SessionHandler::token_length_ = std::stoi(token_length_str);
-          }catch(const std::exception& e){
+          }catch(const std::exception e){
             SessionHandler::token_length_ = nonce_lengths::session_token;
           }
         }

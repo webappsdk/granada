@@ -29,6 +29,7 @@
 #include <string>
 #include <sstream>
 #include <unordered_map>
+#include "cpprest/details/basic_types.h"
 #include "cpprest/http_listener.h"
 #include "cpprest/base_uri.h"
 #include "granada/defaults.h"

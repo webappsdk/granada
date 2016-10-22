@@ -29,11 +29,12 @@
 #pragma once
 #include <memory>
 #include <string>
+
 #ifdef __APPLE__
   #include <libproc.h>
   #include <unistd.h>
-#elif WINDOWS
-  #include <limits>
+#elif _WIN32
+	#include <windows.h>
 #else
   #include <linux/limits.h>
 #endif

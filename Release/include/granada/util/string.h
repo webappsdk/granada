@@ -27,12 +27,14 @@
 #pragma once
 
 #include <algorithm>
-#include "ctype.h"
+#include <cctype>
+#include <locale>
 #include <string>
 #include <sstream>
 #include <vector>
 #include <deque>
 #include <unordered_map>
+#include "cpprest/details/basic_types.h"
 #include "cpprest/json.h"
 
 namespace granada{
@@ -182,9 +184,9 @@ namespace granada{
       static web::json::value to_json(const std::string& str){
         web::json::value json;
         try{
-          json = web::json::value::parse(str);
-        }catch(const web::json::json_exception& e){
-          json = web::json::value::parse("{}");
+			json = web::json::value::parse(utility::conversions::to_string_t(str));
+        }catch(const web::json::json_exception e){
+			json = web::json::value::object();
         }
         return json;
       }
@@ -196,7 +198,7 @@ namespace granada{
        * @return        Given string or strigified empty json object "{}".
        */
       static inline std::string stringified_json(const std::string& str){
-        return granada::util::string::to_json(str).serialize();
+		  return utility::conversions::to_utf8string(granada::util::string::to_json(str).serialize());
       }
 
 

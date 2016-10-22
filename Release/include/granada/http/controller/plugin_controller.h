@@ -30,6 +30,7 @@
 #pragma once
 #include <deque>
 #include <vector>
+#include "cpprest/details/basic_types.h"
 #include "cpprest/json.h"
 #include "cpprest/details/http_helpers.h"
 #include "granada/defaults.h"

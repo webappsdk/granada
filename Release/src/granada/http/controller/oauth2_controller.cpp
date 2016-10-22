@@ -71,9 +71,9 @@ namespace granada{
         if (paths.empty() || paths.size() != 1){
           status_code = status_codes::Forbidden;
         }else{
-          std::string name = paths[0];
+			std::string name = utility::conversions::to_utf8string(paths[0]);
 
-          std::string query_string = request.request_uri().query();
+		  std::string query_string = utility::conversions::to_utf8string(request.request_uri().query());
           granada::http::oauth2::OAuth2Parameters oauth2_parameters(query_string);
 
           if (name == oauth2_authorize_uri_){
@@ -84,7 +84,7 @@ namespace granada{
             }else{
 
               std::unordered_map<std::string, std::string> values = oauth2_parameters.to_unordered_map();
-              values.insert(std::make_pair(entity_keys::oauth2_authorization_form_action, url_ + "/" + oauth2_authorize_uri_));
+			  values.insert(std::make_pair(entity_keys::oauth2_authorization_form_action, utility::conversions::to_utf8string(url_) + "/" + oauth2_authorize_uri_));
 
               // check if user is already associated with a session
               // with the asked roles.
@@ -168,17 +168,17 @@ namespace granada{
       {
 
         web::http::http_response response;
-        response.headers().add(header_names_2::access_control_allow_origin, U("*"));
+		response.headers().add(utility::conversions::to_string_t(header_names_2::access_control_allow_origin), U("*"));
 
         auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
 
         // oauth2 response parameters.
         granada::http::oauth2::OAuth2Parameters oauth2_response;
 
-        if (!paths.empty() && paths.size() == 1 && paths[0] == oauth2_authorize_uri_){
+		if (!paths.empty() && paths.size() == 1 && utility::conversions::to_utf8string(paths[0]) == oauth2_authorize_uri_){
 
           // extract data from the HTTP request.
-          const std::string& body = request.extract_string().get();
+			const std::string& body = utility::conversions::to_utf8string(request.extract_string().get());
 
           // oauth2 parameters obtained from HTTP request body.
           granada::http::oauth2::OAuth2Parameters oauth2_parameters(body);
@@ -186,7 +186,7 @@ namespace granada{
           std::unique_ptr<granada::http::oauth2::OAuth2Authorization> oauth2_authorization = oauth2_factory_->OAuth2Authorization_unique_ptr(oauth2_parameters,session_factory_.get());
           oauth2_response = oauth2_authorization->Grant(request,response);
 
-          if (oauth2_parameters.grant_type == oauth2_strings::authorization_code){
+          if (oauth2_parameters.grant_type == utility::conversions::to_utf8string(oauth2_strings::authorization_code)){
             // reply with a json to the client.
             if (oauth2_response.redirect_uri.empty()){
               oauth2_response.redirect_uri = granada::http::parser::ParseURIFromReferer(request);
@@ -208,7 +208,7 @@ namespace granada{
         response.set_status_code(status_codes::Found);
         std::string redirect_uri = oauth2_response.redirect_uri;
         oauth2_response.redirect_uri.assign("");
-        response.headers().add(header_names::location, U(redirect_uri+oauth2_response.to_query_string()));
+        response.headers().add(header_names::location, utility::conversions::to_string_t(redirect_uri+oauth2_response.to_query_string()));
         request.reply(response);
       }
 
@@ -219,7 +219,7 @@ namespace granada{
 
         granada::http::oauth2::OAuth2Parameters oauth2_response;
 
-        const std::string& query_string = request.request_uri().query();
+		const std::string& query_string = utility::conversions::to_utf8string(request.request_uri().query());
         granada::http::oauth2::OAuth2Parameters oauth2_parameters(query_string);
 
         web::json::value json;

@@ -58,7 +58,7 @@ namespace granada{
         }else{
           try{
             PluginController::PLUGIN_HANDLER_USE_FREQUENCY_LIMIT_ = std::stoi(plugin_handler_use_frequency_limit_str);
-          }catch(const std::logic_error& e){
+          }catch(const std::logic_error e){
             PluginController::PLUGIN_HANDLER_USE_FREQUENCY_LIMIT_ = default_numbers::plugin_handler_use_frequency_limit;
           }
         }
@@ -87,10 +87,10 @@ namespace granada{
         if (!session->close_callbacks()->Has(default_strings::plugin_function_stop_plugin_handler)){
           const std::shared_ptr<granada::plugin::PluginFactory>& plugin_factory = plugin_factory_;
           session->close_callbacks()->Add(default_strings::plugin_function_stop_plugin_handler,[plugin_factory](const web::json::value& data){
-            if (data.has_field(entity_keys::session_token)){
-              const web::json::value& token = data.at(entity_keys::session_token);
+			if (data.has_field(utility::conversions::to_string_t(entity_keys::session_token))){
+			  const web::json::value& token = data.at(utility::conversions::to_string_t(entity_keys::session_token));
               if (token.is_string()){
-                const std::unique_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory->PluginHandler_unique_ptr(token.as_string());
+				  const std::unique_ptr<granada::plugin::PluginHandler>& plugin_handler = plugin_factory->PluginHandler_unique_ptr(utility::conversions::to_utf8string(token.as_string()));
                 plugin_handler->Stop();
               }
             }
@@ -151,7 +151,7 @@ namespace granada{
                 granada::util::time::sleep_milliseconds(milliseconds_to_limit+1);
                 PluginHandlerLock(plugin_handler);
               }
-            }catch(const std::logic_error& e){}
+            }catch(const std::logic_error e){}
           }
 
           if (cache_time){
@@ -166,11 +166,11 @@ namespace granada{
       web::json::value PluginController::FireEvent(const web::json::value& request_json, granada::plugin::PluginHandler* plugin_handler){
         web::json::value response_json;
 
-        const web::json::value& plugin_event = request_json.at(entity_keys::plugin_event);
+		const web::json::value& plugin_event = request_json.at(utility::conversions::to_string_t(entity_keys::plugin_event));
         if (plugin_event.is_string()){
           web::json::value parameters = granada::util::json::as_object(request_json,entity_keys::plugin_parameters);
           PluginHandlerLock(plugin_handler);
-          plugin_handler->Fire(plugin_event.as_string(),parameters,[&response_json](const web::json::value& data){
+		  plugin_handler->Fire(utility::conversions::to_utf8string(plugin_event.as_string()), parameters, [&response_json](const web::json::value& data){
             // success
             response_json = std::move(data);;
           },[&response_json](const web::json::value& data){
@@ -179,7 +179,7 @@ namespace granada{
           });
         }else{
           response_json = web::json::value::object();
-          response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_malformed_parameters);
+		  response_json[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_malformed_parameters));
         }
 
         return response_json;
@@ -188,17 +188,17 @@ namespace granada{
 
       web::json::value PluginController::RunPlugin(const web::json::value& request_json, granada::plugin::PluginHandler* plugin_handler){
         web::json::value response_json;
-        const web::json::value& plugin_id_json = request_json.at(entity_keys::plugin_id);
+		const web::json::value& plugin_id_json = request_json.at(utility::conversions::to_string_t(entity_keys::plugin_id));
         if (plugin_id_json.is_string()){
-          const std::string& plugin_id = plugin_id_json.as_string();
+		  const std::string& plugin_id = utility::conversions::to_utf8string(plugin_id_json.as_string());
 
           web::json::value parameters = granada::util::json::as_object(request_json,entity_keys::plugin_parameters);
 
           PluginHandlerLock(plugin_handler);
           plugin_handler->Run(plugin_id,parameters,[&response_json,&plugin_id](const web::json::value& data){
             web::json::value response_data = web::json::value::object();
-            response_data[plugin_id] = std::move(data);
-            response_json[entity_keys::plugin_parameter_data] = response_data;
+			response_data[utility::conversions::to_string_t(plugin_id)] = std::move(data);
+			response_json[utility::conversions::to_string_t(entity_keys::plugin_parameter_data)] = response_data;
           },[&response_json](const web::json::value& data){
             // failure
             response_json = std::move(data);
@@ -206,7 +206,7 @@ namespace granada{
           
         }else{
           response_json = web::json::value::object();
-          response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_malformed_parameters);
+		  response_json[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_malformed_parameters));
         }
 
         return response_json;
@@ -216,17 +216,17 @@ namespace granada{
       web::json::value PluginController::SendMessage(const web::json::value& request_json, granada::plugin::PluginHandler* plugin_handler){
         web::json::value response_json;
 
-        const web::json::value& from = request_json.at(entity_keys::plugin_parameter_from);
-        const web::json::value& to_ids = request_json.at(entity_keys::plugin_parameter_to_ids);
+		const web::json::value& from = request_json.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_from));
+		const web::json::value& to_ids = request_json.at(utility::conversions::to_string_t(entity_keys::plugin_parameter_to_ids));
 
         if (from.is_string() && to_ids.is_array()){
           web::json::value parameters = granada::util::json::as_object(request_json,entity_keys::plugin_parameters);
           PluginHandlerLock(plugin_handler);
-          response_json = plugin_handler->SendMessage(from.as_string(),to_ids,parameters);
+		  response_json = plugin_handler->SendMessage(utility::conversions::to_utf8string(from.as_string()), to_ids, parameters);
           
         }else{
           response_json = web::json::value::object();
-          response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_malformed_parameters);
+		  response_json[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_malformed_parameters));
         }
 
         return response_json;
@@ -236,9 +236,9 @@ namespace granada{
       web::json::value PluginController::RunCommand(const web::json::value& request_json, granada::plugin::PluginHandler* plugin_handler){
         web::json::value response_json;
 
-        const web::json::value& command_json = request_json.at(default_strings::plugin_command);
+		const web::json::value& command_json = request_json.at(utility::conversions::to_string_t(default_strings::plugin_command));
         if (command_json.is_string()){
-          std::string command = command_json.as_string();
+          std::string command = utility::conversions::to_utf8string(command_json.as_string());
           granada::util::string::to_upper(command);
           if (command==default_strings::plugin_command_reset){
             PluginHandlerLock(plugin_handler);
@@ -248,11 +248,11 @@ namespace granada{
             plugin_handler->Stop();
           }else{
             response_json = web::json::value::object();
-            response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_unknown_command);
+			response_json[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_unknown_command));
           }
         }else{
           response_json = web::json::value::object();
-          response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_malformed_parameters);
+		  response_json[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_malformed_parameters));
         }
 
         return response_json;
@@ -285,7 +285,7 @@ namespace granada{
         try{
           const web::json::value& request_json = request.extract_json().get();
 
-          if(request_json.has_field(entity_keys::plugin_event)){
+		  if (request_json.has_field(utility::conversions::to_string_t(entity_keys::plugin_event))){
 
             ////
             // Fire event.
@@ -295,9 +295,10 @@ namespace granada{
               response_json = FireEvent(request_json, plugin_handler.get());
             }else{
               response_json = web::json::value::object();
-              response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_forbidden_command);
+			  response_json[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_forbidden_command));
             }
-          }else if (request_json.has_field(entity_keys::plugin_id)){
+		  }
+		  else if (request_json.has_field(utility::conversions::to_string_t(entity_keys::plugin_id))){
 
             ////
             // Run plug-in with given id.
@@ -307,11 +308,12 @@ namespace granada{
               response_json = RunPlugin(request_json, plugin_handler.get());
             }else{
               response_json = web::json::value::object();
-              response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_forbidden_command);
+			  response_json[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_forbidden_command));
             }
-          }else if (request_json.has_field(entity_keys::plugin_parameter_from)
-                    && request_json.has_field(entity_keys::plugin_parameter_to_ids)
-                    && request_json.has_field(entity_keys::plugin_parameters)){
+		  }
+		  else if (request_json.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_from))
+			  && request_json.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameter_to_ids))
+					&& request_json.has_field(utility::conversions::to_string_t(entity_keys::plugin_parameters))){
 
             ////
             // Send message to plug-ins.
@@ -321,10 +323,11 @@ namespace granada{
               response_json = SendMessage(request_json, plugin_handler.get());
             }else{
               response_json = web::json::value::object();
-              response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_forbidden_command);
+			  response_json[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_forbidden_command));
             }
 
-          }else if (request_json.has_field(default_strings::plugin_command)){
+		  }
+		  else if (request_json.has_field(utility::conversions::to_string_t(default_strings::plugin_command))){
 
             ////
             // Run command.
@@ -334,17 +337,17 @@ namespace granada{
               response_json = RunCommand(request_json, plugin_handler.get());
             }else{
               response_json = web::json::value::object();
-              response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_forbidden_command);
+			  response_json[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_forbidden_command));
             }
 
           }else{
             response_json = web::json::value::object();
-            response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_malformed_parameters);
+			response_json[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_malformed_parameters));
           }
-        }catch(const std::exception& e){
+        }catch(const std::exception e){
           response_json = web::json::value::object();
-          response_json[default_strings::plugin_error] = web::json::value::string(default_errors::plugin_server_error);
-          response_json[default_strings::plugin_error_description] = web::json::value::string(default_error_descriptions::plugin_server_error);
+		  response_json[utility::conversions::to_string_t(default_strings::plugin_error)] = web::json::value::string(utility::conversions::to_string_t(default_errors::plugin_server_error));
+		  response_json[utility::conversions::to_string_t(default_strings::plugin_error_description)] = web::json::value::string(utility::conversions::to_string_t(default_error_descriptions::plugin_server_error));
         }
 
         response.set_body(response_json);

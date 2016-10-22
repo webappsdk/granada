@@ -31,8 +31,8 @@ namespace granada{
       std::unordered_map<std::string, std::string> ParseCookies(const web::http::http_request &request){
         std::unordered_map<std::string, std::string> cookies;
         web::http::http_headers headers = request.headers();
-        if( headers.has(entity_keys::http_parser_cookie) ){
-          std::string cookies_str = headers[entity_keys::http_parser_cookie];
+        if( headers.has(utility::conversions::to_string_t(entity_keys::http_parser_cookie)) ){
+			std::string cookies_str = utility::conversions::to_utf8string(headers[utility::conversions::to_string_t(entity_keys::http_parser_cookie)]);
 
           // separate different cookies.
           std::stringstream ss(cookies_str);
@@ -64,7 +64,7 @@ namespace granada{
             std::vector<std::string> key_and_value;
             granada::util::string::split(keys_and_values[len],'=',key_and_value);
             if (key_and_value.size() > 1){
-              parsed_query.insert(std::make_pair(key_and_value[0],web::uri::decode(key_and_value[1])));
+              parsed_query.insert(std::make_pair(key_and_value[0],utility::conversions::to_utf8string(web::uri::decode(utility::conversions::to_string_t(key_and_value[1])))));
             }
           }
         }
@@ -82,7 +82,7 @@ namespace granada{
         std::string boundary;
         try {
           boundary = ExtractBoundaryMDF(headers);
-        }catch(const std::exception& e){
+        }catch(const std::exception e){
           return multipart_form_data;
         }
 
@@ -95,7 +95,7 @@ namespace granada{
         if (!body.empty()){
           try{
             while(ParseFieldsAndPropertiesMDF(body,boundary,multipart_form_data));
-          }catch(const std::exception& e){}
+          }catch(const std::exception e){}
         }
 
         return multipart_form_data;
@@ -103,9 +103,9 @@ namespace granada{
 
 
       std::string ExtractBoundaryMDF(const web::http::http_headers &headers){
-        std::string content_type = headers.content_type();
+        std::string content_type = utility::conversions::to_utf8string(headers.content_type());
         if (!content_type.empty()){
-          std::string delimiter(entity_keys::http_parser_boundary_delimiter);
+		  std::string delimiter(utility::conversions::to_utf8string(entity_keys::http_parser_boundary_delimiter));
           auto pos = content_type.rfind(delimiter);
           if (pos != std::string::npos) {
             content_type.erase(0,pos + delimiter.length());
@@ -145,10 +145,10 @@ namespace granada{
           body.assign(value_begin_it, body.end());
           auto value_end_it = std::search(body.begin(), body.end(), boundary_c, boundary_c + boundary_length)-8;
           std::vector<unsigned char> value(body.begin(),value_end_it);
-          parsed_properties.insert(std::make_pair(entity_keys::http_parser_property_value_label, value));
+          parsed_properties.insert(std::make_pair(utility::conversions::to_utf8string(entity_keys::http_parser_property_value_label), value));
 
           // insert the unordered_map of properties into the unordered_map of fields
-          std::vector<unsigned char> key_name = parsed_properties[entity_keys::http_parser_property_name_label];
+		  std::vector<unsigned char> key_name = parsed_properties[utility::conversions::to_utf8string(entity_keys::http_parser_property_name_label)];
           std::string key(key_name.begin(),key_name.end());
           multipart_form_data.insert(std::make_pair(key, parsed_properties));
 
@@ -203,7 +203,7 @@ namespace granada{
         if (it != headers.end()){
           web::uri uri(it->second);
           int port = uri.port();
-          uri_str.assign(uri.scheme() + "://" + uri.host() + (port > 0 ? ":" + std::to_string(port) : "") + uri.path());
+          uri_str = utility::conversions::to_utf8string(uri.scheme() + U("://") + uri.host() + utility::conversions::to_string_t(port > 0 ? ":" + std::to_string(port) : "") + uri.path());
         }
         return uri_str;
       }

@@ -31,7 +31,7 @@
 #include "granada/http/http_msg.h"
 
 #define _HEADER_NAMES_2
-#define DAT(a_, b_) const header_name_2 header_names_2::a_(_XPLATSTR(b_));
+#define HTTP_CONSTANT(a_, b_) const header_name_2 header_names_2::a_(std::string(b_));
 #include "granada/http/http_constants.dat"
 #undef _HEADER_NAMES_2
-#undef DAT
+#undef HTTP_CONSTANT

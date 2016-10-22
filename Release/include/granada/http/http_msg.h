@@ -31,13 +31,13 @@
 #pragma once
 #include "cpprest/http_msg.h"
 
-typedef utility::string_t header_name_2;
+typedef std::string header_name_2;
 class header_names_2
 {
 public:
 #define _HEADER_NAMES_2
-#define DAT(a,b) _ASYNCRTIMP const static utility::string_t a;
+#define HTTP_CONSTANT(a,b) const static std::string a;
 #include "granada/http/http_constants.dat"
 #undef _HEADER_NAMES_2
-#undef DAT
+#undef HTTP_CONSTANT
 };

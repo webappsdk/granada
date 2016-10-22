@@ -34,30 +34,30 @@
  * 		key of value : session:data:DaptTt8CfPn7fsWW5Qx2WOJTLa6sX4BoeUmufl8HcDLUwNphEqQaaMIznk1QuBZV
  * 		=> namespace is: session:data:
  */
-typedef utility::string_t cache_namespace;
+typedef std::string cache_namespace;
 class cache_namespaces
 {
 public:
 #define _CACHE_NAMESPACES
-#define DAT(a_, b_) _ASYNCRTIMP static const cache_namespace a_;
+#define GRANADA_DEFAULT(a_, b_) static const cache_namespace a_;
 #include "granada/defaults.dat"
 #undef _CACHE_NAMESPACES
-#undef DAT
+#undef GRANADA_DEFAULT
 };
 
 /**
  * Default entity keys of values in the storage system
  * and default keys of values in the configuration files.
  */
-typedef utility::string_t entity_key;
+typedef std::string entity_key;
 class entity_keys
 {
 public:
 #define _ENTITY_KEYS
-#define DAT(a_, b_) _ASYNCRTIMP static const entity_key a_;
+#define GRANADA_DEFAULT(a_, b_) static const entity_key a_;
 #include "granada/defaults.dat"
 #undef _ENTITY_KEYS
-#undef DAT
+#undef GRANADA_DEFAULT
 };
 
 /**
@@ -68,24 +68,24 @@ class nonce_lengths
 {
 public:
 #define _NONCE_LENGTHS
-#define DAT(a_, b_) _ASYNCRTIMP static const nonce_length a_;
+#define GRANADA_DEFAULT(a_, b_) static const nonce_length a_;
 #include "granada/defaults.dat"
 #undef _NONCE_LENGTHS
-#undef DAT
+#undef GRANADA_DEFAULT
 };
 
 /**
  * Default string values of the entities.
  */
-typedef utility::string_t default_string;
+typedef std::string default_string;
 class default_strings
 {
 public:
-#define _DEFAULT_STRINGS
-#define DAT(a_, b_) _ASYNCRTIMP static const default_string a_;
+#define _GRANADA_DEFAULT_STRINGS
+#define GRANADA_DEFAULT(a_, b_) static const default_string a_;
 #include "granada/defaults.dat"
-#undef _DEFAULT_STRINGS
-#undef DAT
+#undef _GRANADA_DEFAULT_STRINGS
+#undef GRANADA_DEFAULT
 };
 
 /**
@@ -95,37 +95,37 @@ typedef int default_number;
 class default_numbers
 {
 public:
-#define _DEFAULT_NUMBERS
-#define DAT(a_, b_) _ASYNCRTIMP static const default_number a_;
+#define _GRANADA_DEFAULT_NUMBERS
+#define GRANADA_DEFAULT(a_, b_) static const default_number a_;
 #include "granada/defaults.dat"
-#undef _DEFAULT_NUMBERS
-#undef DAT
+#undef _GRANADA_DEFAULT_NUMBERS
+#undef GRANADA_DEFAULT
 };
 
 /**
  * Default error codes of the entities.
  */
-typedef utility::string_t default_error;
+typedef std::string default_error;
 class default_errors
 {
 public:
-#define _DEFAULT_ERRORS
-#define DAT(a_, b_) _ASYNCRTIMP static const default_error a_;
+#define _GRANADA_DEFAULT_ERRORS
+#define GRANADA_DEFAULT(a_, b_) static const default_error a_;
 #include "granada/defaults.dat"
-#undef _DEFAULT_ERRORS
-#undef DAT
+#undef _GRANADA_DEFAULT_ERRORS
+#undef GRANADA_DEFAULT
 };
 
 /**
  * Default error codes descriptions of the entities.
  */
-typedef utility::string_t default_error_description;
+typedef std::string default_error_description;
 class default_error_descriptions
 {
 public:
-#define _DEFAULT_ERROR_DESCRIPTIONS
-#define DAT(a_, b_) _ASYNCRTIMP static const default_error_description a_;
+#define _GRANADA_DEFAULT_ERROR_DESCRIPTIONS
+#define GRANADA_DEFAULT(a_, b_) static const default_error_description a_;
 #include "granada/defaults.dat"
-#undef _DEFAULT_ERROR_DESCRIPTIONS
-#undef DAT
+#undef _GRANADA_DEFAULT_ERROR_DESCRIPTIONS
+#undef GRANADA_DEFAULT
 };

@@ -3,29 +3,29 @@
 // OAuth 2.0 entities cache namespaces
 //
 // OAuth 2.0 Client namespace
-DAT(oauth2_client_value,                "oauth2.client:value:")
+GRANADA_DEFAULT(oauth2_client_value,                "oauth2.client:value:")
 // OAuth 2.0 Code namespace
-DAT(oauth2_code_value,                  "oauth2.code:value:")
+GRANADA_DEFAULT(oauth2_code_value,                  "oauth2.code:value:")
 // OAuth 2.0 User namespace
-DAT(oauth2_user_value,                  "oauth2.user:value:")
+GRANADA_DEFAULT(oauth2_user_value,                  "oauth2.user:value:")
 
-DAT(oauth2_authorization,               "oauth2.authorization:")
+GRANADA_DEFAULT(oauth2_authorization,               "oauth2.authorization:")
 
 ////
 // Session namespaces
 //
-DAT(session_value,                      "session:value:")
-DAT(session_data,                       "session:data:")
-DAT(session_roles,                      "session:roles:")
+GRANADA_DEFAULT(session_value,                      "session:value:")
+GRANADA_DEFAULT(session_data,                       "session:data:")
+GRANADA_DEFAULT(session_roles,                      "session:roles:")
 
 ////
 // Plugin namespaces
 //
-DAT(plugin_loader_value,				"plugin.loader:value:")
-DAT(plugin_store,                       "plugin:store:")
-DAT(plugin_value,                       "plugin:value:")
-DAT(plugin_handler_value,               "plugin.handler:value:")
-DAT(plugin_event_value,                 "plugin.event:value:")
+GRANADA_DEFAULT(plugin_loader_value,				"plugin.loader:value:")
+GRANADA_DEFAULT(plugin_store,                       "plugin:store:")
+GRANADA_DEFAULT(plugin_value,                       "plugin:value:")
+GRANADA_DEFAULT(plugin_handler_value,               "plugin.handler:value:")
+GRANADA_DEFAULT(plugin_event_value,                 "plugin.event:value:")
 
 
 #endif // _CACHE_NAMESPACES
@@ -36,141 +36,141 @@ DAT(plugin_event_value,                 "plugin.event:value:")
 // OAuth 2.0 constants
 //
 // OAuth 2.0 Client keys
-DAT(oauth2_client_application_name,     "application.name")
-DAT(oauth2_client_id,                   "client.id")
-DAT(oauth2_client_client_type,          "client.type")
-DAT(oauth2_client_creation_time,        "creation.time")
-DAT(oauth2_client_key,                  "key")
-DAT(oauth2_client_redirect_uris,        "redirect.uris")
-DAT(oauth2_client_roles,                "roles")
-DAT(oauth2_client_username,             "username")
+GRANADA_DEFAULT(oauth2_client_application_name,     "application.name")
+GRANADA_DEFAULT(oauth2_client_id,                   "client.id")
+GRANADA_DEFAULT(oauth2_client_client_type,          "client.type")
+GRANADA_DEFAULT(oauth2_client_creation_time,        "creation.time")
+GRANADA_DEFAULT(oauth2_client_key,                  "key")
+GRANADA_DEFAULT(oauth2_client_redirect_uris,        "redirect.uris")
+GRANADA_DEFAULT(oauth2_client_roles,                "roles")
+GRANADA_DEFAULT(oauth2_client_username,             "username")
 // OAuth 2.0 Code keys
-DAT(oauth2_code_client_id,              "client.id")
-DAT(oauth2_code_code,                   "code")
-DAT(oauth2_code_creation_time,          "creation.time")
-DAT(oauth2_code_roles,                  "roles")
-DAT(oauth2_code_username,               "username")
+GRANADA_DEFAULT(oauth2_code_client_id,              "client.id")
+GRANADA_DEFAULT(oauth2_code_code,                   "code")
+GRANADA_DEFAULT(oauth2_code_creation_time,          "creation.time")
+GRANADA_DEFAULT(oauth2_code_roles,                  "roles")
+GRANADA_DEFAULT(oauth2_code_username,               "username")
 // OAuth 2.0 User keys
-DAT(oauth2_user_creation_time,          "creation.time")
-DAT(oauth2_user_key,                    "key")
-DAT(oauth2_user_roles,                  "roles")
-DAT(oauth2_user_username,               "username")
-DAT(oauth2_session_role,                "__OAUTH2")
-DAT(oauth2_session_role_username,       "oauth2.user:username")
+GRANADA_DEFAULT(oauth2_user_creation_time,          "creation.time")
+GRANADA_DEFAULT(oauth2_user_key,                    "key")
+GRANADA_DEFAULT(oauth2_user_roles,                  "roles")
+GRANADA_DEFAULT(oauth2_user_username,               "username")
+GRANADA_DEFAULT(oauth2_session_role,                "__OAUTH2")
+GRANADA_DEFAULT(oauth2_session_role_username,       "oauth2.user:username")
 
 ////
 // Session entities keys
 //
-DAT(session_cookie,                     "cookie")
-DAT(session_json,                       "json")
-DAT(session_query,                      "query")
-DAT(session_garbage_extra_timeout,        "session_garbage_extra_timeout")
-DAT(session_clean_frequency,            "session_clean_frequency")
-DAT(session_set_cookie,                 "Set-Cookie")
-DAT(session_timeout,                    "session_timeout")
-DAT(session_token_support,              "session_token_support")
-DAT(session_token_label,                "session_token_label")
-DAT(session_token_length,               "session_token_length")
-DAT(session_token,                      "token")
-DAT(session_update_time,                "update.time")
-DAT(session_json_update_time,           "update_time")
+GRANADA_DEFAULT(session_cookie,                     "cookie")
+GRANADA_DEFAULT(session_json,                       "json")
+GRANADA_DEFAULT(session_query,                      "query")
+GRANADA_DEFAULT(session_garbage_extra_timeout,        "session_garbage_extra_timeout")
+GRANADA_DEFAULT(session_clean_frequency,            "session_clean_frequency")
+GRANADA_DEFAULT(session_set_cookie,                 "Set-Cookie")
+GRANADA_DEFAULT(session_timeout,                    "session_timeout")
+GRANADA_DEFAULT(session_token_support,              "session_token_support")
+GRANADA_DEFAULT(session_token_label,                "session_token_label")
+GRANADA_DEFAULT(session_token_length,               "session_token_length")
+GRANADA_DEFAULT(session_token,                      "token")
+GRANADA_DEFAULT(session_update_time,                "update.time")
+GRANADA_DEFAULT(session_json_update_time,           "update_time")
 
-DAT(oauth2_client_value_namespace,      "oauth2_client_value_namespace")
-DAT(oauth2_client_id_length,            "oauth2_client_id_length")
-DAT(oauth2_user_value_namespace,        "oauth2_user_value_namespace")
-DAT(oauth2_code_length,                 "oauth2_code_length")
-DAT(oauth2_code_value_namespace,        "oauth2_code_value_namespace")
+GRANADA_DEFAULT(oauth2_client_value_namespace,      "oauth2_client_value_namespace")
+GRANADA_DEFAULT(oauth2_client_id_length,            "oauth2_client_id_length")
+GRANADA_DEFAULT(oauth2_user_value_namespace,        "oauth2_user_value_namespace")
+GRANADA_DEFAULT(oauth2_code_length,                 "oauth2_code_length")
+GRANADA_DEFAULT(oauth2_code_value_namespace,        "oauth2_code_value_namespace")
 
-DAT(oauth2_authorizing_login_template,  "oauth2_authorizing_login_template")
-DAT(oauth2_authorizing_message_template,"oauth2_authorizing_message_template")
-DAT(oauth2_logout_template,             "oauth2_logout_template")
-DAT(oauth2_authorizing_error_template,  "oauth2_authorizing_error_template")
-DAT(oauth2_authorize_uri,               "oauth2_authorize_uri")
-DAT(oauth2_logout_uri,                  "oauth2_logout_uri")
-DAT(oauth2_use_refresh_token,           "use_refresh_token")
+GRANADA_DEFAULT(oauth2_authorizing_login_template,  "oauth2_authorizing_login_template")
+GRANADA_DEFAULT(oauth2_authorizing_message_template,"oauth2_authorizing_message_template")
+GRANADA_DEFAULT(oauth2_logout_template,             "oauth2_logout_template")
+GRANADA_DEFAULT(oauth2_authorizing_error_template,  "oauth2_authorizing_error_template")
+GRANADA_DEFAULT(oauth2_authorize_uri,               "oauth2_authorize_uri")
+GRANADA_DEFAULT(oauth2_logout_uri,                  "oauth2_logout_uri")
+GRANADA_DEFAULT(oauth2_use_refresh_token,           "use_refresh_token")
 
-DAT(oauth2_info_uri,                    "oauth2_info_uri")
+GRANADA_DEFAULT(oauth2_info_uri,                    "oauth2_info_uri")
 
-DAT(oauth2_authorization_form_action,   "action")
+GRANADA_DEFAULT(oauth2_authorization_form_action,   "action")
 
-DAT(oauth2_authorization_namespace,     "oauth2_authorization_namespace")
+GRANADA_DEFAULT(oauth2_authorization_namespace,     "oauth2_authorization_namespace")
 
 ////
 // Cache entities keys
 //
-DAT(redis_cache_driver_address,         "redis_cache_driver_address")
-DAT(redis_cache_driver_port,            "redis_cache_driver_port")
+GRANADA_DEFAULT(redis_cache_driver_address,         "redis_cache_driver_address")
+GRANADA_DEFAULT(redis_cache_driver_port,            "redis_cache_driver_port")
 
 ////
 // Http parser
 //
-DAT(http_parser_cookie,                 "Cookie")
-DAT(http_parser_boundary_delimiter,     "; boundary=----")
-DAT(http_parser_property_name_label,    "name")
-DAT(http_parser_property_value_label,   "value")
+GRANADA_DEFAULT(http_parser_cookie,                 "Cookie")
+GRANADA_DEFAULT(http_parser_boundary_delimiter,     "; boundary=----")
+GRANADA_DEFAULT(http_parser_property_name_label,    "name")
+GRANADA_DEFAULT(http_parser_property_value_label,   "value")
 
-DAT(_true,                              "true")
+GRANADA_DEFAULT(_true,                              "true")
 
 ////
 // Plugin entities keys
 //
-DAT(plugin_id,                          "plugin_id")
-DAT(plugin_cached_parameters,			"cached.parameters")
-DAT(plugin_cached_response,				"cached.response")
-DAT(plugin_event,                       "event")
-DAT(plugin_handler_id,					"id")
-DAT(plugin_handler_last_use,			"last.use")
-DAT(plugin_handler_runner_last_use,		"runner.last.use")
-DAT(plugin_handler_repositories,		"repositories")
-DAT(plugin_parameters,					"parameters")
-DAT(plugin_parameter_plugin_handler_id,	"__PLUGIN_HANDLER_ID")
-DAT(plugin_parameter_plugin_id,			"__PLUGIN_ID")
-DAT(plugin_parameter_id,				"id")
-DAT(plugin_parameter_event_name,		"event_name")
-DAT(plugin_parameter_key,				"key")
-DAT(plugin_parameter_value,				"value")
-DAT(plugin_parameter_to_ids,			"to_ids")
-DAT(plugin_parameter_from,				"from")
-DAT(plugin_parameter_data,				"data")
-DAT(plugin_header,						"header")
-DAT(plugin_header_id,					"id")
-DAT(plugin_header_active,		        "active")
-DAT(plugin_header_events,				"events")
-DAT(plugin_header_extends,				"extends")
-DAT(plugin_header_loader,				"loader")
-DAT(plugin_loader_load,					"load")
-DAT(plugin_loader_events,				"events")
-DAT(plugin_configuration,				"configuration")
-DAT(plugin_script,						"script")
-DAT(plugin_parameter_configuration,		"__PLUGIN_CONFIGURATION")
-DAT(plugin_init_ph_after_event,			"plugin_init_ph_after_event")
-DAT(plugin_bytes_limit,					"plugin_bytes_limit")
-DAT(plugin_runner_use_frequency_limit,	"plugin_runner_use_frequency_limit")
-DAT(plugin_handler_use_frequency_limit,	"plugin_handler_use_frequency_limit")
-DAT(plugin_userfiles_directory,			"plugin_userfiles_directory")
-DAT(plugin_publicfiles_directory,		"plugin_publicfiles_directory")
-DAT(plugin_extension_ids,				"extension.ids")
-DAT(plugin_extended,					"extended")
-DAT(plugin_event_ids,					"ids")
-DAT(plugin_event_loader,				"loader")
-DAT(plugin_event_script,				"script")
-DAT(plugin_role_select,					"plugin.select")
-DAT(plugin_role_insert,					"plugin.insert")
-DAT(plugin_role_update,					"plugin.update")
-DAT(plugin_role_delete,					"plugin.delete")
-DAT(plugin_allow_client_to_fire_events,	"plugin_allow_client_to_fire_events")
-DAT(plugin_allow_client_to_run_plugins,	"plugin_allow_client_to_run_plugins")
-DAT(plugin_allow_client_to_send_messages,"plugin_allow_client_to_send_messages")
-DAT(plugin_allow_client_to_run_commands,"plugin_allow_client_to_run_commands")
-DAT(plugin_script_function_send_message,"__sendMessage")
-DAT(plugin_script_function_set_value,	"__setValue")
-DAT(plugin_script_function_get_value,	"__getValue")
-DAT(plugin_script_function_destroy_value,"__destroyValue")
-DAT(plugin_script_function_clear_values,"__clearValues")
-DAT(plugin_script_function_fire,		"__fire")
-DAT(plugin_script_function_run_plugin,	"__runPlugin")
-DAT(plugin_script_function_remove,		"__remove")
-DAT(plugin_script_function_remove_events,"__removeEvents")
+GRANADA_DEFAULT(plugin_id,                          "plugin_id")
+GRANADA_DEFAULT(plugin_cached_parameters,			"cached.parameters")
+GRANADA_DEFAULT(plugin_cached_response,				"cached.response")
+GRANADA_DEFAULT(plugin_event,                       "event")
+GRANADA_DEFAULT(plugin_handler_id,					"id")
+GRANADA_DEFAULT(plugin_handler_last_use,			"last.use")
+GRANADA_DEFAULT(plugin_handler_runner_last_use,		"runner.last.use")
+GRANADA_DEFAULT(plugin_handler_repositories,		"repositories")
+GRANADA_DEFAULT(plugin_parameters,					"parameters")
+GRANADA_DEFAULT(plugin_parameter_plugin_handler_id,	"__PLUGIN_HANDLER_ID")
+GRANADA_DEFAULT(plugin_parameter_plugin_id,			"__PLUGIN_ID")
+GRANADA_DEFAULT(plugin_parameter_id,				"id")
+GRANADA_DEFAULT(plugin_parameter_event_name,		"event_name")
+GRANADA_DEFAULT(plugin_parameter_key,				"key")
+GRANADA_DEFAULT(plugin_parameter_value,				"value")
+GRANADA_DEFAULT(plugin_parameter_to_ids,			"to_ids")
+GRANADA_DEFAULT(plugin_parameter_from,				"from")
+GRANADA_DEFAULT(plugin_parameter_data,				"data")
+GRANADA_DEFAULT(plugin_header,						"header")
+GRANADA_DEFAULT(plugin_header_id,					"id")
+GRANADA_DEFAULT(plugin_header_active,		        "active")
+GRANADA_DEFAULT(plugin_header_events,				"events")
+GRANADA_DEFAULT(plugin_header_extends,				"extends")
+GRANADA_DEFAULT(plugin_header_loader,				"loader")
+GRANADA_DEFAULT(plugin_loader_load,					"load")
+GRANADA_DEFAULT(plugin_loader_events,				"events")
+GRANADA_DEFAULT(plugin_configuration,				"configuration")
+GRANADA_DEFAULT(plugin_script,						"script")
+GRANADA_DEFAULT(plugin_parameter_configuration,		"__PLUGIN_CONFIGURATION")
+GRANADA_DEFAULT(plugin_init_ph_after_event,			"plugin_init_ph_after_event")
+GRANADA_DEFAULT(plugin_bytes_limit,					"plugin_bytes_limit")
+GRANADA_DEFAULT(plugin_runner_use_frequency_limit,	"plugin_runner_use_frequency_limit")
+GRANADA_DEFAULT(plugin_handler_use_frequency_limit,	"plugin_handler_use_frequency_limit")
+GRANADA_DEFAULT(plugin_userfiles_directory,			"plugin_userfiles_directory")
+GRANADA_DEFAULT(plugin_publicfiles_directory,		"plugin_publicfiles_directory")
+GRANADA_DEFAULT(plugin_extension_ids,				"extension.ids")
+GRANADA_DEFAULT(plugin_extended,					"extended")
+GRANADA_DEFAULT(plugin_event_ids,					"ids")
+GRANADA_DEFAULT(plugin_event_loader,				"loader")
+GRANADA_DEFAULT(plugin_event_script,				"script")
+GRANADA_DEFAULT(plugin_role_select,					"plugin.select")
+GRANADA_DEFAULT(plugin_role_insert,					"plugin.insert")
+GRANADA_DEFAULT(plugin_role_update,					"plugin.update")
+GRANADA_DEFAULT(plugin_role_delete,					"plugin.delete")
+GRANADA_DEFAULT(plugin_allow_client_to_fire_events,	"plugin_allow_client_to_fire_events")
+GRANADA_DEFAULT(plugin_allow_client_to_run_plugins,	"plugin_allow_client_to_run_plugins")
+GRANADA_DEFAULT(plugin_allow_client_to_send_messages,"plugin_allow_client_to_send_messages")
+GRANADA_DEFAULT(plugin_allow_client_to_run_commands,"plugin_allow_client_to_run_commands")
+GRANADA_DEFAULT(plugin_script_function_send_message,"__sendMessage")
+GRANADA_DEFAULT(plugin_script_function_set_value,	"__setValue")
+GRANADA_DEFAULT(plugin_script_function_get_value,	"__getValue")
+GRANADA_DEFAULT(plugin_script_function_destroy_value,"__destroyValue")
+GRANADA_DEFAULT(plugin_script_function_clear_values,"__clearValues")
+GRANADA_DEFAULT(plugin_script_function_fire,		"__fire")
+GRANADA_DEFAULT(plugin_script_function_run_plugin,	"__runPlugin")
+GRANADA_DEFAULT(plugin_script_function_remove,		"__remove")
+GRANADA_DEFAULT(plugin_script_function_remove_events,"__removeEvents")
 
 #endif // _ENTITY_KEYS
 
@@ -179,131 +179,131 @@ DAT(plugin_script_function_remove_events,"__removeEvents")
 ////
 // OAuth 2.0 entities nonce lengths
 //
-DAT(oauth2_client_id,                   16)
-DAT(oauth2_code,                        64)
+GRANADA_DEFAULT(oauth2_client_id,                   16)
+GRANADA_DEFAULT(oauth2_code,                        64)
 
 ////
 // Session entities nonce lengths
 //
 // Default token length. This default value is taken in case "session_default_token_length" property is not found.
-DAT(session_token,                      64)
+GRANADA_DEFAULT(session_token,                      64)
 #endif // _NONCE_LENGTHS
 
-#ifdef _DEFAULT_STRINGS
+#ifdef _GRANADA_DEFAULT_STRINGS
 // Default token name, the cookie name containing the token or, in case of
 // using POST or GET, the key name of the token value.
 // This default value is taken in case "session_token_label" property is not found.
-DAT(session_token_support,              "cookie")
-DAT(session_second_token_support,       "json")
-DAT(session_token_label,                "token")
+GRANADA_DEFAULT(session_token_support,              "cookie")
+GRANADA_DEFAULT(session_second_token_support,       "json")
+GRANADA_DEFAULT(session_token_label,                "token")
 
-DAT(oauth2_authorize_uri,               "auth")
-DAT(oauth2_logout_uri,                  "logout")
-DAT(oauth2_info_uri,                    "info")
-DAT(oauth2_use_refresh_token,           "false")
+GRANADA_DEFAULT(oauth2_authorize_uri,               "auth")
+GRANADA_DEFAULT(oauth2_logout_uri,                  "logout")
+GRANADA_DEFAULT(oauth2_info_uri,                    "info")
+GRANADA_DEFAULT(oauth2_use_refresh_token,           "false")
 
 // Address used in case "redis_cache_driver_address" property is not provided.
-DAT(redis_cache_redis_address,          "127.0.0.1")
+GRANADA_DEFAULT(redis_cache_redis_address,          "127.0.0.1")
 // Port used in case "redis_cache_driver_port" property is not provided.
-DAT(redis_cache_redis_port,             "6379")
+GRANADA_DEFAULT(redis_cache_redis_port,             "6379")
 
 ////
 // Plugin
 //
-DAT(plugin_eager_load,                  "eager")
-DAT(plugin_error,						"error")
-DAT(plugin_error_description,			"error_description")
-DAT(plugin_lazy_load,                   "lazy")
-DAT(plugin_store,						"store")
-DAT(plugin_value,						"value")
-DAT(plugin_init_ph_event,				"init-ph")
-DAT(plugin_add_event,					"plugin-add")
-DAT(plugin_remove_event,				"plugin-remove")
-DAT(plugin_configuration_load_event,	"plugin-configuration-load")
-DAT(plugin_run_failure_event,			"plugin-run-failure")
-DAT(plugin_extended_true,				"TRUE")
-DAT(plugin_server_directory_name,		"server")
-DAT(plugin_client_directory_name,		"client")
-DAT(plugin_configuration_file_name,		"configuration")
-DAT(plugin_configuration_file_extension,"json")
-DAT(plugin_header_file_extension,		"json")
-DAT(plugin_publicfiles_directory,		"publicfiles/plugins")
-DAT(plugin_userfiles_directory,			"userfiles/{{user.directory}}/plugins")
-DAT(plugin_user_directory,				"user.directory")
-DAT(plugin_before,						"before")
-DAT(plugin_in_process,					"in-process")
-DAT(plugin_after,						"after")
-DAT(plugin_command,						"command")
-DAT(plugin_command_reset,				"RESET")
-DAT(plugin_command_stop,				"STOP")
-DAT(plugin_properties_true,				"TRUE")
-DAT(plugin_properties_false,			"FALSE")
-DAT(plugin_function_stop_plugin_handler,"StopPluginHandler")
+GRANADA_DEFAULT(plugin_eager_load,                  "eager")
+GRANADA_DEFAULT(plugin_error,						"error")
+GRANADA_DEFAULT(plugin_error_description,			"error_description")
+GRANADA_DEFAULT(plugin_lazy_load,                   "lazy")
+GRANADA_DEFAULT(plugin_store,						"store")
+GRANADA_DEFAULT(plugin_value,						"value")
+GRANADA_DEFAULT(plugin_init_ph_event,				"init-ph")
+GRANADA_DEFAULT(plugin_add_event,					"plugin-add")
+GRANADA_DEFAULT(plugin_remove_event,				"plugin-remove")
+GRANADA_DEFAULT(plugin_configuration_load_event,	"plugin-configuration-load")
+GRANADA_DEFAULT(plugin_run_failure_event,			"plugin-run-failure")
+GRANADA_DEFAULT(plugin_extended_true,				"TRUE")
+GRANADA_DEFAULT(plugin_server_directory_name,		"server")
+GRANADA_DEFAULT(plugin_client_directory_name,		"client")
+GRANADA_DEFAULT(plugin_configuration_file_name,		"configuration")
+GRANADA_DEFAULT(plugin_configuration_file_extension,"json")
+GRANADA_DEFAULT(plugin_header_file_extension,		"json")
+GRANADA_DEFAULT(plugin_publicfiles_directory,		"publicfiles/plugins")
+GRANADA_DEFAULT(plugin_userfiles_directory,			"userfiles/{{user.directory}}/plugins")
+GRANADA_DEFAULT(plugin_user_directory,				"user.directory")
+GRANADA_DEFAULT(plugin_before,						"before")
+GRANADA_DEFAULT(plugin_in_process,					"in-process")
+GRANADA_DEFAULT(plugin_after,						"after")
+GRANADA_DEFAULT(plugin_command,						"command")
+GRANADA_DEFAULT(plugin_command_reset,				"RESET")
+GRANADA_DEFAULT(plugin_command_stop,				"STOP")
+GRANADA_DEFAULT(plugin_properties_true,				"TRUE")
+GRANADA_DEFAULT(plugin_properties_false,			"FALSE")
+GRANADA_DEFAULT(plugin_function_stop_plugin_handler,"StopPluginHandler")
 
-DAT(runner_error,						"error")
-DAT(runner_error_description,			"error_description")
-#endif // _DEFAULT_STRINGS
+GRANADA_DEFAULT(runner_error,						"error")
+GRANADA_DEFAULT(runner_error_description,			"error_description")
+#endif // _GRANADA_DEFAULT_STRINGS
 
-#ifdef _DEFAULT_NUMBERS
+#ifdef _GRANADA_DEFAULT_NUMBERS
 ////
 // Session default numbers
 //
 // Default session timeout seconds, by default one day = 86400 seconds.
 // This default value is taken in case "session_timeout" property is not found.
-DAT(session_timeout,                     86400)
+GRANADA_DEFAULT(session_timeout,                     86400)
 
 // Default frequency in seconds the CleanSessions function will be executed.
 // This default value is taken in case "session_clean_frequency" property is not found.
 // By default every hour = 3600 seconds.
-DAT(session_clean_sessions_frequency,    3600)
+GRANADA_DEFAULT(session_clean_sessions_frequency,    3600)
 // This default value is taken in case "session_garbage_extra_timeout" property is not found.
-DAT(session_session_garbage_extra_timeout, 0)
+GRANADA_DEFAULT(session_session_garbage_extra_timeout, 0)
 
 // Default maximum bytes a Plug-in Hadler can load.
 // 10 MB.
-DAT(plugin_bytes_limit, 10000000)
+GRANADA_DEFAULT(plugin_bytes_limit, 10000000)
 
 // The minimum time the plug-in handler
 // has to wait between two script/executable
 // runs in milliseconds.
 // default is 20 ms;
-DAT(plugin_runner_use_frequency_limit, 	20)
+GRANADA_DEFAULT(plugin_runner_use_frequency_limit, 	20)
 
-DAT(plugin_handler_use_frequency_limit,	0)
-
-
-DAT(runner_spidermonkey_runtime_maxbytes,8388608)
-DAT(runner_spidermonkey_context_stackchunksize,8192)
+GRANADA_DEFAULT(plugin_handler_use_frequency_limit,	0)
 
 
+GRANADA_DEFAULT(runner_spidermonkey_runtime_maxbytes,8388608)
+GRANADA_DEFAULT(runner_spidermonkey_context_stackchunksize,8192)
 
-#endif // _DEFAULT_NUMBERS
 
 
-#ifdef _DEFAULT_ERRORS
-DAT(plugin_malformed_parameters, 		"malformed_parameters")
-DAT(plugin_missing_parameter,			"missing_parameter")
-DAT(plugin_unknown_command, 			"unknown_command")
-DAT(plugin_forbidden_command,			"forbidden_command")
-DAT(plugin_undefined_plugin,			"undefined_plugin")
-DAT(plugin_server_error,				"server_error")
-DAT(plugin_bytes_limit_exceeded,		"bytes_limit_exceeded")
-DAT(plugin_undefined_plugin_hanler,		"undefined_plugin_hanler")
-DAT(plugin_empty_script,	 			"empty_script")
+#endif // _GRANADA_DEFAULT_NUMBERS
 
-DAT(runner_malformed_parameters,		"malformed_parameters")
-DAT(runner_undefined_function,			"undefined_function")
-DAT(runner_script_error,				"script_error")
-DAT(runner_initialization_error,		"runner_initialization_error")
-#endif // _DEFAULT_ERRORS
 
-#ifdef _DEFAULT_ERROR_DESCRIPTIONS
-DAT(plugin_malformed_parameters, 		"One or more of the given parameters has the wrong type.")
-DAT(plugin_missing_parameter,			"One or more of the given parameters is missing.")
-DAT(plugin_undefined_plugin,			"Plug-in could not be found with given plug-in id.")
-DAT(plugin_server_error,				"There has been a server error.")
-DAT(plugin_bytes_limit_exceeded,		"Plug-in Handler could not preload all plug-ins, because they exceed the byte limit. This limit is set for server security reasons. Contact the administrator if you need to increase the limit.")
-DAT(plugin_undefined_plugin_hanler,		"Plug-in Handler could not be found with given id.")
+#ifdef _GRANADA_DEFAULT_ERRORS
+GRANADA_DEFAULT(plugin_malformed_parameters, 		"malformed_parameters")
+GRANADA_DEFAULT(plugin_missing_parameter,			"missing_parameter")
+GRANADA_DEFAULT(plugin_unknown_command, 			"unknown_command")
+GRANADA_DEFAULT(plugin_forbidden_command,			"forbidden_command")
+GRANADA_DEFAULT(plugin_undefined_plugin,			"undefined_plugin")
+GRANADA_DEFAULT(plugin_server_error,				"server_error")
+GRANADA_DEFAULT(plugin_bytes_limit_exceeded,		"bytes_limit_exceeded")
+GRANADA_DEFAULT(plugin_undefined_plugin_hanler,		"undefined_plugin_hanler")
+GRANADA_DEFAULT(plugin_empty_script,	 			"empty_script")
 
-DAT(runner_malformed_parameters, 		"One or more of the given parameters has the wrong type.")
-#endif // _DEFAULT_ERROR_DESCRIPTIONS
+GRANADA_DEFAULT(runner_malformed_parameters,		"malformed_parameters")
+GRANADA_DEFAULT(runner_undefined_function,			"undefined_function")
+GRANADA_DEFAULT(runner_script_error,				"script_error")
+GRANADA_DEFAULT(runner_initialization_error,		"runner_initialization_error")
+#endif // _GRANADA_DEFAULT_ERRORS
+
+#ifdef _GRANADA_DEFAULT_ERROR_DESCRIPTIONS
+GRANADA_DEFAULT(plugin_malformed_parameters, 		"One or more of the given parameters has the wrong type.")
+GRANADA_DEFAULT(plugin_missing_parameter,			"One or more of the given parameters is missing.")
+GRANADA_DEFAULT(plugin_undefined_plugin,			"Plug-in could not be found with given plug-in id.")
+GRANADA_DEFAULT(plugin_server_error,				"There has been a server error.")
+GRANADA_DEFAULT(plugin_bytes_limit_exceeded,		"Plug-in Handler could not preload all plug-ins, because they exceed the byte limit. This limit is set for server security reasons. Contact the administrator if you need to increase the limit.")
+GRANADA_DEFAULT(plugin_undefined_plugin_hanler,		"Plug-in Handler could not be found with given id.")
+
+GRANADA_DEFAULT(runner_malformed_parameters, 		"One or more of the given parameters has the wrong type.")
+#endif // _GRANADA_DEFAULT_ERROR_DESCRIPTIONS

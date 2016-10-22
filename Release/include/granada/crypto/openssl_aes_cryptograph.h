@@ -53,34 +53,45 @@ namespace granada{
         // override
         std::string Encrypt(const std::string& text, std::string password) override {
           password += "qwertyuiopasdfghjklzxcvbnmqwertyqwertyuiopasdfghjklzxcvbnmqwerty";
-          unsigned char text_to_encrypt[text.size()+1];
+		  
+		  const int text_size = text.size() + 1;
+		  unsigned char *text_to_encrypt = new unsigned char[text_size]();
           memcpy(text_to_encrypt,text.c_str(),text.size()+1);
-          unsigned char key[password.size()+1];
+
+		  const int key_size = password.size() + 1;
+		  unsigned char *key = new unsigned char[key_size]();
+
           memcpy(key,password.c_str(),password.size()+1);
-          unsigned char enc_out[AES_SIZE];
+		  unsigned char enc_out[256];
           AES_KEY enc_key;
-          AES_set_encrypt_key(key, AES_SIZE, &enc_key);
+          AES_set_encrypt_key(key, 256, &enc_key);
           AES_encrypt(text_to_encrypt, enc_out, &enc_key);
-          return std::string(reinterpret_cast<const char*>(enc_out),AES_SIZE);
+
+		  delete[] text_to_encrypt;
+		  delete[] key;
+          return std::string(reinterpret_cast<const char*>(enc_out),256);
         };
 
         // override
         std::string Decrypt(const std::string& text, std::string password) override {
           password += "qwertyuiopasdfghjklzxcvbnmqwertyqwertyuiopasdfghjklzxcvbnmqwerty";
-          unsigned char key[password.size()+1];
+
+		  const int key_size = password.size() + 1;
+		  unsigned char *key = new unsigned char[key_size]();
           memcpy(key,password.c_str(),password.size()+1);
-          unsigned char dec_out[AES_SIZE];
+
+          unsigned char dec_out[256];
           AES_KEY dec_key;
-          AES_set_decrypt_key(key,AES_SIZE,&dec_key);
-          unsigned char crypted_text[AES_SIZE];
-          memcpy(crypted_text,text.c_str(),AES_SIZE);
+          AES_set_decrypt_key(key,256,&dec_key);
+
+          unsigned char crypted_text[256];
+          memcpy(crypted_text,text.c_str(),256);
           AES_decrypt(crypted_text, dec_out, &dec_key);
+
+		  delete[] key;
+
           return std::string(reinterpret_cast<const char*>(dec_out));
         };
-
-
-      private:
-        const int AES_SIZE = 256;
 
     };
   }

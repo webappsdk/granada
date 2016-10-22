@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include "cpprest/details/basic_types.h"
 #include "cpprest/asyncrt_utils.h"
 
 namespace granada{
@@ -58,7 +59,7 @@ namespace granada{
          */
         std::string generate(int& length) override {
           n_generator_->set_length(length);
-          return n_generator_->generate();
+          return utility::conversions::to_utf8string(n_generator_->generate());
         };
 
       private:

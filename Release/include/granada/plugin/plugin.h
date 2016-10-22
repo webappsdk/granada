@@ -33,6 +33,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include "cpprest/details/basic_types.h"
 #include "cpprest/json.h"
 #include "boost/filesystem.hpp"
 #include "granada/defaults.h"

@@ -26,31 +26,31 @@
 #include "granada/http/oauth2/oauth2.h"
 
 #define _OAUTH2_ERRORS
-#define DAT(a_, b_) const oauth2_error oauth2_errors::a_(_XPLATSTR(b_));
+#define HTTP_CONSTANT(a_, b_) const oauth2_error oauth2_errors::a_(std::string(b_));
 #include "granada/http/http_constants.dat"
 #undef _OAUTH2_ERRORS
-#undef DAT
+#undef HTTP_CONSTANT
 
 #define _OAUTH2_ERRORS_DESCRIPTION
-#define DAT(a_, b_) const oauth2_error_description oauth2_errors_description::a_(_XPLATSTR(b_));
+#define HTTP_CONSTANT(a_, b_) const oauth2_error_description oauth2_errors_description::a_(std::string(b_));
 #include "granada/http/http_constants.dat"
 #undef _OAUTH2_ERRORS_DESCRIPTION
-#undef DAT
+#undef HTTP_CONSTANT
 
 #define _OAUTH2_CLIENT_TYPES
-#define DAT(a_, b_) const oauth2_client_type oauth2_client_types::a_(_XPLATSTR(b_));
+#define HTTP_CONSTANT(a_, b_) const oauth2_client_type oauth2_client_types::a_(std::string(b_));
 #include "granada/http/http_constants.dat"
 #undef _OAUTH2_CLIENT_TYPES
-#undef DAT
+#undef HTTP_CONSTANT
 
 #define _OAUTH2_STRINGS_2
-#define DAT(a_, b_) const oauth2_string_2 oauth2_strings_2::a_(_XPLATSTR(b_));
+#define HTTP_CONSTANT(a_, b_) const oauth2_string_2 oauth2_strings_2::a_(std::string(b_));
 #include "granada/http/http_constants.dat"
 #undef _OAUTH2_STRINGS_2
-#undef DAT
+#undef HTTP_CONSTANT
 
 #define _TEMPLATES
-#define TEMPLATES(a_, b_) const oauth2_template oauth2_templates::a_(_XPLATSTR(b_));
+#define TEMPLATES(a_, b_) const oauth2_template oauth2_templates::a_(std::string(b_));
 #include "granada/http/oauth2/oauth2.templates"
 #undef _TEMPLATES
 #undef TEMPLATES
@@ -177,7 +177,7 @@ namespace granada{
           try{
             //client_id_length_ = std::stoi(oauth2_client_id_length_str);
             client_id_length_ = nonce_lengths::oauth2_client_id;
-          }catch(const std::logic_error& e){
+          }catch(const std::logic_error e){
             client_id_length_ = nonce_lengths::oauth2_client_id;
           }
         }
@@ -221,11 +221,11 @@ namespace granada{
           cache()->Write(hash, entity_keys::oauth2_user_key, key);
           std::string roles_str;
           try{
-            roles_str = roles.serialize();
+            roles_str = utility::conversions::to_utf8string(roles.serialize());
             roles_ = roles;
-          }catch(const web::json::json_exception& e){
+          }catch(const web::json::json_exception e){
             roles_str = "{}";
-            roles_ = web::json::value::parse(roles_str);
+			roles_ = web::json::value::parse(utility::conversions::to_string_t(roles_str));
           }
           cache()->Write(hash, entity_keys::oauth2_user_roles, roles_str);
           cache()->Write(hash, entity_keys::oauth2_user_creation_time, granada::util::time::stringify(std::time(nullptr)));
@@ -242,10 +242,10 @@ namespace granada{
           std::string roles_str(cache()->Read(hash, entity_keys::oauth2_user_roles));
 
           try{
-            roles_ = web::json::value::parse(roles_str);
-          }catch(const web::json::json_exception& e){
+			  roles_ = web::json::value::parse(utility::conversions::to_string_t(roles_str));
+          }catch(const web::json::json_exception e){
             roles_str = "{}";
-            roles_ = web::json::value::parse(roles_str);
+			roles_ = web::json::value::parse(utility::conversions::to_string_t(roles_str));
           }
 
           const std::string& creation_time_str(cache()->Read(hash, entity_keys::oauth2_user_creation_time));
@@ -367,7 +367,7 @@ namespace granada{
         }else{
           try{
             code_length_ = std::stoi(oauth2_code_length_str);
-          }catch(const std::logic_error& e){
+          }catch(const std::logic_error e){
             code_length_ = nonce_lengths::oauth2_code;
           }
         }
@@ -414,7 +414,7 @@ namespace granada{
         try{
           // if grant_type=refresh_token use grant type code as we will use the same resources and
           // the response will be the same as a code grant type.
-          if (oauth2_parameters_.grant_type == oauth2_strings::refresh_token){
+			if (oauth2_parameters_.grant_type == utility::conversions::to_utf8string(oauth2_strings::refresh_token)){
             oauth2_parameters_.grant_type = entity_keys::oauth2_code_code;
             oauth2_parameters_.code = oauth2_parameters_.refresh_token;
           }
@@ -469,7 +469,7 @@ namespace granada{
 
               // check if client is allowed to have the demanded scope/roles.
               if (CheckRoleAllowance(roles, oauth2_client.get(), oauth2_user.get())){
-                if (oauth2_parameters_.response_type == oauth2_strings::code){
+				  if (oauth2_parameters_.response_type == utility::conversions::to_utf8string(oauth2_strings::code)){
                   // respond with the requested code.
                   CreateCode(oauth2_user_session, oauth2_code, oauth2_user.get(),oauth2_response,request,response);
                   oauth2_parameters_.code = oauth2_code->GetCode();
@@ -489,7 +489,7 @@ namespace granada{
               }
             }
           }
-        }catch(const std::exception& e){
+        }catch(const std::exception e){
           // server error.
           oauth2_response.error = oauth2_errors::server_error;
           oauth2_response.error_description = oauth2_errors_description::server_error;
@@ -523,9 +523,9 @@ namespace granada{
           }
           if (redirect_uri_exists){
             // we can redirect to a URI related to the client.
-            if (oauth2_parameters_.response_type != oauth2_strings::code
-              && oauth2_parameters_.response_type != oauth2_strings::token
-              && oauth2_parameters_.grant_type != oauth2_strings::authorization_code){
+			  if (oauth2_parameters_.response_type != utility::conversions::to_utf8string(oauth2_strings::code)
+				  && oauth2_parameters_.response_type != utility::conversions::to_utf8string(oauth2_strings::token)
+				  && oauth2_parameters_.grant_type != utility::conversions::to_utf8string(oauth2_strings::authorization_code)){
 
               oauth2_response.error = oauth2_errors::unsupported_response_type;
               oauth2_response.error_description = oauth2_errors_description::unsupported_response_type;
@@ -549,7 +549,7 @@ namespace granada{
                                                  web::http::http_request& request,
                                                  web::http::http_response& response){
 
-        if (oauth2_parameters_.grant_type == oauth2_strings::authorization_code){
+		  if (oauth2_parameters_.grant_type == utility::conversions::to_utf8string(oauth2_strings::authorization_code)){
           // check if provided code is valid.
           if (oauth2_parameters_.code.empty()){
             oauth2_response.error = oauth2_errors::access_denied;
@@ -654,13 +654,13 @@ namespace granada{
         // set session roles
         AssignRolesToClientSession(roles,oauth2_user->GetRoles(),oauth2_client_session.get());
         oauth2_response.access_token = oauth2_client_session->GetToken();
-        oauth2_response.token_type = oauth2_strings::bearer;
+		oauth2_response.token_type = utility::conversions::to_utf8string(oauth2_strings::bearer);
         oauth2_response.scope = oauth2_parameters_.scope;
 
         oauth2_parameters_.username = oauth2_user->GetUsername();
         oauth2_parameters_.access_token = oauth2_response.access_token;
 
-        if (oauth2_parameters_.grant_type == oauth2_strings::authorization_code){
+		if (oauth2_parameters_.grant_type == utility::conversions::to_utf8string(oauth2_strings::authorization_code)){
           // Access Token Request
           if (oauth2_use_refresh_token_){
             // create refresh token
@@ -680,7 +680,7 @@ namespace granada{
         const long& session_timeout = oauth2_client_session->GetSessionTimeout();
         try{
           oauth2_response.expires_in.assign(std::to_string(session_timeout));
-        }catch(const std::exception& e){
+        }catch(const std::exception e){
           oauth2_response.expires_in.assign("-1");
         }
 
@@ -718,15 +718,15 @@ namespace granada{
         if (!user_roles.is_null()){
           for (auto it = roles.begin(); it != roles.end(); ++it){
             role.assign(*it);
-            if (user_roles.has_field(role)){
+            if (user_roles.has_field(utility::conversions::to_string_t(role))){
               oauth2_client_session->roles()->Add(role);
-              role_properties = user_roles.at(role);
+			  role_properties = user_roles.at(utility::conversions::to_string_t(role));
               if (role_properties.is_object()){
                 for(auto it = role_properties.as_object().cbegin(); it != role_properties.as_object().cend(); ++it){
-                  const std::string& property_name = it->first;
+					const std::string& property_name = utility::conversions::to_utf8string(it->first);
                   const web::json::value& property_value = it->second;
                   if (property_value.is_string()){
-                    oauth2_client_session->roles()->SetProperty(role, property_name, property_value.as_string());
+					  oauth2_client_session->roles()->SetProperty(role, property_name, utility::conversions::to_utf8string(property_value.as_string()));
                   }
                 }
               }
@@ -748,7 +748,7 @@ namespace granada{
 
         if(!user_roles.is_null()){
           for(auto it = user_roles.as_object().cbegin(); it != user_roles.as_object().cend(); ++it){
-            const std::string& role_name = it->first;
+			  const std::string& role_name = utility::conversions::to_utf8string(it->first);
             const web::json::value& role_properties = it->second;
 
             oauth2_user_session->roles()->Add(role_name);
@@ -756,10 +756,10 @@ namespace granada{
             // assign properties to role
             if (role_properties.is_object()){
               for(auto it2 = role_properties.as_object().cbegin(); it2 != role_properties.as_object().cend(); ++it2){
-                const std::string& property_name = it2->first;
+				  const std::string& property_name = utility::conversions::to_utf8string(it2->first);
                 const web::json::value& property_value = it2->second;
                 if (property_value.is_string()){
-                  oauth2_user_session->roles()->SetProperty(role_name, property_name, property_value.as_string());
+					oauth2_user_session->roles()->SetProperty(role_name, property_name, utility::conversions::to_utf8string(property_value.as_string()));
                 }
               }
             }
@@ -833,10 +833,10 @@ namespace granada{
         }
         web::json::value json;
         try{
-          json = web::json::value::parse(json_str);
-        }catch(const web::json::json_exception& e){
+			json = web::json::value::parse(utility::conversions::to_string_t(json_str));
+        }catch(const web::json::json_exception e){
           json_str = "{\"data\":[]}";
-          json = web::json::value::parse(json_str);
+		  json = web::json::value::parse(utility::conversions::to_string_t(json_str));
         }
         return json;
       }

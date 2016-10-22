@@ -26,9 +26,11 @@
 
 #pragma once
 
+#include <time.h>
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include "cpprest/details/basic_types.h"
 #include "cpprest/json.h"
 #include "boost/filesystem.hpp"
 #include <boost/functional/hash.hpp>

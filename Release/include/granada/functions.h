@@ -29,8 +29,10 @@
   */
 
 #pragma once
+#include <mutex>
 #include <string>
 #include <map>
+#include "cpprest/details/basic_types.h"
 #include "cpprest/json.h"
 
 namespace granada{
@@ -297,7 +299,8 @@ namespace granada{
        */
       static web::json::value UndefinedErrorFunction(const web::json::value& data){
         web::json::value response = web::json::value::object();
-        response["error"] = web::json::value::string("undefined_function");
+		response[U("error")] = web::json::value::string(U("undefined_function"));
+		return response;
       };
 
 

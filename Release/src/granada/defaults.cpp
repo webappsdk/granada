@@ -27,43 +27,43 @@
 #include "granada/defaults.h"
 
 #define _CACHE_NAMESPACES
-#define DAT(a_, b_) const cache_namespace cache_namespaces::a_(_XPLATSTR(b_));
+#define GRANADA_DEFAULT(a_, b_) const cache_namespace cache_namespaces::a_(std::string(b_));
 #include "granada/defaults.dat"
 #undef _CACHE_NAMESPACES
-#undef DAT
+#undef GRANADA_DEFAULT
 
 #define _ENTITY_KEYS
-#define DAT(a_, b_) const entity_key entity_keys::a_(_XPLATSTR(b_));
+#define GRANADA_DEFAULT(a_, b_) const entity_key entity_keys::a_(std::string(b_));
 #include "granada/defaults.dat"
 #undef _ENTITY_KEYS
-#undef DAT
+#undef GRANADA_DEFAULT
 
 #define _NONCE_LENGTHS
-#define DAT(a_, b_) const nonce_length nonce_lengths::a_(_XPLATSTR(b_));
+#define GRANADA_DEFAULT(a_, b_) const nonce_length nonce_lengths::a_(int(b_));
 #include "granada/defaults.dat"
 #undef _NONCE_LENGTHS
-#undef DAT
+#undef GRANADA_DEFAULT
 
-#define _DEFAULT_STRINGS
-#define DAT(a_, b_) const default_string default_strings::a_(_XPLATSTR(b_));
+#define _GRANADA_DEFAULT_STRINGS
+#define GRANADA_DEFAULT(a_, b_) const default_string default_strings::a_(std::string(b_));
 #include "granada/defaults.dat"
-#undef _DEFAULT_STRINGS
-#undef DAT
+#undef _GRANADA_DEFAULT_STRINGS
+#undef GRANADA_DEFAULT
 
-#define _DEFAULT_NUMBERS
-#define DAT(a_, b_) const default_number default_numbers::a_(_XPLATSTR(b_));
+#define _GRANADA_DEFAULT_NUMBERS
+#define GRANADA_DEFAULT(a_, b_) const default_number default_numbers::a_(int(b_));
 #include "granada/defaults.dat"
-#undef _DEFAULT_NUMBERS
-#undef DAT
+#undef _GRANADA_DEFAULT_NUMBERS
+#undef GRANADA_DEFAULT
 
-#define _DEFAULT_ERRORS
-#define DAT(a_, b_) const default_error default_errors::a_(_XPLATSTR(b_));
+#define _GRANADA_DEFAULT_ERRORS
+#define GRANADA_DEFAULT(a_, b_) const default_error default_errors::a_(std::string(b_));
 #include "granada/defaults.dat"
-#undef _DEFAULT_ERRORS
-#undef DAT
+#undef _GRANADA_DEFAULT_ERRORS
+#undef GRANADA_DEFAULT
 
-#define _DEFAULT_ERROR_DESCRIPTIONS
-#define DAT(a_, b_) const default_error_description default_error_descriptions::a_(_XPLATSTR(b_));
+#define _GRANADA_DEFAULT_ERROR_DESCRIPTIONS
+#define GRANADA_DEFAULT(a_, b_) const default_error_description default_error_descriptions::a_(std::string(b_));
 #include "granada/defaults.dat"
-#undef _DEFAULT_ERROR_DESCRIPTIONS
-#undef DAT
+#undef _GRANADA_DEFAULT_ERROR_DESCRIPTIONS
+#undef GRANADA_DEFAULT

@@ -147,11 +147,11 @@ namespace granada{
     for (auto it = functions_->begin(); it != functions_->end(); ++it){
       web::json::value partial_response = it->second(parameters);
       web::json::value partial_response_wrapper = web::json::value::object();
-      partial_response_wrapper["data"] = partial_response;
-      data[it->first] = partial_response_wrapper;
+      partial_response_wrapper[U("data")] = partial_response;
+      data[utility::conversions::to_string_t(it->first)] = partial_response_wrapper;
     }
     mtx_.unlock();
-    response["data"] = data;
+    response[U("data")] = data;
     callback(response);
   };
   

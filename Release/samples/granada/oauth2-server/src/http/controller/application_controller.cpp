@@ -60,7 +60,7 @@ namespace granada{
         web::http::http_response response;
 
         response.set_status_code(status_codes::OK);
-        response.headers().add(header_names::content_type, "text/html; charset=utf-8");
+        response.headers().add(header_names::content_type, U("text/html; charset=utf-8"));
 
         auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
 
@@ -95,7 +95,7 @@ namespace granada{
               oauth2_response.redirect_uri = "http://localhost/application/" + name;
               std::string redirect_uri = "http://localhost/oauth2/auth";
               response.set_status_code(status_codes::Found);
-              response.headers().add(header_names::location, U(redirect_uri+oauth2_response.to_query_string()));
+              response.headers().add(header_names::location, utility::conversions::to_string_t(redirect_uri+oauth2_response.to_query_string()));
               request.reply(response);
 
             }else{
@@ -199,7 +199,7 @@ namespace granada{
         }
 
         response.set_status_code(status_codes::OK);
-        response.headers().add(header_names::content_type, "text/json; charset=utf-8");
+        response.headers().add(header_names::content_type, U("text/json; charset=utf-8"));
 
         request.reply(response);
 
@@ -276,7 +276,7 @@ namespace granada{
         }
 
         response.set_status_code(status_codes::OK);
-        response.headers().add(U("Content-Type"), "text/json; charset=utf-8");
+        response.headers().add(U("Content-Type"), U("text/json; charset=utf-8"));
         request.reply(response);
       }
 
@@ -319,7 +319,7 @@ namespace granada{
         }
 
         response.set_status_code(status_codes::OK);
-        response.headers().add(U("Content-Type"), "text/json; charset=utf-8");
+        response.headers().add(U("Content-Type"), U("text/json; charset=utf-8"));
         request.reply(response);
       }
 
@@ -331,13 +331,13 @@ namespace granada{
         if (it == cookies.end()){
           session = session_factory_->Session_unique_ptr();
           session->Open();
-          response.headers().add(U("Set-Cookie"), token_label + "=" + session->GetToken() + "; path=/");
+          response.headers().add(U("Set-Cookie"), utility::conversions::to_string_t(token_label + "=" + session->GetToken() + "; path=/"));
         }else{
           std::string token = it->second;
           session = session_factory_->Session_unique_ptr(token);
           if (session->GetToken().empty() || session->IsGarbage()){
             session->Open();
-            response.headers().add(U("Set-Cookie"), token_label + "=" + session->GetToken() + "; path=/");
+            response.headers().add(U("Set-Cookie"), utility::conversions::to_string_t(token_label + "=" + session->GetToken() + "; path=/"));
           }
         }
       }

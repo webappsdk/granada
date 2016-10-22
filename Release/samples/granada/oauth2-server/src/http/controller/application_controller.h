@@ -28,6 +28,7 @@
 
 #pragma once
 #include <unordered_map>
+#include "cpprest/details/basic_types.h"
 #include "cpprest/json.h"
 #include "cpprest/http_client.h"
 #include "cpprest/oauth2.h"

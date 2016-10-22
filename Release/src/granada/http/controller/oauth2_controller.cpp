@@ -158,7 +158,7 @@ namespace granada{
           response.set_body(authorizing_error_template);
         }
 
-        response.headers().add(header_names::content_type, "text/html; charset=utf-8");
+        response.headers().add(header_names::content_type, U("text/html; charset=utf-8"));
         response.set_status_code(status_code);
         request.reply(response);
 

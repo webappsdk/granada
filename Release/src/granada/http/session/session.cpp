@@ -73,7 +73,7 @@ namespace granada{
         if (session_token_support_ == entity_keys::session_cookie){
 
           // add cookie with token
-			response.headers().add(utility::conversions::to_string_t(entity_keys::session_set_cookie), token_label() + "=" + token_ + "; path=/");
+			response.headers().add(utility::conversions::to_string_t(entity_keys::session_set_cookie), utility::conversions::to_string_t(token_label() + "=" + token_ + "; path=/"));
         }
       }
 
@@ -101,7 +101,7 @@ namespace granada{
 
 
       const bool Session::IsTimedOut(){
-        IsTimedOut(0);
+        return IsTimedOut(0);
       }
 
 

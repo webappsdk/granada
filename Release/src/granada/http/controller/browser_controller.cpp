@@ -64,20 +64,20 @@ namespace granada{
         // Tell the client if so using ETag.
         std::string if_none_match = utility::conversions::to_utf8string(request.headers()[header_names::if_none_match]);
 
-        response.headers().add(header_names::etag, resource.ETag);
+        response.headers().add(header_names::etag, utility::conversions::to_string_t(resource.ETag));
 
         if (!if_none_match.empty() && if_none_match==resource.ETag){
           response.set_status_code(status_codes::NotModified);
         }else{
           try{
             // resource has not already been delivered.
-            response.headers().add(header_names::content_encoding,resource.content_encoding);
-            response.headers().add(header_names::server, "granada");
-            response.headers().add(header_names::connection, "keep-alive");
-            response.headers().add(header_names::last_modified, resource.last_modified);
+			  response.headers().add(header_names::content_encoding, utility::conversions::to_string_t(resource.content_encoding));
+            response.headers().add(header_names::server, U("granada"));
+            response.headers().add(header_names::connection, U("keep-alive"));
+			response.headers().add(header_names::last_modified, utility::conversions::to_string_t(resource.last_modified));
             response.set_status_code(status_codes::OK);
 
-            response.headers().add(header_names::content_type, resource.content_type);
+			response.headers().add(header_names::content_type, utility::conversions::to_string_t(resource.content_type));
             response.set_body(resource.content);
           }catch(const std::exception e){
             response.set_status_code(status_codes::NotFound);

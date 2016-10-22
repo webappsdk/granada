@@ -25,6 +25,7 @@
 
 #pragma once
 #include <unordered_map>
+#include "cpprest/details/basic_types.h"
 #include "granada/http/parser.h"
 #include "granada/http/controller/controller.h"
 #include "granada/http/session/map_session.h"

@@ -86,7 +86,7 @@ namespace granada{
           }
         }
         response.set_status_code(status_codes::OK);
-        response.headers().add(U("Content-Type"), "text/json; charset=utf-8");
+        response.headers().add(U("Content-Type"), U("text/json; charset=utf-8"));
         request.reply(response);
       }
 

@@ -28,6 +28,7 @@
 
 #pragma once
 #include <unordered_map>
+#include "cpprest/details/basic_types.h"
 #include "cpprest/json.h"
 #include "cpprest/asyncrt_utils.h"
 #include "granada/cache/cache_handler.h"

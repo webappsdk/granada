@@ -266,13 +266,13 @@ namespace granada{
         if (it == cookies.end()){
           session = session_factory_->Session_unique_ptr();
           session->Open();
-          response.headers().add(U("Set-Cookie"), utility::conversions::string_t(token_label + "=" + session->GetToken() + "; path=/"));
+          response.headers().add(U("Set-Cookie"), utility::conversions::to_string_t(token_label + "=" + session->GetToken() + "; path=/"));
         }else{
           std::string token = it->second;
           session = session_factory_->Session_unique_ptr(token);
           if (session->GetToken().empty() || session->IsGarbage()){
             session->Open();
-            response.headers().add(U("Set-Cookie"), utility::conversions::string_t(token_label + "=" + session->GetToken() + "; path=/"));
+            response.headers().add(U("Set-Cookie"), utility::conversions::to_string_t(token_label + "=" + session->GetToken() + "; path=/"));
           }
         }
       }

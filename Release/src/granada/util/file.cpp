@@ -73,7 +73,9 @@ namespace granada{
             // parse a line into a pair of property name / value and insert it in the properties unordered_map.
             std::size_t pos = line.find("=");
             if (pos!=std::string::npos){
-              properties.insert(std::make_pair(line.substr(0,pos),line.substr(pos+1)));
+              std::string value = line.substr(pos+1);
+              granada::util::string::rtrim(value);
+              properties.insert(std::make_pair(line.substr(0,pos),value));
               return true;
             }else{
               // there is no property and value that can be parsed.

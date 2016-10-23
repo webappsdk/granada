@@ -118,31 +118,35 @@ namespace granada{
       bool ParseFieldsAndPropertiesMDF(std::vector<unsigned char> &body, const std::string &boundary, std::unordered_map<std::string,std::unordered_map<std::string, std::vector<unsigned char>>> &multipart_form_data){
         std::unordered_map<std::string, std::vector<unsigned char>> parsed_properties;
 
+
         // get block between boundaries.
         const char *boundary_c = boundary.c_str();
         size_t boundary_length = strlen(boundary_c);
-        auto boundary_end_it = std::search(body.begin(), body.end(), boundary_c, boundary_c + boundary_length) + boundary_length;
+		std::vector<unsigned char>::iterator boundary_end_it = std::search(body.begin(), body.end(), boundary_c, boundary_c + boundary_length) + boundary_length;
 
         // check if this boundary is the last one, in that case that will represent the end of the data.
         std::string boundary_close(boundary_end_it,boundary_end_it+2);
         if (boundary_close.compare("--") != 0){
           // not the end of the data, this is just another block containing field properties and its value.
           // remove unnecessary boundary information from the request body
-          body.assign(boundary_end_it, body.end());
+		  
+		  body.erase(body.begin(), boundary_end_it);
 
           // extract the different properties from a block with this format: Content-Disposition: form-data; name="file"; filename="pure-html-websites.png"
           // Extract from the first "; " until EOL and then parse into a unordered_map
           auto property_begin_it = GetIteratorMDF("; ", body, true);
-          body.assign(property_begin_it, body.end());
+		  body.erase(body.begin(),property_begin_it);
 
           // parse properties into a unordered_map of string and vector of unsigned char.
           auto properties_end_it = GetIteratorMDF("\r\n", body, false);
+
+
           std::vector<unsigned char> properties(body.begin(),properties_end_it);
           while(ParsePropertyMDF(properties,parsed_properties));
-
+		  
           // get value of the field and treat it as another property
           auto value_begin_it = GetIteratorMDF("\r\n\r\n", body, true);
-          body.assign(value_begin_it, body.end());
+          body.erase(body.begin(),value_begin_it);
           auto value_end_it = std::search(body.begin(), body.end(), boundary_c, boundary_c + boundary_length)-8;
           std::vector<unsigned char> value(body.begin(),value_end_it);
           parsed_properties.insert(std::make_pair(utility::conversions::to_utf8string(entity_keys::http_parser_property_value_label), value));
@@ -167,20 +171,23 @@ namespace granada{
         std::string property_name(properties.begin(),it);
 
         // remove name of the property from properties vector.
-        properties.assign(it+delimiter_length,properties.end());
-
+        properties.erase(properties.begin(),it+delimiter_length);
+		
         // get the value of the property.
         auto it_end = GetIteratorMDF("\"",properties,false);
+
         std::vector<unsigned char> property_value(properties.begin(), it_end);
-
+		
         parsed_properties.insert(std::make_pair(property_name, property_value));
-
+		
         // check if there are other properties after the one that has just been parsed, if so return true, if not return false.
-        std::string end_check(it_end+1,it_end+3);
-        if (end_check.compare("; ") == 0){
-          properties.assign(it_end+3, properties.end());
-          return true;
-        }
+		if (it_end + 1 != properties.end() && it_end + 2 != properties.end() && it_end + 3 != properties.end()){
+			std::string end_check(it_end+1, it_end + 3);
+			if (end_check.compare("; ") == 0){
+				properties.erase(properties.begin(), it_end + 3);
+				return true;
+			}
+		}
 
         return false;
       }

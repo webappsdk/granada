@@ -28,6 +28,7 @@
 #include "granada/http/parser.h"
 #include "granada/http/controller/controller.h"
 #include "granada/http/session/session.h"
+#include "cpprest/details/basic_types.h"
 
 namespace granada{
   namespace http{

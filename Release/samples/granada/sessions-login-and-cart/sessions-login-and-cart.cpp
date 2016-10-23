@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <string>
+#include "cpprest/details/basic_types.h"
 #include "granada/http/session/map_session.h"
 #include "granada/http/controller/browser_controller.h"
 #include "src/http/controller/cart_controller.h"
@@ -94,36 +95,35 @@ int main(int argc, char *argv[])
 #endif
 {
 
-  std::cout << "------------------- granada -------------------" << std::endl;
+	std::cout << "------------------- SESSIONS LOGIN AND CART EXAMPLE -------------------" << std::endl;
 
-  std::string port_str = granada::util::application::GetProperty("port");
-  if (port_str.empty()){
-    port_str = "80";
-  }
-  utility::string_t port = U(port_str);
-  if(argc == 2)
-  {
-    port = argv[1];
-  }
+	std::string port_str = granada::util::application::GetProperty("port");
+	if (port_str.empty()){
+		port_str = "80";
+	}
+	utility::string_t port = utility::conversions::to_string_t(port_str);
 
-  std::string address_str = granada::util::application::GetProperty("address");
-  if (address_str.empty()){
-    address_str = "http://localhost:";
-  }else{
-    address_str += ":";
-  }
+	std::string address_str = granada::util::application::GetProperty("address");
+	if (address_str.empty()){
+		address_str = "http://localhost:";
+	}
+	else{
+		address_str += ":";
+	}
 
-  utility::string_t address = U(address_str);
-  address.append(port);
+	utility::string_t address = utility::conversions::to_string_t(address_str);
+	address.append(port);
 
-  on_initialize(address);
+	on_initialize(address);
 
-  std::cout << "------------------------------------------------\nPress ENTER to terminate server." << std::endl;
+	std::cout << "------------------------------------------------\nPress ENTER to terminate server." << std::endl;
 
-  std::string line;
-  std::getline(std::cin, line);
+	std::string line;
+	std::getline(std::cin, line);
 
-  on_shutdown();
+	on_shutdown();
+
+	std::cout << "bye,bye.\n\n";
 
   return 0;
 }

@@ -26,9 +26,11 @@
 #include <memory>
 #include <stdio.h>
 #include <string>
+#include "cpprest/details/basic_types.h"
 #include "granada/http/session/map_session.h"
 #include "granada/http/controller/browser_controller.h"
 #include "src/http/controller/test_controller.h"
+
 
 ////
 // Vector containing all used controllers.
@@ -45,15 +47,15 @@ void on_initialize(const string_t& address)
   // get property "browser_module" from the server configuration file
   // If this property equals "on" we will use browser controller.
   std::string browser_module = granada::util::application::GetProperty("browser_controller");
-  if(!browser_module.empty() && browser_module=="on"){
+   if(!browser_module.empty() && browser_module=="on"){
     uri_builder uri(address);
     auto addr = uri.to_uri().to_string();
     granada::http::controller::Controller* browser_controller = new granada::http::controller::BrowserController(addr,session_factory);
     browser_controller->open().wait();
     g_controllers.push_back(std::unique_ptr<granada::http::controller::Controller>(browser_controller));
-    ucout << "Browser Controller: Initialized... Listening for requests at: " << addr << std::endl;
+	ucout << "Browser Controller: Initialized... Listening for requests at: " << addr << "\n\n";
   }
-
+  
   uri_builder test_uri(address);
   test_uri.append_path(U("test"));
   auto addr = test_uri.to_uri().to_string();
@@ -61,7 +63,7 @@ void on_initialize(const string_t& address)
   test_controller->open().wait();
   g_controllers.push_back(std::move(test_controller));
   ucout << "Test Controller: Initialized... Listening for requests at: " << addr << std::endl;
-
+  
   return;
 }
 
@@ -88,11 +90,7 @@ int main(int argc, char *argv[])
   if (port_str.empty()){
     port_str = "80";
   }
-  utility::string_t port = U(port_str);
-  if(argc == 2)
-  {
-    port = argv[1];
-  }
+  utility::string_t port = utility::conversions::to_string_t(port_str);
 
   std::string address_str = granada::util::application::GetProperty("address");
   if (address_str.empty()){
@@ -101,7 +99,7 @@ int main(int argc, char *argv[])
     address_str += ":";
   }
 
-  utility::string_t address = U(address_str);
+  utility::string_t address = utility::conversions::to_string_t(address_str);
   address.append(port);
 
   on_initialize(address);

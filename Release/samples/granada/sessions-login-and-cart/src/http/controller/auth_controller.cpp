@@ -40,7 +40,7 @@ namespace granada{
         granada::http::session::MapSession simple_session(request,response);
         auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
         if (!paths.empty()){
-          std::string name = paths[0];
+		  std::string name = utility::conversions::to_utf8string(paths[0]);
 
           // returns the status of te session,
           // 0 if user is not logged in
@@ -58,14 +58,16 @@ namespace granada{
             bool authenticated = false;
 
             std::unordered_map<std::string, std::unordered_map<std::string, std::vector<unsigned char>>> parsed_data = granada::http::parser::ParseMultipartFormData(request);
-
+			
             auto it = parsed_data.find("username");
             if (it != parsed_data.end()){
               std::vector<unsigned char> content = it->second["value"];
               std::string username(content.begin(), content.end());
               auto it2 = parsed_data.find("password");
+			  
               if (it2 != parsed_data.end()){
                 content = it2->second["value"];
+				
                 std::string password(content.begin(), content.end());
                 if(username=="user" && password=="pass"){
                   simple_session.roles()->Add("USER");

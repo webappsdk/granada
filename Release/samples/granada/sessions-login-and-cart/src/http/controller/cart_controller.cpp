@@ -48,7 +48,7 @@ namespace granada{
 
         auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
         if (!paths.empty()){
-          std::string name = paths[0];
+          std::string name = utility::conversions::to_utf8string(paths[0]);
 
           if(name == "count"){
 

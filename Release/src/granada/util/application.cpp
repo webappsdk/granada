@@ -17,17 +17,17 @@ namespace granada{
 					selfpath = totalPath.substr(0,totalPath.find_last_of("/"));
 				}
 	          #elif _WIN32
-				std::vector<wchar_t> pathBuf; 
+				std::vector<wchar_t> pathBuf;
 				DWORD copied = 0;
 
 				do {
-					pathBuf.resize(pathBuf.size()+MAX_PATH);
-					copied = GetModuleFileName(0, (LPSTR)&pathBuf.at(0), pathBuf.size());
-				} while( copied >= pathBuf.size() );
+					pathBuf.resize(pathBuf.size() + MAX_PATH);
+					copied = GetModuleFileName(0, (PWSTR)&pathBuf.at(0), pathBuf.size());
+				} while (copied >= pathBuf.size());
 
 				pathBuf.resize(copied);
-
-				selfpath.assign(pathBuf.begin(), pathBuf.end());
+				selfpath = utility::conversions::to_utf8string(std::wstring(pathBuf.begin(), pathBuf.end()));
+				selfpath = selfpath.substr(0, selfpath.find_last_of("\\"));
 	          #else
 	            char buff[PATH_MAX];
 	            ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff)-1);

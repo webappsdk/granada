@@ -38,6 +38,7 @@
 #else
   #include <linux/limits.h>
 #endif
+#include "cpprest/details/basic_types.h"
 #include "file.h"
 
 namespace granada{

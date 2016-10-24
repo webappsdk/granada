@@ -42,7 +42,7 @@ namespace granada{
       {
         web::http::http_response response;
 
-        std::string body = request.extract_string().get();
+        std::string body = utility::conversions::to_utf8string(request.extract_string().get());
         std::string username;
         std::string password;
         std::string password2;
@@ -52,7 +52,7 @@ namespace granada{
           username.assign(parsed_data["username"]);
           password.assign(parsed_data["password"]);
           password2.assign(parsed_data["password2"]);
-        }catch(const std::exception& e){}
+        }catch(const std::exception e){}
 
         std::string message = "";
 
@@ -69,13 +69,13 @@ namespace granada{
               values.push_back(std::make_pair("username",username));
               granada::util::string::replace(roles_str,values);
               try{
-                roles = web::json::value::parse(roles_str);
-              }catch(const web::json::json_exception& e){
+				  roles = web::json::value::parse(utility::conversions::to_string_t(roles_str));
+              }catch(const web::json::json_exception e){
                 roles_str = "{}";
-                roles = web::json::value::parse(roles_str);
+				roles = web::json::value::parse(utility::conversions::to_string_t(roles_str));
               }
               if (oauth2_user->Create(username,password,roles)){
-                response.headers().add(U("Location"), U("/?description=User " + username + " created successfully."));
+				  response.headers().add(U("Location"), utility::conversions::to_string_t(("/?description=User " + username + " created successfully.")));
               }else{
                 response.headers().add(U("Location"), U("/?error=invalid_username&error_description=Error creating user, username already exists."));
               }

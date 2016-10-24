@@ -41,7 +41,7 @@ namespace granada{
       void ClientController::handle_post(web::http::http_request request)
       {
 
-        std::string body = request.extract_string().get();
+		std::string body = utility::conversions::to_utf8string(request.extract_string().get());
         std::string redirect_uris_str;
         std::string application_name;
         std::string roles_str;
@@ -53,10 +53,10 @@ namespace granada{
           redirect_uris_str.assign(parsed_data["redirect_uri"]);
           application_name.assign(parsed_data["application_name"]);
           roles_str.assign(parsed_data["roles"]);
-        }catch(const std::exception& e){}
+        }catch(const std::exception e){}
         web::json::value json;
         if (redirect_uris_str.empty() || application_name.empty() || roles_str.empty()){
-          json = web::json::value::parse("{\"error\":\"invalid_request\",\"error_description\":\"Error registering client, a parameter has not been filled.\"}");
+          json = web::json::value::parse(U("{\"error\":\"invalid_request\",\"error_description\":\"Error registering client, a parameter has not been filled.\"}"));
         }else{
           
           // create client
@@ -82,9 +82,9 @@ namespace granada{
 
             oauth2_client->Create(type, redirect_uris, application_name, roles, password);
 
-            json = web::json::value::parse("{\"client_id\":\"" + oauth2_client->GetId() + "\",\"client_secret\":\"" + password + "\",\"description\":\"Client created successfully.\"}");
-          }catch(const std::exception& e){
-            json = web::json::value::parse("{\"error\":\"server_error\",\"error_description\":\"Error creating client.\"}");
+			json = web::json::value::parse(utility::conversions::to_string_t("{\"client_id\":\"" + oauth2_client->GetId() + "\",\"client_secret\":\"" + password + "\",\"description\":\"Client created successfully.\"}"));
+          }catch(const std::exception e){
+			json = web::json::value::parse(utility::conversions::to_string_t("{\"error\":\"server_error\",\"error_description\":\"Error creating client.\"}"));
           }
         }
 

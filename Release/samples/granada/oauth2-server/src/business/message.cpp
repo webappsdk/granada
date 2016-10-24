@@ -37,7 +37,7 @@ namespace granada{
   }
 
   void Message::Create(const std::string username, const std::string& message){
-    std::string message_id = n_generator_->generate();
+	std::string message_id = utility::conversions::to_utf8string(n_generator_->generate());
     if (cache_->Exists("message:" + username + ":" + message_id)){
       Create(username,message);
     }else{

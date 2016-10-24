@@ -29,8 +29,8 @@
   */
 
 #pragma once
-#include "granada/http/oauth2/oauth2.h"
 #include "granada/cache/redis_cache_driver.h"
+#include "granada/http/oauth2/oauth2.h"
 #include "granada/crypto/nonce_generator.h"
 #include "granada/crypto/openssl_aes_cryptograph.h"
 

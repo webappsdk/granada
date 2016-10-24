@@ -68,12 +68,12 @@ namespace granada{
         if (paths.empty()){
           response.set_body("404");
         }else{
-          std::string name = paths[0];
+		  std::string name = utility::conversions::to_utf8string(paths[0]);
 
           if (name == "readcode" || name == "readwritecode"){
             std::string sub_name;
             if ( paths.size() > 1 ){
-              sub_name = paths[1];
+				sub_name = utility::conversions::to_utf8string(paths[1]);
             }
             if (sub_name == "auth"){
               
@@ -85,7 +85,7 @@ namespace granada{
               MessageApplicationSessionFactory(session, request, response);
 
               // generate state
-              std::string state(n_generator_->generate());
+			  std::string state(utility::conversions::to_utf8string(n_generator_->generate()));
               session->roles()->SetProperty("msg.user", "state", state);
               session->roles()->SetProperty("msg.user", "state.creation.time", granada::util::time::stringify(std::time(nullptr)));
               oauth2_response.response_type = "code";
@@ -105,15 +105,15 @@ namespace granada{
               MessageApplicationSessionFactory(session, request, response);
 
               // check if we have recieved a code and a state to obtain access tokens
-              std::string query_string = request.request_uri().query();
+			  std::string query_string = utility::conversions::to_utf8string(request.request_uri().query());
               std::string code;
               std::string state;
               try{
                 // parse the body of the HTTP request and extract the code and the state.
                 std::unordered_map<std::string, std::string>  parsed_data =	granada::http::parser::ParseQueryString(query_string);
-                code.assign(parsed_data[oauth2_strings::code]);
-                state.assign(parsed_data[oauth2_strings::state]);
-              }catch(const std::exception& e){}
+				code.assign(parsed_data[utility::conversions::to_utf8string(oauth2_strings::code)]);
+                state.assign(parsed_data[utility::conversions::to_utf8string(oauth2_strings::state)]);
+              }catch(const std::exception e){}
 
               bool code_or_state_error = false;
 
@@ -186,7 +186,7 @@ namespace granada{
             // resource server request
             std::string error;
             std::string error_description;
-            std::string message_list = ResourceServerRequest(request,methods::PUT,access_token,"http://localhost:80/message",error,error_description);
+			std::string message_list = ResourceServerRequest(request, utility::conversions::to_utf8string(methods::PUT), access_token, "http://localhost:80/message", error, error_description);
             if (error.empty()){
               response.set_body("{\"description\":\"Success creating message.\",\"data\":" + message_list + "}");
             }else{
@@ -213,7 +213,7 @@ namespace granada{
         auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
 
         if (!paths.empty()){
-          std::string name = paths[0];
+			std::string name = utility::conversions::to_utf8string(paths[0]);
 
           if (name == "list" || name == "edit"){
 
@@ -241,7 +241,7 @@ namespace granada{
                   // resource server request
                   std::string error;
                   std::string error_description;
-                  std::string message_list = ResourceServerRequest(request,methods::POST,access_token,"http://localhost:80/message/list",error,error_description);
+				  std::string message_list = ResourceServerRequest(request, utility::conversions::to_utf8string(methods::POST), access_token, "http://localhost:80/message/list", error, error_description);
                   if (error.empty()){
                     response.set_body("{\"description\":\"Success listing messages.\",\"data\":" + message_list + "}");
                   }else{
@@ -255,7 +255,7 @@ namespace granada{
                   // resource server request
                   std::string error;
                   std::string error_description;
-                  std::string message_list = ResourceServerRequest(request,methods::POST,access_token,"http://localhost:80/message/edit",error,error_description);
+				  std::string message_list = ResourceServerRequest(request, utility::conversions::to_utf8string(methods::POST), access_token, "http://localhost:80/message/edit", error, error_description);
                   if (error.empty()){
                     response.set_body("{\"description\":\"Success editing message.\",\"data\":" + message_list + "}");
                   }else{
@@ -307,7 +307,7 @@ namespace granada{
             // resource server request
             std::string error;
             std::string error_description;
-            std::string message_list = ResourceServerRequest(request,methods::DEL,access_token,"http://localhost:80/message",error,error_description);
+			std::string message_list = ResourceServerRequest(request, utility::conversions::to_utf8string(methods::DEL), access_token, "http://localhost:80/message", error, error_description);
             if (error.empty()){
               response.set_body("{\"description\":\"Success deleting message.\",\"data\":" + message_list + "}");
             }else{
@@ -359,30 +359,30 @@ namespace granada{
         std::string client_id;
         std::string client_secret("");
 
-        web::uri uri("http://localhost:80/client");
+        web::uri uri(U("http://localhost:80/client"));
         web::http::client::http_client client(uri);
 
         web::http::http_request request2(methods::POST);
         request2.set_request_uri(uri);
-        request2.set_body(U("redirect_uri=http://localhost/application/" + name + "&application_name=" + GetApplicationName(name) + "&roles=" + GetRoles(name)));
+		request2.set_body(utility::conversions::to_string_t("redirect_uri=http://localhost/application/" + name + "&application_name=" + GetApplicationName(name) + "&roles=" + GetRoles(name)));
 
         client.request(request2).then([&client_id,&client_secret](web::http::http_response response2)
         {
           try{
             web::json::value json = response2.extract_json().get();
-            if (json.has_field("client_id")){
-              web::json::value client_id_json = json.at("client_id");
+            if (json.has_field(U("client_id"))){
+              web::json::value client_id_json = json.at(U("client_id"));
               if (client_id_json.is_string()){
-                client_id.assign(client_id_json.as_string());
+				  client_id.assign(utility::conversions::to_utf8string(client_id_json.as_string()));
               }
             }
-            if (json.has_field("client_secret")){
-              web::json::value client_secret_json = json.at("client_secret");
+            if (json.has_field(U("client_secret"))){
+              web::json::value client_secret_json = json.at(U("client_secret"));
               if (client_secret_json.is_string()){
-                client_secret.assign(client_secret_json.as_string());
+				  client_secret.assign(utility::conversions::to_utf8string(client_secret_json.as_string()));
               }
             }
-          }catch(const std::exception& e){
+          }catch(const std::exception e){
             client_id.assign("0");
           }
         }).wait();
@@ -410,26 +410,26 @@ namespace granada{
         if (!code.empty()){
 
 
-          web::uri_builder uri_builder("http://localhost:80/oauth2");
+          web::uri_builder uri_builder(U("http://localhost:80/oauth2"));
           uri_builder.append_path(U("auth"));
           web::uri uri = uri_builder.to_uri();
           web::http::client::http_client client(uri);
 
           web::http::http_request request2(methods::POST);
-          request2.set_body(U("grant_type=authorization_code&code=" + code + "&redirect_uri=http://localhost/application/" + name + "&client_id=" + GetClientId(name) + "&client_secret=" + GetClientSecret(name)));
+		  request2.set_body(utility::conversions::to_string_t("grant_type=authorization_code&code=" + code + "&redirect_uri=http://localhost/application/" + name + "&client_id=" + GetClientId(name) + "&client_secret=" + GetClientSecret(name)));
 
           client.request(request2).then([access_token](web::http::http_response response2){
             try{
               web::json::value json = response2.extract_json().get();
-              if (json.has_field("access_token")){
-                web::json::value access_token_json = json.at("access_token");
+              if (json.has_field(U("access_token"))){
+                web::json::value access_token_json = json.at(U("access_token"));
                 if (access_token_json.is_string()){
-                  access_token->assign(access_token_json.as_string());
+					access_token->assign(utility::conversions::to_utf8string(access_token_json.as_string()));
                 }
               }else{
                 access_token->assign("");
               }
-            }catch(const std::exception& e){
+            }catch(const std::exception e){
               access_token->assign("");
             }
           }).wait();
@@ -463,40 +463,40 @@ namespace granada{
                                                                std::string& error_description){
 
 
-        web::uri_builder uri_builder(address);
+		web::uri_builder uri_builder(utility::conversions::to_string_t(address));
         web::uri uri = uri_builder.to_uri();
         web::http::client::http_client client(uri);
         std::shared_ptr<std::string> message_list = std::shared_ptr<std::string>(new std::string());
         std::shared_ptr<std::string> error_ptr = std::shared_ptr<std::string>(new std::string());
         std::shared_ptr<std::string> error_description_ptr = std::shared_ptr<std::string>(new std::string());
 
-        std::string body = request.extract_string().get();
+		std::string body = utility::conversions::to_utf8string(request.extract_string().get());
         request.set_body(body + "&token=" + access_token);
-        request.set_method(method);
+		request.set_method(utility::conversions::to_string_t(method));
 
         client.request(request).then([message_list,error_ptr,error_description_ptr](web::http::http_response response2){
           try{
             web::json::value json = response2.extract_json().get();
-            if (json.has_field("data")){
-              web::json::value data_json = json.at("data");
+            if (json.has_field(U("data"))){
+              web::json::value data_json = json.at(U("data"));
               if (data_json.is_array()){
-                message_list->assign(data_json.serialize());
+				  message_list->assign(utility::conversions::to_utf8string(data_json.serialize()));
               }
             }else{
-              if (json.has_field("error")){
-                web::json::value error_json = json.at("error");
+              if (json.has_field(U("error"))){
+                web::json::value error_json = json.at(U("error"));
                 if (error_json.is_string()){
-                  error_ptr->assign(error_json.as_string());
+					error_ptr->assign(utility::conversions::to_utf8string(error_json.as_string()));
                 }
               }
-              if (json.has_field("error_description")){
-                web::json::value error_description_json = json.at("error_description");
+              if (json.has_field(U("error_description"))){
+                web::json::value error_description_json = json.at(U("error_description"));
                 if (error_description_json.is_string()){
-                  error_description_ptr->assign(error_description_json.as_string());
+					error_description_ptr->assign(utility::conversions::to_utf8string(error_description_json.as_string()));
                 }
               }
             }
-          }catch(const std::exception& e){
+          }catch(const std::exception e){
             message_list->assign("[]");
           }
         }).wait();

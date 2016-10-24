@@ -30,6 +30,7 @@
 #include <vector>
 #include <deque>
 #include <unordered_map>
+#include "cpprest/details/basic_types.h"
 #include "cpprest/json.h"
 #include "granada/util/string.h"
 #include "granada/crypto/nonce_generator.h"

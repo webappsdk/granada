@@ -26,11 +26,15 @@
   *
   */
 
+
+#include <memory>
 #include <stdio.h>
 #include <string>
+#include <vector>
+#include "granada/cache/redis_cache_driver.h"
 #include "granada/http/session/redis_session.h"
 #include "granada/http/oauth2/redis_oauth2.h"
-#include "granada/cache/redis_cache_driver.h"
+#include "cpprest/details/basic_types.h"
 #include "granada/http/controller/browser_controller.h"
 #include "granada/http/controller/oauth2_controller.h"
 #include "src/http/controller/user_controller.h"
@@ -46,11 +50,9 @@ void on_initialize(const string_t& address)
 {
 
   std::shared_ptr<granada::http::session::SessionFactory> session_factory(new granada::http::session::RedisSessionFactory());
-
+  
   std::shared_ptr<granada::http::oauth2::OAuth2Factory> oauth2_factory(new granada::http::oauth2::RedisOAuth2Factory());
-
-  std::shared_ptr<granada::cache::CacheHandler> cache_handler(new granada::cache::RedisCacheDriver());
-
+  
   ////
   // Browser Controller
   // Permits to browse server resources.
@@ -105,10 +107,11 @@ void on_initialize(const string_t& address)
   g_controllers.push_back(std::move(auth_controller));
   ucout << "Auth Controller: Initialized... Listening for requests at: " << addr << std::endl;
 
-
+ 
   ////
   // Message Controller
   // Used for listing, inserting, editing, deleting users' messages.
+  std::shared_ptr<granada::cache::CacheHandler> cache_handler = std::make_shared<granada::cache::RedisCacheDriver>();
   uri_builder message_uri(address);
   message_uri.append_path(U("message"));
   addr = message_uri.to_uri().to_string();
@@ -116,10 +119,10 @@ void on_initialize(const string_t& address)
   message_controller->open().wait();
   g_controllers.push_back(std::move(message_controller));
   ucout << "Message Controller: Initialized... Listening for requests at: " << addr << std::endl;
-
+  
 
   ////
-  // Message Controller
+  // Application Controller
   // Application for message reading and edition.
   uri_builder application_uri(address);
   application_uri.append_path(U("application"));
@@ -128,7 +131,7 @@ void on_initialize(const string_t& address)
   application_controller->open().wait();
   g_controllers.push_back(std::move(application_controller));
   ucout << "Application Controller: Initialized... Listening for requests at: " << addr << std::endl;
-
+  
   return;
 }
 
@@ -148,36 +151,35 @@ int main(int argc, char *argv[])
 #endif
 {
 
-  std::cout << "------------------- REDIS OAUTH 2.0 SERVER -------------------" << std::endl;
+	std::cout << "------------------- REDIS OAUTH2 SERVER EXAMPLE -------------------" << std::endl;
 
-  std::string port_str = granada::util::application::GetProperty("port");
-  if (port_str.empty()){
-    port_str = "80";
-  }
-  utility::string_t port = U(port_str);
-  if(argc == 2)
-  {
-    port = argv[1];
-  }
+	std::string port_str = granada::util::application::GetProperty("port");
+	if (port_str.empty()){
+		port_str = "80";
+	}
+	utility::string_t port = utility::conversions::to_string_t(port_str);
 
-  std::string address_str = granada::util::application::GetProperty("address");
-  if (address_str.empty()){
-    address_str = "http://localhost:";
-  }else{
-    address_str += ":";
-  }
+	std::string address_str = granada::util::application::GetProperty("address");
+	if (address_str.empty()){
+		address_str = "http://localhost:";
+	}
+	else{
+		address_str += ":";
+	}
 
-  utility::string_t address = U(address_str);
-  address.append(port);
+	utility::string_t address = utility::conversions::to_string_t(address_str);
+	address.append(port);
 
-  on_initialize(address);
+	on_initialize(address);
 
-  std::cout << "------------------------------------------------\nPress ENTER to terminate server." << std::endl;
+	std::cout << "------------------------------------------------\nPress ENTER to terminate server." << std::endl;
 
-  std::string line;
-  std::getline(std::cin, line);
+	std::string line;
+	std::getline(std::cin, line);
 
-  on_shutdown();
+	on_shutdown();
+
+	std::cout << "bye,bye.\n\n";
 
   return 0;
 }

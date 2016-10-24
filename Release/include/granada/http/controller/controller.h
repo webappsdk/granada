@@ -26,6 +26,7 @@
   */
 
 #pragma once
+#include <memory>
 #include "cpprest/http_listener.h"
 
 

@@ -36,13 +36,13 @@ namespace granada{
     namespace controller{
       MessageController::MessageController(utility::string_t url, std::shared_ptr<granada::http::session::SessionFactory>& session_factory, std::shared_ptr<granada::cache::CacheHandler>& cache)
       {
+		  session_factory_ = session_factory;
+		  cache_ = cache;
         n_generator_ = std::unique_ptr<utility::nonce_generator>(new utility::nonce_generator(32));
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));
         m_listener_->support(methods::PUT, std::bind(&MessageController::handle_put, this, std::placeholders::_1));
         m_listener_->support(methods::POST, std::bind(&MessageController::handle_post, this, std::placeholders::_1));
         m_listener_->support(methods::DEL, std::bind(&MessageController::handle_delete, this, std::placeholders::_1));
-        session_factory_ = session_factory;
-        cache_ = cache;
       }
 
 
@@ -51,7 +51,7 @@ namespace granada{
         web::http::http_response response;
 
         // extract message from HTTP request.
-        std::string body = request.extract_string().get();
+		std::string body = utility::conversions::to_utf8string(request.extract_string().get());
         std::unordered_map<std::string, std::string> parsed_data;
         std::string token;
         std::string message_str = "";
@@ -60,7 +60,7 @@ namespace granada{
           parsed_data = granada::http::parser::ParseQueryString(body);
           token.assign(parsed_data["token"]);
           message_str.assign(parsed_data["message"]);
-        }catch(const std::exception& e){}
+        }catch(const std::exception e){}
 
         std::string json_str;
 
@@ -94,7 +94,7 @@ namespace granada{
           }
         }
 
-        web::json::value json = web::json::value::parse(json_str);
+		web::json::value json = web::json::value::parse(utility::conversions::to_string_t(json_str));
         if (token.empty()){
           response.set_body(json);
           response.set_status_code(status_codes::OK);
@@ -113,20 +113,20 @@ namespace granada{
 
         auto paths = uri::split_path(uri::decode(request.relative_uri().path()));
 
-        std::string body = request.extract_string().get();
+		std::string body = utility::conversions::to_utf8string(request.extract_string().get());
         std::unordered_map<std::string, std::string> parsed_data;
         std::string token;
         try{
           // parse the body of the HTTP request and extract the client properties.
           parsed_data = granada::http::parser::ParseQueryString(body);
           token.assign(parsed_data["token"]);
-        }catch(const std::exception& e){}
+        }catch(const std::exception e){}
 
         std::string json_str;
 
         if (!paths.empty()){
 
-          std::string name = paths[0];
+		  std::string name = utility::conversions::to_utf8string(paths[0]);
 
 
           // Retrieves session if it exists
@@ -157,7 +157,7 @@ namespace granada{
               // Edit messages if user has the permission.
 
               // extract data from the HTTP request.
-              std::string body = request.extract_string().get();
+			  std::string body = utility::conversions::to_utf8string(request.extract_string().get());
               std::string message_key = "";
               std::string message_str = "";
               try{
@@ -165,7 +165,7 @@ namespace granada{
                 // scope contains the roles we want to assign to the session.
                 message_key.assign(parsed_data["key"]);
                 message_str.assign(parsed_data["message"]);
-              }catch(const std::exception& e){}
+              }catch(const std::exception e){}
 
               if(session->roles()->Is("msg.update")){
                 granada::Message message(cache_);
@@ -192,7 +192,7 @@ namespace granada{
         }else{
           json_str.assign("{\"error\":\"invalid_request\",\"error_description\":\"The request is missing a required parameter, includes an invalid parameter value, includes a parameter more than once, or is otherwise malformed.\"}");
         }
-        web::json::value json = web::json::value::parse(json_str);
+		web::json::value json = web::json::value::parse(utility::conversions::to_string_t(json_str));
         if (token.empty()){
           response.set_body(json);
           response.set_status_code(status_codes::OK);
@@ -208,7 +208,7 @@ namespace granada{
         web::http::http_response response;
 
         // extract message from HTTP request.
-        std::string body = request.extract_string().get();
+		std::string body = utility::conversions::to_utf8string(request.extract_string().get());
         std::unordered_map<std::string, std::string> parsed_data;
         std::string token;
         std::string message_key = "";
@@ -217,7 +217,7 @@ namespace granada{
           parsed_data = granada::http::parser::ParseQueryString(body);
           token.assign(parsed_data["token"]);
           message_key.assign(parsed_data["key"]);
-        }catch(const std::exception& e){}
+        }catch(const std::exception e){}
 
         std::string json_str;
 
@@ -247,7 +247,7 @@ namespace granada{
           }
         }
 
-        web::json::value json = web::json::value::parse(json_str);
+		web::json::value json = web::json::value::parse(utility::conversions::to_string_t(json_str));
         if (token.empty()){
           response.set_body(json);
           response.set_status_code(status_codes::OK);

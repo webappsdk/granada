@@ -28,6 +28,7 @@
 
 #include <stdio.h>
 #include <string>
+#include "cpprest/details/basic_types.h"
 #include "granada/http/session/map_session.h"
 #include "granada/http/oauth2/map_oauth2.h"
 #include "granada/cache/shared_map_cache_driver.h"
@@ -94,9 +95,7 @@ void on_initialize(const string_t& address)
 
   ////
   // Auth Controller
-  // Resource Owner Password Credentials Grant
   //
-
   uri_builder auth_uri(address);
   auth_uri.append_path(U("oauth2"));
   addr = auth_uri.to_uri().to_string();
@@ -119,7 +118,7 @@ void on_initialize(const string_t& address)
 
 
   ////
-  // Message Controller
+  // Application Controller
   // Application for message reading and edition.
   uri_builder application_uri(address);
   application_uri.append_path(U("application"));
@@ -148,36 +147,35 @@ int main(int argc, char *argv[])
 #endif
 {
 
-  std::cout << "------------------- SERVER -------------------" << std::endl;
+	std::cout << "------------------- TEST SESSIONS DATA -------------------" << std::endl;
 
-  std::string port_str = granada::util::application::GetProperty("port");
-  if (port_str.empty()){
-    port_str = "80";
-  }
-  utility::string_t port = U(port_str);
-  if(argc == 2)
-  {
-    port = argv[1];
-  }
+	std::string port_str = granada::util::application::GetProperty("port");
+	if (port_str.empty()){
+		port_str = "80";
+	}
+	utility::string_t port = utility::conversions::to_string_t(port_str);
 
-  std::string address_str = granada::util::application::GetProperty("address");
-  if (address_str.empty()){
-    address_str = "http://localhost:";
-  }else{
-    address_str += ":";
-  }
+	std::string address_str = granada::util::application::GetProperty("address");
+	if (address_str.empty()){
+		address_str = "http://localhost:";
+	}
+	else{
+		address_str += ":";
+	}
 
-  utility::string_t address = U(address_str);
-  address.append(port);
+	utility::string_t address = utility::conversions::to_string_t(address_str);
+	address.append(port);
 
-  on_initialize(address);
+	on_initialize(address);
 
-  std::cout << "------------------------------------------------\nPress ENTER to terminate server." << std::endl;
+	std::cout << "------------------------------------------------\nPress ENTER to terminate server." << std::endl;
 
-  std::string line;
-  std::getline(std::cin, line);
+	std::string line;
+	std::getline(std::cin, line);
 
-  on_shutdown();
+	on_shutdown();
 
-  return 0;
+	std::cout << "bye,bye.\n\n";
+
+	return 0;
 }

@@ -27,8 +27,9 @@
   */
 
 #pragma once
-#include "session.h"
 #include "granada/cache/redis_cache_driver.h"
+#include "session.h"
+
 
 namespace granada{
   namespace http{

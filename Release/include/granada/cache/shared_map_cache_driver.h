@@ -282,7 +282,7 @@ namespace granada{
         /**
          * Mutex for thread safety.
          */
-        std::mutex mtx;
+        std::mutex mtx_;
 
 
     };

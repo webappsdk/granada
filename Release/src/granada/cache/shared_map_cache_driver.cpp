@@ -52,7 +52,7 @@ namespace granada{
 
     const std::string SharedMapIterator::next(){
       if (it_ != keys_.end()){
-        std::string value = *it_;
+        const std::string value(*it_);
         ++it_;
         return value;
       }
@@ -66,67 +66,58 @@ namespace granada{
 
 
     const bool SharedMapCacheDriver::Exists(const std::string& key){
-      mtx.lock();
-      auto it = data_->find(key);
-      if (it != data_->end()){
-        mtx.unlock();
+      std::lock_guard<std::mutex> lg(mtx_);
+      if (data_->find(key) != data_->end()){
         return true;
       }
-      mtx.unlock();
       return false;
     }
 
 
     const bool SharedMapCacheDriver::Exists(const std::string& hash,const std::string& key){
-      mtx.lock();
+      std::lock_guard<std::mutex> lg(mtx_);
       auto it = data_->find(hash);
       if (it != data_->end()){
-        std::map<std::string,std::string> properties = it->second;
+        const std::map<std::string,std::string>& properties = it->second;
         auto it2 = properties.find(key);
         if(it2 != properties.end()){
-          mtx.unlock();
           return true;
         }
       }
-      mtx.unlock();
       return false;
     }
 
 
     const std::string SharedMapCacheDriver::Read(const std::string& key){
-      mtx.lock();
+      std::lock_guard<std::mutex> lg(mtx_);
       auto it = data_->find(key);
       if (it != data_->end()){
-        std::map<std::string,std::string> properties = it->second;
+        const std::map<std::string,std::string>& properties = it->second;
         auto it2 = properties.find("__");
         if(it2 != properties.end()){
-          mtx.unlock();
           return it2->second;
         }
       }
-      mtx.unlock();
       return std::string();
     }
 
 
     const std::string SharedMapCacheDriver::Read(const std::string& hash,const std::string& key){
-      mtx.lock();
+      std::lock_guard<std::mutex> lg(mtx_);
       auto it = data_->find(hash);
       if (it != data_->end()){
         std::map<std::string,std::string> properties = it->second;
         auto it2 = properties.find(key);
         if(it2 != properties.end()){
-          mtx.unlock();
           return it2->second;
         }
       }
-      mtx.unlock();
       return std::string();
     }
 
 
     void SharedMapCacheDriver::Write(const std::string& key,const std::string& value){
-      mtx.lock();
+      std::lock_guard<std::mutex> lg(mtx_);
       auto it = data_->find(key);
       if (it == data_->end()){
         std::map<std::string,std::string> properties;
@@ -137,12 +128,11 @@ namespace granada{
         properties["__"] = value;
         (*data_)[key] = properties;
       }
-      mtx.unlock();
     }
 
 
     void SharedMapCacheDriver::Write(const std::string& hash,const std::string& key,const std::string& value){
-      mtx.lock();
+      std::lock_guard<std::mutex> lg(mtx_);
       auto it = data_->find(hash);
       if (it == data_->end()){
         std::map<std::string,std::string> properties;
@@ -153,7 +143,6 @@ namespace granada{
         properties[key] = value;
         (*data_)[hash] = properties;
       }
-      mtx.unlock();
     }
     
 
@@ -162,33 +151,30 @@ namespace granada{
       if (found!=std::string::npos){
         std::vector<std::string> keys;
         Match(key,keys);
-        mtx.lock();
         for (auto it = keys.begin(); it != keys.end(); ++it){
+          std::lock_guard<std::mutex> lg(mtx_);
           data_->erase(*it);
         }
-        mtx.unlock();
       }else{
-        mtx.lock();
+        std::lock_guard<std::mutex> lg(mtx_);
         data_->erase(key);
-        mtx.unlock();
       }
     }
 
 
     void SharedMapCacheDriver::Destroy(const std::string& hash,const std::string& key){
-      mtx.lock();
+      std::lock_guard<std::mutex> lg(mtx_);
       auto it = data_->find(hash);
       if (it != data_->end()){
         std::map<std::string,std::string> properties = it->second;
         properties.erase(key);
         (*data_)[hash] = properties;
       }
-      mtx.unlock();
     }
 
 
     bool SharedMapCacheDriver::Rename(const std::string& old_key, const std::string& new_key){
-      mtx.lock();
+      std::lock_guard<std::mutex> lg(mtx_);
       auto it = data_->find(old_key);
       if (it != data_->end()) {
         // insert new key and value
@@ -200,24 +186,21 @@ namespace granada{
 
         // erase old entry
         data_->erase(it);
-        mtx.unlock();
         return true;
       }
-      mtx.unlock();
       return false;
     }
 
 
     void SharedMapCacheDriver::Keys(const std::string& expression, std::vector<std::string>& keys){
       keys.clear();
-      mtx.lock();
+      std::lock_guard<std::mutex> lg(mtx_);
       for(auto it = data_->begin(); it != data_->end(); ++it) {
         const std::string& key = it->first;
         if (std::regex_match(key, std::regex(expression))){
           keys.push_back(it->first);
         }
       }
-      mtx.unlock();
     }
 
   }

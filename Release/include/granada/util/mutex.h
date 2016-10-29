@@ -24,42 +24,52 @@
   */
 
 #pragma once
+#include <memory>
 #include <mutex>
 #include <condition_variable>
 #include <functional>
+#include "granada/util/memory.h"
 
 namespace granada {
   namespace util {
     namespace mutex{
       class call_once{
         public:
+		  call_once(){};
+
           void call(std::function<void(void)> fn){
             std::call_once(of_, [&]{
               {
-                std::lock_guard<std::mutex> lg(mtx_);
+				if (mtx_ == nullptr){
+					mtx_ = granada::util::memory::make_unique<std::mutex>();
+				}
+                std::lock_guard<std::mutex> lg(*mtx_);
                 fn();
                 fn_called_ = true;
               }
-              cv_.notify_all();
+			  if (cv_ == nullptr){
+				cv_ = granada::util::memory::make_unique<std::condition_variable>();
+			  }
+              cv_->notify_all();
             });
 
             // wait until properties are loaded.
-            std::unique_lock<std::mutex> ul(mtx_);
-            cv_.wait(ul, [this]{ return fn_called_; });
+            std::unique_lock<std::mutex> ul(*mtx_);
+            cv_->wait(ul, [this]{ return fn_called_; });
           };
 
         private:
 
-          /**
-           * Once flag.
-           */
-          std::once_flag of_;
+		 /**
+		  * Once flag.
+		  */
+		  std::once_flag of_;
 
 
           /**
            * Mutex.
            */
-          std::mutex mtx_;
+          std::unique_ptr<std::mutex> mtx_;
 
 
           /**
@@ -72,7 +82,7 @@ namespace granada {
            * Used to block all threads until function is
            * executed.
            */
-          std::condition_variable cv_;
+		  std::unique_ptr<std::condition_variable> cv_;
       };
     }
   }

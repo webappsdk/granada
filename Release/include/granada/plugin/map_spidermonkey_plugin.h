@@ -111,7 +111,7 @@ namespace granada{
          * Load Plug-in Handler properties.
          */
         MapSpidermonkeyPluginHandler(){
-          std::call_once(PluginHandler::properties_flag_, [this](){
+          MapSpidermonkeyPluginHandler::load_properties_call_once_.call([this](){
             this->LoadProperties();
           });
         };
@@ -126,10 +126,10 @@ namespace granada{
          */
         MapSpidermonkeyPluginHandler(const std::string id){
           id_ = std::move(id);
-          std::call_once(PluginHandler::properties_flag_, [this](){
+          MapSpidermonkeyPluginHandler::load_properties_call_once_.call([this](){
             this->LoadProperties();
           });
-          std::call_once(PluginHandler::functions_to_runner_flag_,[this](){
+          MapSpidermonkeyPluginHandler::functions_to_runner_call_once_.call([this](){
             this->AddFunctionsToRunner();
           });
         };
@@ -207,7 +207,7 @@ namespace granada{
          * Constructor, load plug-in properties.
          */
         MapSpidermonkeyPlugin(){
-          std::call_once(Plugin::properties_flag_, [this](){
+          MapSpidermonkeyPlugin::load_properties_call_once_.call([this](){
             this->LoadProperties();
           });
         };
@@ -223,7 +223,7 @@ namespace granada{
         MapSpidermonkeyPlugin(granada::plugin::PluginHandler* plugin_handler,const std::string id){
           plugin_handler_ = plugin_handler;
           id_ = std::move(id);
-          std::call_once(Plugin::properties_flag_, [this](){
+          MapSpidermonkeyPlugin::load_properties_call_once_.call([this](){
             this->LoadProperties();
           });
         };
@@ -285,7 +285,7 @@ namespace granada{
           configuration_ = std::move(configuration);
           plugin_handler_ = plugin_handler;
           script_ = std::move(script);
-          std::call_once(properties_flag_, [this](){
+          MapSpidermonkeyPlugin::load_properties_call_once_.call([this](){
             this->LoadProperties();
           });
         };

@@ -34,6 +34,7 @@
 #include "cpprest/json.h"
 #include "cpprest/details/http_helpers.h"
 #include "granada/defaults.h"
+#include "granada/util/mutex.h"
 #include "granada/util/time.h"
 #include "granada/util/string.h"
 #include "granada/http/session/session.h"
@@ -149,9 +150,9 @@ namespace granada{
 
 
           /**
-           * Once flag for loading properties only once.
+           * Used for loading the properties only once.
            */
-          static std::once_flag properties_flag_;
+          static granada::util::mutex::call_once load_properties_call_once_;
 
 
           /**

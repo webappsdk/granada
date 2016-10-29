@@ -29,13 +29,13 @@ namespace granada{
   namespace http{
     namespace session{
 
-      std::once_flag MapSession::properties_flag_;
+      granada::util::mutex::call_once MapSession::load_properties_call_once_;
       std::unique_ptr<granada::http::session::SessionHandler> MapSession::session_handler_(new granada::http::session::MapSessionHandler());
       std::unique_ptr<granada::Functions> MapSession::close_callbacks_(new granada::FunctionsMap());
 
 
       MapSession::MapSession(){
-        std::call_once(MapSession::properties_flag_, [this](){
+        MapSession::load_properties_call_once_.call([this](){
           this->LoadProperties();
         });
         roles_ = std::unique_ptr<granada::http::session::SessionRoles>(new granada::http::session::MapSessionRoles(this));
@@ -43,7 +43,7 @@ namespace granada{
 
 
       MapSession::MapSession(const web::http::http_request &request,web::http::http_response &response){
-        std::call_once(MapSession::properties_flag_, [this](){
+        MapSession::load_properties_call_once_.call([this](){
           this->LoadProperties();
         });
         roles_ = std::unique_ptr<granada::http::session::SessionRoles>(new granada::http::session::MapSessionRoles(this));
@@ -52,7 +52,7 @@ namespace granada{
 
 
       MapSession::MapSession(const web::http::http_request &request){
-        std::call_once(MapSession::properties_flag_, [this](){
+        MapSession::load_properties_call_once_.call([this](){
           this->LoadProperties();
         });
         roles_ = std::unique_ptr<granada::http::session::SessionRoles>(new granada::http::session::MapSessionRoles(this));
@@ -61,7 +61,7 @@ namespace granada{
 
 
       MapSession::MapSession(const std::string& token){
-        std::call_once(MapSession::properties_flag_, [this](){
+        MapSession::load_properties_call_once_.call([this](){
           this->LoadProperties();
         });
         roles_ = std::unique_ptr<granada::http::session::SessionRoles>(new granada::http::session::MapSessionRoles(this));
@@ -69,8 +69,8 @@ namespace granada{
       }
 
 
-      std::once_flag MapSessionHandler::properties_flag_;
-      std::once_flag MapSessionHandler::clean_sessions_flag_;
+      granada::util::mutex::call_once MapSessionHandler::load_properties_call_once_;
+      granada::util::mutex::call_once MapSessionHandler::clean_session_call_once_;
       std::unique_ptr<granada::cache::CacheHandler> MapSessionHandler::cache_(new granada::cache::SharedMapCacheDriver());
       std::unique_ptr<granada::crypto::NonceGenerator> MapSessionHandler::nonce_generator_(new granada::crypto::CPPRESTNonceGenerator());
       std::unique_ptr<granada::http::session::SessionFactory> MapSessionHandler::factory_(new granada::http::session::MapSessionFactory());

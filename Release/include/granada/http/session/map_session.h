@@ -26,6 +26,7 @@
   */
 
 #pragma once
+#include "granada/util/mutex.h"
 #include "session.h"
 #include "granada/cache/shared_map_cache_driver.h"
 
@@ -127,9 +128,9 @@ namespace granada{
 
 
           /**
-           * Once flag for properties loading.
+           * Used for loading the properties only once.
            */
-          static std::once_flag properties_flag_;
+          static granada::util::mutex::call_once load_properties_call_once_;
 
 
           /**
@@ -179,12 +180,12 @@ namespace granada{
            * session cleaner once per all the MapSessions.
            */
           MapSessionHandler(){
-            std::call_once(MapSessionHandler::properties_flag_, [this](){
+            MapSessionHandler::load_properties_call_once_.call([this](){
               this->LoadProperties();
             });
 
             // thread for cleaning the sessions.
-            std::call_once(MapSessionHandler::clean_sessions_flag_, [this](){
+            MapSessionHandler::clean_session_call_once_.call([this](){
               if (clean_sessions_frequency()>-1){
                 pplx::create_task([this]{
                   this->CleanSessions(true);
@@ -233,16 +234,15 @@ namespace granada{
           
 
           /**
-           * Once flag for properties loading.
+           * Used for loading the properties only once.
            */
-          static std::once_flag properties_flag_;
+          static granada::util::mutex::call_once load_properties_call_once_;
 
 
           /**
-           * Once flag for calling clean sessions function only
-           * once.
+           * Used for calling clean sessions function only once.
            */
-          static std::once_flag clean_sessions_flag_;
+          static granada::util::mutex::call_once clean_session_call_once_;
 
 
           /**

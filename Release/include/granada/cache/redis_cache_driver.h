@@ -31,6 +31,7 @@
 
 #include <string>
 #include "granada/defaults.h"
+#include "granada/util/mutex.h"
 #include "granada/util/application.h"
 #include "cache_handler.h"
 #include "redisclient/redissyncclient.h"
@@ -67,11 +68,10 @@ namespace granada{
 
       private:
 
-
         /**
-         * Once flag for properties loading.
+         * Used for loading the properties only once.
          */
-        static std::once_flag properties_flag_;
+        static granada::util::mutex::call_once load_properties_call_once_;
 
 
         /**

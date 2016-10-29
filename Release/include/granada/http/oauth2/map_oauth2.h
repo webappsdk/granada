@@ -29,6 +29,7 @@
   */
 
 #pragma once
+#include "granada/util/mutex.h"
 #include "granada/http/oauth2/oauth2.h"
 #include "granada/cache/shared_map_cache_driver.h"
 #include "granada/crypto/nonce_generator.h"
@@ -47,7 +48,7 @@ namespace granada{
            * Initialize nonce generator and load properties.
            */
           MapOAuth2Client(){
-            std::call_once(MapOAuth2Client::properties_flag_, [this](){
+            MapOAuth2Client::load_properties_call_once_.call([this](){
               this->LoadProperties();
             });
           };
@@ -58,7 +59,7 @@ namespace granada{
            * Initialize nonce generator, load properties and load client with the given id.
            */
           MapOAuth2Client(const std::string& id){
-            std::call_once(MapOAuth2Client::properties_flag_, [this](){
+            MapOAuth2Client::load_properties_call_once_.call([this](){
               this->LoadProperties();
             });
             id_ = id;
@@ -84,9 +85,9 @@ namespace granada{
         private:
 
           /**
-           * Once flag for loading properties only once.
+           * Used for loading the properties only once.
            */
-          static std::once_flag properties_flag_;
+          static granada::util::mutex::call_once load_properties_call_once_;
 
 
           /**
@@ -116,7 +117,7 @@ namespace granada{
            * Initialize nonce generator and load properties.
            */
           MapOAuth2User(){
-            std::call_once(MapOAuth2User::properties_flag_, [this](){
+            MapOAuth2User::load_properties_call_once_.call([this](){
               this->LoadProperties();
             });
           };
@@ -127,7 +128,7 @@ namespace granada{
            * Initialize nonce generator, load properties and load user with the given username.
            */
           MapOAuth2User(const std::string& username){
-            std::call_once(MapOAuth2User::properties_flag_, [this](){
+            MapOAuth2User::load_properties_call_once_.call([this](){
               this->LoadProperties();
             });
             username_ = username;
@@ -154,9 +155,9 @@ namespace granada{
         private:
 
           /**
-           * Once flag for loading properties only once.
+           * Used for loading the properties only once.
            */
-          static std::once_flag properties_flag_;
+          static granada::util::mutex::call_once load_properties_call_once_;
 
 
           /**
@@ -186,7 +187,7 @@ namespace granada{
            * Initialize nonce generator and load properties.
            */
           MapOAuth2Code(){
-            std::call_once(MapOAuth2Code::properties_flag_, [this](){
+            MapOAuth2Code::load_properties_call_once_.call([this](){
               this->LoadProperties();
             });
           };
@@ -197,7 +198,7 @@ namespace granada{
            * Initialize nonce generator, load properties and load code with the given code.
            */
           MapOAuth2Code(const std::string& code){
-            std::call_once(MapOAuth2Code::properties_flag_, [this](){
+            MapOAuth2Code::load_properties_call_once_.call([this](){
               this->LoadProperties();
             });
             code_ = code;
@@ -223,9 +224,9 @@ namespace granada{
         private:
 
           /**
-           * Once flag for loading properties only once.
+           * Used for loading the properties only once.
            */
-          static std::once_flag properties_flag_;
+          static granada::util::mutex::call_once load_properties_call_once_;
 
 
           /**
@@ -252,7 +253,7 @@ namespace granada{
         public:
 
           MapOAuth2Authorization(){
-            std::call_once(MapOAuth2Authorization::properties_flag_, [this](){
+            MapOAuth2Authorization::load_properties_call_once_.call([this](){
               this->LoadProperties();
             });
           };
@@ -262,7 +263,7 @@ namespace granada{
                                     granada::http::session::SessionFactory* session_factory){
             oauth2_parameters_ = oauth2_parameters;
             session_factory_ = session_factory;
-            std::call_once(MapOAuth2Authorization::properties_flag_, [this](){
+            MapOAuth2Authorization::load_properties_call_once_.call([this](){
               this->LoadProperties();
             });
           };
@@ -283,9 +284,9 @@ namespace granada{
         private:
 
           /**
-           * Once flag for loading properties only once.
+           * Used for loading the properties only once.
            */
-          static std::once_flag properties_flag_;
+          static granada::util::mutex::call_once load_properties_call_once_;
 
 
           /**

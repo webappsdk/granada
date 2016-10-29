@@ -29,13 +29,13 @@ namespace granada{
   namespace http{
     namespace session{
 
-      std::once_flag RedisSession::properties_flag_;
+      granada::util::mutex::call_once RedisSession::load_properties_call_once_;
       std::unique_ptr<granada::http::session::SessionHandler> RedisSession::session_handler_(new granada::http::session::RedisSessionHandler());
       std::unique_ptr<granada::Functions> RedisSession::close_callbacks_(new granada::FunctionsMap());
 
 
       RedisSession::RedisSession(){
-        std::call_once(RedisSession::properties_flag_, [this](){
+        RedisSession::load_properties_call_once_.call([this](){
           this->LoadProperties();
         });
         roles_ = std::unique_ptr<granada::http::session::SessionRoles>(new granada::http::session::RedisSessionRoles(this));
@@ -43,7 +43,7 @@ namespace granada{
 
 
       RedisSession::RedisSession(const web::http::http_request &request,web::http::http_response &response){
-        std::call_once(RedisSession::properties_flag_, [this](){
+        RedisSession::load_properties_call_once_.call([this](){
           this->LoadProperties();
         });
         roles_ = std::unique_ptr<granada::http::session::SessionRoles>(new granada::http::session::RedisSessionRoles(this));
@@ -52,7 +52,7 @@ namespace granada{
 
 
       RedisSession::RedisSession(const web::http::http_request &request){
-        std::call_once(RedisSession::properties_flag_, [this](){
+        RedisSession::load_properties_call_once_.call([this](){
           this->LoadProperties();
         });
         roles_ = std::unique_ptr<granada::http::session::SessionRoles>(new granada::http::session::RedisSessionRoles(this));
@@ -61,15 +61,16 @@ namespace granada{
 
 
       RedisSession::RedisSession(const std::string& token){
-        std::call_once(RedisSession::properties_flag_, [this](){
+        RedisSession::load_properties_call_once_.call([this](){
           this->LoadProperties();
         });
         roles_ = std::unique_ptr<granada::http::session::SessionRoles>(new granada::http::session::RedisSessionRoles(this));
         Session::LoadSession(token);
       }
 
-      std::once_flag RedisSessionHandler::properties_flag_;
-      std::once_flag RedisSessionHandler::clean_sessions_flag_;
+
+      granada::util::mutex::call_once RedisSessionHandler::load_properties_call_once_;
+      granada::util::mutex::call_once RedisSessionHandler::clean_session_call_once_;
       std::unique_ptr<granada::cache::CacheHandler> RedisSessionHandler::cache_(new granada::cache::RedisCacheDriver());
       std::unique_ptr<granada::crypto::NonceGenerator> RedisSessionHandler::nonce_generator_(new granada::crypto::CPPRESTNonceGenerator());
       std::unique_ptr<granada::http::session::SessionFactory> RedisSessionHandler::factory_(new granada::http::session::RedisSessionFactory());

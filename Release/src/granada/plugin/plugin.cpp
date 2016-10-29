@@ -38,8 +38,8 @@ namespace granada{
     int PluginHandler::RUNNER_USE_FREQUENCY_LIMIT_ = 0;
     unsigned long long PluginHandler::uid_ = 0;
     std::mutex PluginHandler::uid_mtx_;
-    std::once_flag PluginHandler::properties_flag_;
-    std::once_flag PluginHandler::functions_to_runner_flag_;
+    granada::util::mutex::call_once PluginHandler::load_properties_call_once_;
+    granada::util::mutex::call_once PluginHandler::functions_to_runner_call_once_;
 //
 ////
 
@@ -1901,7 +1901,7 @@ namespace granada{
     }
 
 
-    std::once_flag Plugin::properties_flag_;
+    granada::util::mutex::call_once Plugin::load_properties_call_once_;
 
 
     bool Plugin::Exists(){

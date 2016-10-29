@@ -159,9 +159,9 @@ namespace granada{
 
       web::json::value Session::to_json(){
         web::json::value json = web::json::value::object();
-		json[utility::conversions::to_string_t(entity_keys::session_token)] = web::json::value::string(utility::conversions::to_string_t(token_));
-		json[utility::conversions::to_string_t(entity_keys::session_json_update_time)] = web::json::value::string(utility::conversions::to_string_t(granada::util::time::stringify(GetUpdateTime())));
-		json[utility::conversions::to_string_t(entity_keys::session_timeout)] = web::json::value::string(utility::conversions::to_string_t(granada::util::time::stringify(GetSessionTimeout())));
+    		json[utility::conversions::to_string_t(entity_keys::session_token)] = web::json::value::string(utility::conversions::to_string_t(token_));
+    		json[utility::conversions::to_string_t(entity_keys::session_json_update_time)] = web::json::value::string(utility::conversions::to_string_t(granada::util::time::stringify(GetUpdateTime())));
+    		json[utility::conversions::to_string_t(entity_keys::session_timeout)] = web::json::value::string(utility::conversions::to_string_t(granada::util::time::stringify(GetSessionTimeout())));
         return json;
       }
 

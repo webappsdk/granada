@@ -27,6 +27,7 @@
   */
 
 #pragma once
+#include "granada/util/mutex.h"
 #include "granada/cache/redis_cache_driver.h"
 #include "session.h"
 
@@ -126,9 +127,9 @@ namespace granada{
 
 
           /**
-           * Once flag for properties loading.
+           * Used for loading the properties only once.
            */
-          static std::once_flag properties_flag_;
+          static granada::util::mutex::call_once load_properties_call_once_;
 
 
           /**
@@ -178,12 +179,12 @@ namespace granada{
            * session cleaner once per all the RedisSessions.
            */
           RedisSessionHandler(){
-            std::call_once(RedisSessionHandler::properties_flag_, [this](){
+            RedisSessionHandler::load_properties_call_once_.call([this](){
               this->LoadProperties();
             });
 
             // thread for cleaning the sessions.
-            std::call_once(RedisSessionHandler::clean_sessions_flag_, [this](){
+            RedisSessionHandler::clean_session_call_once_.call([this](){
               if (clean_sessions_frequency()>-1){
                 pplx::create_task([this]{
                   this->CleanSessions(true);
@@ -230,16 +231,15 @@ namespace granada{
 
 
           /**
-           * Once flag for properties loading.
+           * Used for loading the properties only once.
            */
-          static std::once_flag properties_flag_;
+          static granada::util::mutex::call_once load_properties_call_once_;
 
 
           /**
-           * Once flag for calling clean sessions function only
-           * once.
+           * Used for calling clean sessions function only once.
            */
-          static std::once_flag clean_sessions_flag_;
+          static granada::util::mutex::call_once clean_session_call_once_;
 
 
           /**

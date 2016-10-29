@@ -31,22 +31,22 @@ namespace granada{
 
     namespace oauth2{
       
-      std::once_flag MapOAuth2Client::properties_flag_;
+      granada::util::mutex::call_once MapOAuth2Client::load_properties_call_once_;
       std::unique_ptr<granada::cache::CacheHandler> MapOAuth2Client::cache_(new granada::cache::SharedMapCacheDriver());
       std::unique_ptr<granada::crypto::Cryptograph> MapOAuth2Client::cryptograph_(new granada::crypto::OpensslAESCryptograph());
       std::unique_ptr<granada::crypto::NonceGenerator> MapOAuth2Client::n_generator_(new granada::crypto::CPPRESTNonceGenerator());
 
-      std::once_flag MapOAuth2User::properties_flag_;
+      granada::util::mutex::call_once MapOAuth2User::load_properties_call_once_;
       std::unique_ptr<granada::cache::CacheHandler> MapOAuth2User::cache_(new granada::cache::SharedMapCacheDriver());
       std::unique_ptr<granada::crypto::Cryptograph> MapOAuth2User::cryptograph_(new granada::crypto::OpensslAESCryptograph());
       std::unique_ptr<granada::crypto::NonceGenerator> MapOAuth2User::n_generator_(new granada::crypto::CPPRESTNonceGenerator());
 
-      std::once_flag MapOAuth2Code::properties_flag_;
+      granada::util::mutex::call_once MapOAuth2Code::load_properties_call_once_;
       std::unique_ptr<granada::cache::CacheHandler> MapOAuth2Code::cache_(new granada::cache::SharedMapCacheDriver());
       std::unique_ptr<granada::crypto::Cryptograph> MapOAuth2Code::cryptograph_(new granada::crypto::OpensslAESCryptograph());
       std::unique_ptr<granada::crypto::NonceGenerator> MapOAuth2Code::n_generator_(new granada::crypto::CPPRESTNonceGenerator());
 
-      std::once_flag MapOAuth2Authorization::properties_flag_;
+      granada::util::mutex::call_once MapOAuth2Authorization::load_properties_call_once_;
       std::unique_ptr<granada::http::oauth2::OAuth2Factory> MapOAuth2Authorization::oauth2_factory_(new granada::http::oauth2::MapOAuth2Factory());
       std::unique_ptr<granada::cache::CacheHandler> MapOAuth2Authorization::cache_(new granada::cache::SharedMapCacheDriver());
     }

@@ -37,6 +37,7 @@
 #include "cpprest/json.h"
 #include "boost/filesystem.hpp"
 #include "granada/defaults.h"
+#include "granada/util/mutex.h"
 #include "granada/util/memory.h"
 #include "granada/util/string.h"
 #include "granada/util/vector.h"
@@ -1128,17 +1129,15 @@ namespace granada{
         
 
         /**
-         * Once flag for properties loading.
+         * Used for loading the properties only once.
          */
-        static std::once_flag properties_flag_;
+        static granada::util::mutex::call_once load_properties_call_once_;
 
 
         /**
-         * Once flag used to set the functions that can be
-         * called from the plug-ins when they are running
-         * only once.
+         * Used for setting the runner's functions only once.
          */
-        static std::once_flag functions_to_runner_flag_;
+        static granada::util::mutex::call_once functions_to_runner_call_once_;
         
 
         /**
@@ -1509,10 +1508,9 @@ namespace granada{
       protected:
 
         /**
-         * Once flag used for loading plug-in properties
-         * only once.
+         * Used for loading the properties only once.
          */
-        static std::once_flag properties_flag_;
+        static granada::util::mutex::call_once load_properties_call_once_;
 
 
         /**

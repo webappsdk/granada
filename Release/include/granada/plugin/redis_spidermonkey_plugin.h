@@ -110,7 +110,7 @@ namespace granada{
          * Load Plug-in Handler properties.
          */
         RedisSpidermonkeyPluginHandler(){
-          std::call_once(PluginHandler::properties_flag_, [this](){
+          RedisSpidermonkeyPluginHandler::load_properties_call_once_.call([this](){
             this->LoadProperties();
           });
         };
@@ -125,10 +125,10 @@ namespace granada{
          */
         RedisSpidermonkeyPluginHandler(const std::string id){
           id_ = std::move(id);
-          std::call_once(PluginHandler::properties_flag_, [this](){
+          RedisSpidermonkeyPluginHandler::load_properties_call_once_.call([this](){
             this->LoadProperties();
           });
-          std::call_once(PluginHandler::functions_to_runner_flag_,[this](){
+          RedisSpidermonkeyPluginHandler::functions_to_runner_call_once_.call([this](){
             this->AddFunctionsToRunner();
           });
         };
@@ -206,7 +206,7 @@ namespace granada{
          * Constructor, load plug-in properties.
          */
         RedisSpidermonkeyPlugin(){
-          std::call_once(Plugin::properties_flag_, [this](){
+          RedisSpidermonkeyPlugin::load_properties_call_once_.call([this](){
             this->LoadProperties();
           });
         };
@@ -222,7 +222,7 @@ namespace granada{
         RedisSpidermonkeyPlugin(granada::plugin::PluginHandler* plugin_handler,const std::string id){
           plugin_handler_ = plugin_handler;
           id_ = std::move(id);
-          std::call_once(Plugin::properties_flag_, [this](){
+          RedisSpidermonkeyPlugin::load_properties_call_once_.call([this](){
             this->LoadProperties();
           });
         };
@@ -284,7 +284,7 @@ namespace granada{
           configuration_ = std::move(configuration);
           plugin_handler_ = plugin_handler;
           script_ = std::move(script);
-          std::call_once(properties_flag_, [this](){
+          RedisSpidermonkeyPlugin::load_properties_call_once_.call([this](){
             this->LoadProperties();
           });
         };

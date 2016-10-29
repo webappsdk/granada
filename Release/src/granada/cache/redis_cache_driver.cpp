@@ -29,13 +29,15 @@
 namespace granada{
   namespace cache{
 
-    std::once_flag RedisSyncClientWrapper::properties_flag_;
     std::string RedisSyncClientWrapper::redis_address_;
     unsigned short RedisSyncClientWrapper::redis_port_;
+    granada::util::mutex::call_once RedisSyncClientWrapper::load_properties_call_once_;
 
     RedisSyncClientWrapper::RedisSyncClientWrapper(){
 
-      std::call_once(RedisSyncClientWrapper::properties_flag_, [this](){
+      // load properties only once, and wait all the
+      // threads until they are loaded.
+      load_properties_call_once_.call([this](){
         this->LoadProperties();
       });
 

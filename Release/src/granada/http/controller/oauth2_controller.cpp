@@ -34,7 +34,7 @@ namespace granada{
   namespace http{
     namespace controller{
 
-      std::once_flag OAuth2Controller::properties_flag_;
+      granada::util::mutex::call_once OAuth2Controller::load_properties_call_once_;
       std::string OAuth2Controller::oauth2_authorize_uri_;
       std::string OAuth2Controller::oauth2_logout_uri_;
       std::string OAuth2Controller::oauth2_info_uri_;
@@ -55,7 +55,7 @@ namespace granada{
         session_factory_ = session_factory;
         oauth2_factory_ = oauth2_factory;
         url_ = url;
-        std::call_once(OAuth2Controller::properties_flag_, [this](){
+        OAuth2Controller::load_properties_call_once_.call([this](){
           this->LoadProperties();
         });
       }

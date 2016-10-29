@@ -36,14 +36,14 @@ namespace granada{
       std::string PluginController::PUBLICFILES_DIRECTORY_;
       std::string PluginController::USERFILES_DIRECTORY_;
 
-      std::once_flag PluginController::properties_flag_;
+      granada::util::mutex::call_once PluginController::load_properties_call_once_;
 
       PluginController::PluginController(utility::string_t url,std::shared_ptr<granada::http::session::SessionFactory> session_factory, std::shared_ptr<granada::plugin::PluginFactory> plugin_factory){
         m_listener_ = std::unique_ptr<http_listener>(new http_listener(url));
         m_listener_->support(methods::POST, std::bind(&PluginController::handle_post, this, std::placeholders::_1));
         session_factory_ = std::move(session_factory);
         plugin_factory_ = std::move(plugin_factory);
-        std::call_once(PluginController::properties_flag_, [this](){
+        PluginController::load_properties_call_once_.call([this](){
           this->LoadProperties();
         });
       }

@@ -7,6 +7,7 @@ add_executable(sessions-get-and-post
   ${GRANADA_SOURCE_DIR}/defaults.cpp
   ${GRANADA_SOURCE_DIR}/functions.cpp
   ${GRANADA_SOURCE_DIR}/util/file.cpp
+  ${GRANADA_SOURCE_DIR}/util/application.cpp
   ${GRANADA_SOURCE_DIR}/http/parser.cpp
   ${GRANADA_SOURCE_DIR}/crypto/nonce_generator.cpp
   ${GRANADA_SOURCE_DIR}/cache/web_resource_cache.cpp

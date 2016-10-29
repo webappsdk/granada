@@ -35,35 +35,35 @@ namespace granada {
     namespace mutex{
       class call_once{
         public:
-		  call_once(){};
-
           void call(std::function<void(void)> fn){
             std::call_once(of_, [&]{
               {
-				if (mtx_ == nullptr){
-					mtx_ = granada::util::memory::make_unique<std::mutex>();
-				}
+                if (mtx_ == nullptr){
+                  mtx_ = granada::util::memory::make_unique<std::mutex>();
+                }
                 std::lock_guard<std::mutex> lg(*mtx_);
                 fn();
                 fn_called_ = true;
               }
-			  if (cv_ == nullptr){
-				cv_ = granada::util::memory::make_unique<std::condition_variable>();
-			  }
+            if (cv_ == nullptr){
+              cv_ = granada::util::memory::make_unique<std::condition_variable>();
+            }
               cv_->notify_all();
             });
 
             // wait until properties are loaded.
+            while (mtx_==nullptr);
             std::unique_lock<std::mutex> ul(*mtx_);
+            while (cv_==nullptr);
             cv_->wait(ul, [this]{ return fn_called_; });
           };
 
         private:
 
-		 /**
-		  * Once flag.
-		  */
-		  std::once_flag of_;
+     /**
+      * Once flag.
+      */
+      std::once_flag of_;
 
 
           /**
@@ -82,7 +82,7 @@ namespace granada {
            * Used to block all threads until function is
            * executed.
            */
-		  std::unique_ptr<std::condition_variable> cv_;
+          std::unique_ptr<std::condition_variable> cv_;
       };
     }
   }

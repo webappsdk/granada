@@ -7,7 +7,6 @@ add_executable(sessions-login-and-cart
   ${GRANADA_SOURCE_DIR}/defaults.cpp
   ${GRANADA_SOURCE_DIR}/functions.cpp
   ${GRANADA_SOURCE_DIR}/util/file.cpp
-  ${GRANADA_SOURCE_DIR}/util/application.cpp
   ${GRANADA_SOURCE_DIR}/http/parser.cpp
   ${GRANADA_SOURCE_DIR}/crypto/nonce_generator.cpp
   ${GRANADA_SOURCE_DIR}/http/session/session.cpp

@@ -7,7 +7,6 @@ add_executable(oauth2-server
   ${GRANADA_SOURCE_DIR}/defaults.cpp
   ${GRANADA_SOURCE_DIR}/functions.cpp
   ${GRANADA_SOURCE_DIR}/util/file.cpp
-  ${GRANADA_SOURCE_DIR}/util/application.cpp
   ${GRANADA_SOURCE_DIR}/http/parser.cpp
   ${GRANADA_SOURCE_DIR}/http/http_msg.cpp
   ${GRANADA_SOURCE_DIR}/http/oauth2/oauth2.cpp
@@ -31,7 +30,6 @@ add_executable(redis-oauth2-server
   ${GRANADA_SOURCE_DIR}/defaults.cpp
   ${GRANADA_SOURCE_DIR}/functions.cpp
   ${GRANADA_SOURCE_DIR}/util/file.cpp
-  ${GRANADA_SOURCE_DIR}/util/application.cpp
   ${GRANADA_SOURCE_DIR}/http/parser.cpp
   ${GRANADA_SOURCE_DIR}/http/http_msg.cpp
   ${GRANADA_SOURCE_DIR}/http/oauth2/oauth2.cpp

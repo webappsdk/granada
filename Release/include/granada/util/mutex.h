@@ -21,6 +21,8 @@
   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   * SOFTWARE.
   *
+  * Utils for protecting areas shared by multiple threads. 
+  * 
   */
 
 #pragma once
@@ -33,8 +35,20 @@
 namespace granada {
   namespace util {
     namespace mutex{
+
+      /**
+       * Calls a function once and keeps other threads sharing the
+       * call_once object waiting until the function has finished.
+       */
       class call_once{
         public:
+
+          /**
+           * Calls a function once and keeps other threads waiting
+           * until the function has finished.
+           * 
+           * @param fn  Function to call once.
+           */
           void call(std::function<void(void)> fn){
             std::call_once(of_, [&]{
               {
@@ -51,7 +65,7 @@ namespace granada {
               cv_->notify_all();
             });
 
-            // wait until properties are loaded.
+            // wait threads until function is finished.
             while (mtx_==nullptr);
             std::unique_lock<std::mutex> ul(*mtx_);
             while (cv_==nullptr);

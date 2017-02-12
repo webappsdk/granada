@@ -184,11 +184,11 @@ namespace granada{
             });
 
             // thread for cleaning the sessions.
-            RedisSessionHandler::clean_session_call_once_.call([this](){
+            RedisSessionHandler::clean_sessions_call_once_.call([this](){
               if (clean_sessions_frequency()>-1){
-                pplx::create_task([this]{
-                  this->CleanSessions(true);
-                });
+                RedisSessionHandler::clean_sessions_timer_.set([this]{
+                  CleanSessions();
+                },clean_sessions_frequency());
               }
             });
           };
@@ -239,7 +239,13 @@ namespace granada{
           /**
            * Used for calling clean sessions function only once.
            */
-          static granada::util::mutex::call_once clean_session_call_once_;
+          static granada::util::mutex::call_once clean_sessions_call_once_;
+
+
+          /**
+           * Timer for calling CleanSessions function each n seconds.
+           */
+          static granada::util::time::timer clean_sessions_timer_;
 
 
           /**

@@ -656,15 +656,6 @@ namespace granada{
 
 
           /**
-           * Clean session function but optionaly recursive each
-           * x seconds, with x equal to the value given in the
-           * "session_clean_frequency" property.
-           * @param recursive true if recursive, false if not.
-           */
-          virtual void CleanSessions(bool recursive);
-
-
-          /**
            * Returns a pointer to the cache handler used to store the sessions data.
            * @return Pointer to the cache handler used to store the sessions data.
            */

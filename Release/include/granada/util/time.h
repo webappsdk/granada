@@ -25,6 +25,7 @@
   */
 
 #pragma once
+#include <atomic>
 #include <thread>
 #include <string>
 #include <sstream>
@@ -51,7 +52,7 @@ namespace granada{
         }catch(const std::logic_error e){
           return 0;
         }
-      }
+      };
 
 
       /**
@@ -63,7 +64,7 @@ namespace granada{
         std::stringstream ss;
         ss << _time;
         return ss.str();
-      }
+      };
 
 
       /**
@@ -84,7 +85,7 @@ namespace granada{
           }
         }
         return false;
-      }
+      };
 
 
       /**
@@ -97,7 +98,7 @@ namespace granada{
        */
       static inline bool is_timedout(const std::time_t& _time, const long int& timeout){
         return granada::util::time::is_timedout(_time,timeout,0);
-      }
+      };
 
 
       /**
@@ -108,7 +109,7 @@ namespace granada{
         timeb tb;
         ftime(&tb);
         return tb.millitm + (tb.time & 0xfffff) * 1000;
-      }
+      };
 
 
       /**
@@ -123,7 +124,7 @@ namespace granada{
           span += 0x100000 * 1000;
         }
         return span;
-      }
+      };
 
       /**
        * Stops thread n given seconds.
@@ -132,7 +133,7 @@ namespace granada{
        */
       static inline void sleep_seconds(int seconds){
         std::this_thread::sleep_for(std::chrono::seconds(seconds));
-      }
+      };
 
 
       /**
@@ -142,7 +143,95 @@ namespace granada{
        */
       static inline void sleep_milliseconds(int milliseconds){
         std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
-      }
+      };
+
+
+      /**
+       * Calls a function in a separate thread each n milliseconds or seconds.
+       */
+      class timer{
+        public:
+          timer(){};
+
+          /**
+           * Constructor
+           * 
+           * @param   fn    Function to call.
+           * @param   num   Number of seconds or milliseconds to wait between
+           *                each function call.
+           * @param   unit  Optional. "s" by default. "s" if num is in seconds
+           *                and ms if it is in milliseconds.
+           */
+          timer(std::function<void(void)> fn,int num,const std::string unit = "s"){
+            set(std::move(fn),std::move(num),std::move(unit));
+          };
+
+
+          /**
+           * Sets new parameters for timer.
+           * 
+           * @param   fn    Function to call.
+           * @param   num   Number of seconds or milliseconds to wait between
+           *                each function call.
+           * @param   unit  Optional. "s" by default. "s" if num is in seconds
+           *                and ms if it is in milliseconds.
+           */
+          void set(std::function<void(void)> fn,int num,const std::string unit = "s"){
+            if (num>-1){
+              loop_ = true;
+              if (unit == "s"){
+                num_ = num*1000;
+              }else{
+                num_ = std::move(num);
+              }
+              pplx::create_task([this,fn]{
+                recursive(fn);
+              });
+            }
+          };
+
+
+          /**
+           * Stops the timer
+           */
+          void stop(){
+            loop_ = false;
+          };
+
+        private:
+
+          /**
+           * Number of seconds or milliseconds to wait between
+           * each function call.
+           */
+          std::atomic_int num_;
+
+          /**
+           * If true calls the function in loop, waiting
+           * a number of seconds or milliseconds between
+           * each call. Function "stop" can be called to
+           * break the loop.
+           */
+          std::atomic_bool loop_;
+
+
+          /**
+           * Calls a function recursively
+           * 
+           * @param fn Function to call.
+           */
+          void recursive(std::function<void(void)> fn){
+            granada::util::time::sleep_milliseconds(num_);
+            fn();
+            if (loop_){
+              recursive(fn);
+            }
+          };
+
+
+      };
+
+
     }
   }
 }

@@ -70,7 +70,8 @@ namespace granada{
 
 
       granada::util::mutex::call_once MapSessionHandler::load_properties_call_once_;
-      granada::util::mutex::call_once MapSessionHandler::clean_session_call_once_;
+      granada::util::mutex::call_once MapSessionHandler::clean_sessions_call_once_;
+      granada::util::time::timer MapSessionHandler::clean_sessions_timer_;
       std::unique_ptr<granada::cache::CacheHandler> MapSessionHandler::cache_(new granada::cache::SharedMapCacheDriver());
       std::unique_ptr<granada::crypto::NonceGenerator> MapSessionHandler::nonce_generator_(new granada::crypto::CPPRESTNonceGenerator());
       std::unique_ptr<granada::http::session::SessionFactory> MapSessionHandler::factory_(new granada::http::session::MapSessionFactory());

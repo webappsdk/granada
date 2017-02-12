@@ -70,7 +70,8 @@ namespace granada{
 
 
       granada::util::mutex::call_once RedisSessionHandler::load_properties_call_once_;
-      granada::util::mutex::call_once RedisSessionHandler::clean_session_call_once_;
+      granada::util::mutex::call_once RedisSessionHandler::clean_sessions_call_once_;
+      granada::util::time::timer RedisSessionHandler::clean_sessions_timer_;
       std::unique_ptr<granada::cache::CacheHandler> RedisSessionHandler::cache_(new granada::cache::RedisCacheDriver());
       std::unique_ptr<granada::crypto::NonceGenerator> RedisSessionHandler::nonce_generator_(new granada::crypto::CPPRESTNonceGenerator());
       std::unique_ptr<granada::http::session::SessionFactory> RedisSessionHandler::factory_(new granada::http::session::RedisSessionFactory());

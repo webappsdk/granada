@@ -388,19 +388,6 @@ namespace granada{
       }
 
 
-      void SessionHandler::CleanSessions(bool recursive){
-        if (clean_sessions_frequency()>-1){
-          granada::util::time::sleep_seconds(clean_sessions_frequency());
-          CleanSessions();
-          
-          // ... and clean sessions again.
-          CleanSessions(true);
-        }else{
-          CleanSessions();
-        }
-      }
-
-
       void SessionHandler::LoadProperties(){
         const std::string& clean_sessions_frequency_str(granada::util::application::GetProperty(entity_keys::session_clean_frequency));
         if (clean_sessions_frequency_str.empty()){

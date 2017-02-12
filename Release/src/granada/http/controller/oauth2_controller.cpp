@@ -178,7 +178,7 @@ namespace granada{
 		if (!paths.empty() && paths.size() == 1 && utility::conversions::to_utf8string(paths[0]) == oauth2_authorize_uri_){
 
           // extract data from the HTTP request.
-			const std::string& body = utility::conversions::to_utf8string(request.extract_string().get());
+          const std::string& body = utility::conversions::to_utf8string(request.extract_string().get());
 
           // oauth2 parameters obtained from HTTP request body.
           granada::http::oauth2::OAuth2Parameters oauth2_parameters(body);

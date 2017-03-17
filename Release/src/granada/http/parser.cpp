@@ -170,6 +170,7 @@ namespace granada{
         auto it = std::search(properties.begin(), properties.end(), delimiter.c_str(), delimiter.c_str() + delimiter_length);
 
         // remove name of the property from properties vector.
+	std::string property_name(properties.begin(), it);
         properties.erase(properties.begin(),it+delimiter_length);
 		
         // get the value of the property.
@@ -177,7 +178,7 @@ namespace granada{
 
         std::vector<unsigned char> property_value(properties.begin(), it_end);
 		
-        parsed_properties.insert(std::make_pair(std::string(properties.begin(),it), property_value));
+        parsed_properties.insert(std::make_pair(property_name, property_value));
 		
         // check if there are other properties after the one that has just been parsed, if so return true, if not return false.
     		if (it_end + 1 != properties.end() && it_end + 2 != properties.end() && it_end + 3 != properties.end()){

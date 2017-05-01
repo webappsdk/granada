@@ -85,6 +85,32 @@ namespace granada{
         }
       }
 
+
+      /**
+       * Replace all occurences of a tag in a string by a value.
+       * Example:
+       *      content:
+       *          hello !!! {{date}}
+       *      tag:
+       *          {{date}}
+       *      value:
+       *          "Tuesday, May 17, 2016"
+       *      Result:
+       *          hello !!! Tuesday, May 17, 2016
+       *
+       * @param  content    Content containing the tag to replace.
+       * @param  tag        Tag to be replaced by the value.
+       * @param  value      Value to replace the tag with.
+       */
+      static void replace(std::string& content,const std::string& tag, const std::string& value){
+        size_t pos = 0;
+        while ((pos = content.find(tag, pos)) != std::string::npos) {
+           content.replace(pos, tag.length(), value);
+           pos += value.length();
+        }
+      }
+
+
       /**
        * Replace a map of key tags in a string by a value.
        * Example:

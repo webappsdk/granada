@@ -1,22 +1,23 @@
-# - Find mozjs
-# Find the SpiderMonkey library
+# Find the SpiderMonkey library (mozjs)
 #
 # This module defines
+# MOZJS_INCLUDE_DIR
 # MOZJS_LIBRARY
-# MOZJS_FOUND, if false, do not try to link to nvtt
-# MOZJS_INCLUDE_DIR, where to find the headers
-#
+# MOZJS_FOUND
+
+FILE(GLOB _MOZJS_INCLUDE_DIRS /usr/include/mozjs*)
 
 FIND_PATH(MOZJS_INCLUDE_DIR jsapi.h
   PATHS
   /usr/local
   /usr
+  ${_MOZJS_INCLUDE_DIRS}
   $ENV{MOZJS_DIR}
   PATH_SUFFIXES include include-unix
 )
 
 FIND_LIBRARY(MOZJS_LIBRARY
-  NAMES mozjs
+  NAMES mozjs mozjs-38 mozjs-24 mozjs185
   PATHS
   /usr/local
   /usr

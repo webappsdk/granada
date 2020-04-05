@@ -3,17 +3,17 @@ Granada is a structured layer on top of C++ REST SDK for building server applica
 - Getting started
 	- [Requirements](https://github.com/webappsdk/granada/wiki/Requirements)
 	
-	- [Reference Documentation](https://cookinapps.io/documents/granada/doc/html/annotated.html)
+	- [Reference Documentation](https://github.com/webappsdk/doc/tree/master/granada/html)
 
 	- [Build for Linux and MacOS](https://github.com/webappsdk/granada/wiki/Build-for-Linux-and-MacOS)
 
-- [Proposed standard structure for C++ REST SDK servers](https://cookinapps.io/2016/04/standard-structure-for-c++-rest-sdk-servers/)
+- [Proposed standard structure for C++ REST SDK servers](https://github.com/webappsdk/granada/wiki/Standard-structure-for-CPP-REST-SDK-servers)
 
 - Using granada library
 
-	- [Sessions in C++ REST SDK](https://cookinapps.io/2016/04/c++-rest-sdk-sessions/)
+	- [Sessions in C++ REST SDK](https://github.com/webappsdk/granada/wiki/Sessions-in-CPP-REST-SDK)
 
-	- [OAuth 2.0 server in C++ REST SDK](https://cookinapps.io/2016/06/c++-rest-sdk-oauth-2-0-server/)
+	- [OAuth 2.0 server in C++ REST SDK](https://github.com/webappsdk/granada/wiki/CPP-REST-SDK-OAuth-2.0-server)
 
 	- [Event-Driven C++ Plug-in Framework](https://github.com/webappsdk/granada/wiki/Event-Driven-Cpp-Plug-in-Framework)
 

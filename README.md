@@ -1,4 +1,4 @@
-## Because Microsoft cpprestsdk is in maintenance mode, and they do not recommend its use in new projects this library is no longer maintained. For any questions please contact the author: @alvarofcgm : [https://github.com/alvarofcgm](https://github.com/alvarofcgm)
+## Because Microsoft cpprestsdk is in maintenance mode, and they do not recommend its use in new projects this library is no longer maintained. For any questions please contact the author: @Lvroz Alvaro Fernandez : [https://github.com/Lvroz](https://github.com/Lvroz)
 
 # Granada
 
